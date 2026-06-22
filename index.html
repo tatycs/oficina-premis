@@ -105,6 +105,13 @@
   .verdict{font-family:var(--mono);font-size:12px;padding:10px;border-radius:4px;margin-bottom:10px;font-weight:600;text-align:center}
   .verdict.ok{background:var(--ok);color:#fff}
   .verdict.bad{background:var(--bad);color:#fff}
+  .verdict.warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn)}
+  .vchips{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px;justify-content:center}
+  .vchip{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--ink-soft);background:var(--paper-2)}
+  .vchip.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-bg)}
+  .vchip.bad{background:var(--bad-bg);color:var(--bad);border-color:var(--bad-bg)}
+  .vchip.warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bg)}
+  .vchip.pend,.vchip.info{background:var(--paper-2);color:var(--ink-soft)}
   .import-zone{border:1px dashed var(--ink-soft);border-radius:5px;padding:14px;text-align:center;background:var(--paper-2);margin-bottom:12px}
   .map-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:6px;font-size:12px}
   .map-row .from{font-family:var(--mono);font-size:11px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:5px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -206,7 +213,7 @@
 
     <div class="btn-row">
       <button class="btn amber" id="btnExport">baixar .xml</button>
-      <button class="btn" id="btnXsd">validar contra o XSD</button>
+      <button class="btn" id="btnVerify">verificar integridade</button>
       <button class="btn ghost" id="btnState">salvar trabalho</button>
       <button class="btn ghost" id="btnLoad">abrir trabalho</button>
       <input type="file" id="stateFile" accept=".json" style="display:none">
@@ -766,12 +773,12 @@ function validate(profile){
     const seen = new Map();
     pairs.forEach(p=>{
       if(!has(p.type)||!has(p.value)) return;
-      const key = p.type+' '+p.value;
+      const key = JSON.stringify([p.type, p.value]);
       if(seen.has(key)) seen.get(key).push(p.owner); else seen.set(key,[p.owner]);
     });
     seen.forEach((owners,key)=>{
       if(owners.length>1){
-        const [type,value]=key.split(' ');
+        const [type,value]=JSON.parse(key);
         add('bad','dd',`${label}: identificador duplicado (${type}, ${value}) em ${owners.join(', ')}. Identificadores devem ser únicos no repositório (R2.1).`);
       }
     });
@@ -1444,20 +1451,17 @@ function highlight(xml){return esc(xml).replace(/(&lt;\?[\s\S]*?\?&gt;)/g,'<span
 function renderOutput(){
   document.getElementById('xmlOut').innerHTML=highlight(buildXML(currentProfile));
   const result=validate(currentProfile);
-  const vh=document.getElementById('verdictHost');
   const hasContent=model.objects.length||model.events.length||model.agents.length||model.rights.length;
-  if(!hasContent) vh.innerHTML='';
-  else if(result.blocked) vh.innerHTML=`<div class="verdict bad">✕ não exportável no perfil ${currentProfile==='archivematica'?'Archivematica':'completo'}</div>`;
-  else vh.innerHTML=`<div class="verdict ok">✓ conforme as regras verificadas</div>`;
   const vhost=document.getElementById('valHost');
   if(!hasContent){vhost.innerHTML='<div class="empty">Adicione entidades para ver a validação.</div>';}
   else{
-    let html='<div class="val-head">verificações</div>';
+    let html='<div class="val-head">verificações — camadas 2–3 (dicionário + Archivematica)</div>';
     result.items.forEach(it=>{const ico=it.level==='ok'?'✓':it.level==='bad'?'✕':it.level==='info'?'i':'!';html+=`<div class="val-item ${it.level}"><span class="ico">${ico}</span><span>${it.msg}<span class="vsrc">fonte: ${it.source}</span></span></div>`;});
     vhost.innerHTML=html;
   }
   document.getElementById('btnExport').disabled=result.blocked||!hasContent;
   renderXsd();
+  renderVerdict();
 }
 
 /* ---- import ---- */
@@ -1525,6 +1529,60 @@ async function runXsd(){
   renderXsd(); return xsdState;
 }
 
+/* =================================================================
+   ITEM 5 — verificador de integridade do modelo inteiro (sob demanda):
+   roda as tres camadas juntas, mostra um veredito consolidado por camada
+   e amarra o download a uma verificacao completa e ATUAL do documento.
+   ================================================================= */
+function integrityState(profile){
+  const rules=validate(profile);
+  const xsdFresh = xsdState.forXml===buildXML(profile);
+  const xsdStat = xsdFresh ? xsdState.status : 'stale';
+  let overall;
+  if(rules.blocked) overall='blocked';
+  else if(xsdStat==='invalid') overall='blocked';
+  else if(xsdStat==='valid') overall='ok';
+  else if(xsdStat==='error') overall='xsd-unavailable';
+  else overall='pending';
+  const counts={
+    bad:  rules.items.filter(i=>i.level==='bad').length,
+    warn: rules.items.filter(i=>i.level==='warn').length,
+    info: rules.items.filter(i=>i.level==='info').length,
+  };
+  return {overall, xsdStat, counts};
+}
+function renderVerdict(){
+  const vh=document.getElementById('verdictHost'); if(!vh) return;
+  if(!xsdHasContent()){ vh.innerHTML=''; return; }
+  const profile=currentProfile;
+  const S=integrityState(profile);
+  const pname = profile==='archivematica'?'Archivematica':'completo';
+  const c1 = S.xsdStat==='valid'   ? '<span class="vchip ok">schema XSD ✓</span>'
+           : S.xsdStat==='invalid' ? '<span class="vchip bad">schema XSD ✕</span>'
+           : S.xsdStat==='error'   ? '<span class="vchip warn">schema XSD: indisponível</span>'
+           : S.xsdStat==='running' ? '<span class="vchip pend">schema XSD: validando…</span>'
+           :                          '<span class="vchip pend">schema XSD: não verificado</span>';
+  let c23;
+  if(S.counts.bad>0) c23=`<span class="vchip bad">regras 2–3: ${S.counts.bad} bloqueio(s)</span>`;
+  else if(profile==='archivematica' && S.counts.warn>0) c23=`<span class="vchip warn">regras 2–3: ${S.counts.warn} aviso(s)</span>`;
+  else c23=`<span class="vchip ok">regras 2–3 ✓</span>`;
+  if(S.counts.warn>0 && profile!=='archivematica') c23+=` <span class="vchip warn">${S.counts.warn} aviso(s)</span>`;
+  if(S.counts.info>0) c23+=` <span class="vchip info">${S.counts.info} info</span>`;
+  let big;
+  if(S.overall==='ok') big=`<div class="verdict ok">✓ conforme — camadas 1 · 2 · 3 (perfil ${pname}). Pode baixar.</div>`;
+  else if(S.overall==='blocked') big=`<div class="verdict bad">✕ não exportável (perfil ${pname}) — corrija os itens abaixo e verifique de novo.</div>`;
+  else if(S.overall==='xsd-unavailable') big=`<div class="verdict warn">⚠ regras 2–3 OK; o schema não pôde ser validado neste ambiente (ver detalhe abaixo).</div>`;
+  else big=`<div class="verdict warn">⚠ regras 2–3 OK — falta validar o schema. Clique em <strong>verificar integridade</strong> para liberar o download.</div>`;
+  vh.innerHTML = big + `<div class="vchips">${c1} ${c23}</div>`;
+}
+async function verifyIntegrity(){
+  if(!xsdHasContent()) return {ok:false};
+  await runXsd();         /* camada 1 (as camadas 2-3 sao sincronas e ja estao no painel) */
+  renderOutput();         /* recomputa o veredito consolidado com o XSD recem-validado */
+  const S=integrityState(currentProfile);
+  return {ok:S.overall==='ok', state:S};
+}
+
 function bind(){
   document.querySelectorAll('#entTabs button[data-ent]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('#entTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentEnt=b.dataset.ent;if(inputMode==='form')renderForm();else renderMapping();};});
   document.getElementById('modeForm').onclick=()=>{inputMode='form';document.getElementById('modeForm').classList.add('on');document.getElementById('modeImport').classList.remove('on');document.getElementById('formHost').style.display='';document.getElementById('importHost').style.display='none';renderForm();};
@@ -1532,17 +1590,16 @@ function bind(){
   document.querySelectorAll('.profile-switch button[data-profile]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.profile-switch button[data-profile]').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentProfile=b.dataset.profile;renderOutput();};});
   document.getElementById('btnExport').onclick=async ()=>{
     const profile=currentProfile;
-    if(validate(profile).blocked){ renderOutput(); return; }          /* camadas 2/3 (já gatam o botão) */
     const fn=profile==='archivematica'?'premis.xml':'premis-completo.xml';
     const xml=buildXML(profile);
-    const st=await runXsd();                                           /* camada 1 — XSD real */
-    if(st && st.status==='valid'){ download(fn,xml,'application/xml'); }
-    else if(st && st.status==='error'){
+    const res=await verifyIntegrity();                 /* roda camadas 1·2·3 e atualiza o veredito */
+    if(res.ok){ download(fn,xml,'application/xml'); return; }
+    if(res.state && res.state.xsdStat==='error'){      /* schema não rodou; 2–3 passaram */
       if(confirm('A validação contra o XSD não pôde rodar neste ambiente (as camadas 2 e 3 passaram). Baixar mesmo assim, sem a validação de schema?')) download(fn,xml,'application/xml');
     }
-    /* status==='invalid' → não baixa; os erros de schema ficam no painel */
+    /* senão: relatório mostrado nos painéis; download não acontece */
   };
-  document.getElementById('btnXsd').onclick=()=>runXsd();
+  document.getElementById('btnVerify').onclick=()=>verifyIntegrity();
   document.getElementById('btnState').onclick=()=>{if(currentEnt==='object')syncObj();else if(currentEnt==='event')syncEvt();else if(currentEnt==='rights')syncRgt();else syncAgt();download('oficina-premis-trabalho.json',JSON.stringify({model,lidCounter},null,2),'application/json');};
   document.getElementById('btnLoad').onclick=()=>document.getElementById('stateFile').click();
   document.getElementById('stateFile').onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);Object.assign(model,{objects:[],events:[],agents:[],rights:[],relationships:[]},data.model);lidCounter=data.lidCounter||1;objDraft=mk.object();evtDraft=mk.event();agtDraft=mk.agent();rgtDraft=null;renderForm();renderModel();renderOutput();}catch(err){alert('Arquivo inválido: '+err.message);}};r.readAsText(f);};
