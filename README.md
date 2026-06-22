@@ -57,7 +57,15 @@ O `premis-v3-0.xsd` deste repositório é o arquivo **oficial** da Library of Co
 verificado como estruturalmente idêntico à transcrição usada nas sessões anteriores.
 Método, resultado e como reproduzir: [docs/verificacao-xsd/VERIFICACAO.md](docs/verificacao-xsd/VERIFICACAO.md).
 
-## Licenças de terceiros
+## Licença
 
-`vendor/xmllint-wasm/` é uma porta de libxml2 para WebAssembly, sob licença MIT
-(ver `vendor/xmllint-wasm/COPYING`).
+Distribuído sob a **GNU Affero General Public License v3.0 (AGPL-3.0)** — veja
+[LICENSE](LICENSE). Copyright © 2026 Tatiana Canelhas. Distribuído sem garantia.
+
+Como é uma aplicação que roda em rede (servida pelo GitHub Pages), a AGPL pede que os
+usuários tenham acesso ao código-fonte — ele está em https://github.com/tatycs/oficina-premis.
+
+### Terceiros
+`vendor/xmllint-wasm/` é uma porta de libxml2 para WebAssembly, sob licença **MIT**
+(ver `vendor/xmllint-wasm/COPYING`) — compatível com a AGPL e mantida sob seus próprios termos.
+O `premis-v3-0.xsd` é o schema oficial da Library of Congress (padrão PREMIS).

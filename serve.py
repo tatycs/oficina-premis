@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Oficina PREMIS — Copyright (C) 2026 Tatiana Canelhas — AGPL-3.0 (ver LICENSE).
 """
 Servidor de desenvolvimento da Oficina PREMIS.
 
