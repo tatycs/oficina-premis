@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">
+  <premis:object xsi:type="premis:file">
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>5b2c8d1e-0000-4aaa-bbbb-1234567890ab</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCharacteristics>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>MP3</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>objects/bird.mp3</premis:originalName>
+  </premis:object>
+  <premis:event>
+    <premis:eventIdentifier>
+      <premis:eventIdentifierType>UUID</premis:eventIdentifierType>
+      <premis:eventIdentifierValue>evt-0001</premis:eventIdentifierValue>
+    </premis:eventIdentifier>
+    <premis:eventType>ingestion</premis:eventType>
+    <premis:eventDateTime>2019-07-04T22:46:07+00:00</premis:eventDateTime>
+    <premis:linkingAgentIdentifier>
+      <premis:linkingAgentIdentifierType>repository code</premis:linkingAgentIdentifierType>
+      <premis:linkingAgentIdentifierValue>NRI</premis:linkingAgentIdentifierValue>
+      <premis:linkingAgentRole>executing program</premis:linkingAgentRole>
+    </premis:linkingAgentIdentifier>
+  </premis:event>
+  <premis:agent>
+    <premis:agentIdentifier>
+      <premis:agentIdentifierType>repository code</premis:agentIdentifierType>
+      <premis:agentIdentifierValue>NRI</premis:agentIdentifierValue>
+    </premis:agentIdentifier>
+    <premis:agentName>Not a Real Institution</premis:agentName>
+    <premis:agentType>organization</premis:agentType>
+  </premis:agent>
+</premis:premis>

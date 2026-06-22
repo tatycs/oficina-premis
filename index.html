@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oficina PREMIS — construtor de premis.xml</title>
+<style>
+  :root{
+    --paper:#eceae3; --paper-2:#f5f3ec; --ink:#1b2a36; --ink-soft:#3d5163;
+    --line:#c9c4b6; --amber:#b06a14; --amber-soft:#e9d4af;
+    --ok:#2f6b3f; --ok-bg:#dce9dd; --warn:#8a5a00; --warn-bg:#f0e3c4;
+    --bad:#9c2f2a; --bad-bg:#eed7d4;
+    --mono:'SFMono-Regular',ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,monospace;
+    --sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  header.bench{border-bottom:2px solid var(--ink);padding:18px 26px 14px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--paper-2)}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .brand h1{font-size:21px;margin:0;font-weight:800;letter-spacing:-0.01em}
+  .brand .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);border-radius:2px;padding:2px 7px}
+  .brand .sub{font-size:12.5px;color:var(--ink-soft);font-family:var(--mono)}
+  .flow{display:flex;gap:0;padding:10px 26px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:11.5px;letter-spacing:0.08em;flex-wrap:wrap}
+  .flow .step{display:flex;align-items:center;gap:8px;padding:3px 0;opacity:1}
+  .flow .step .n{border:1px solid var(--paper);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;background:var(--amber);border-color:var(--amber);color:var(--ink)}
+  .flow .arrow{padding:0 14px;opacity:.4}
+  main{display:grid;grid-template-columns:1.15fr 0.85fr 1.0fr;gap:0;min-height:calc(100vh - 116px)}
+  .panel{padding:20px 22px;border-right:1px solid var(--line);overflow:auto;max-height:calc(100vh - 116px)}
+  .panel:last-child{border-right:none}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:0.16em;color:var(--ink-soft);margin:0 0 4px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .panel h2 .idx{font-family:var(--mono);color:var(--amber);font-size:12px}
+  .panel .lede{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;max-width:46ch}
+  .ent-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+  .ent-tabs button{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft);padding:5px 10px;border-radius:3px;cursor:pointer;text-transform:lowercase}
+  .ent-tabs button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .ent-tabs button.phase2{opacity:.5;cursor:not-allowed}
+  .ent-tabs button.phase2::after{content:' · fase 2';font-size:9px;opacity:.7}
+  .block{border:1px solid var(--line);border-radius:5px;margin-bottom:12px;background:var(--paper-2)}
+  .block > .bh{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--line);background:#fff;border-radius:5px 5px 0 0;cursor:pointer}
+  .block > .bh .bt{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;font-weight:700;color:var(--ink)}
+  .block > .bh .req{color:var(--bad);font-weight:800;margin-left:3px}
+  .block > .bh .card-c{font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:10px;border:1px solid var(--line);color:var(--ink-soft);margin-left:6px}
+  .block > .bh .caret{font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+  .block > .bb{padding:10px}
+  .block.collapsed > .bb{display:none}
+  .rep-item{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:0 4px 4px 0;padding:9px 10px;margin-bottom:8px;background:#fff;position:relative}
+  .rep-item .rh{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:0.08em;margin-bottom:6px;display:flex;justify-content:space-between}
+  .rep-item .rm-x{cursor:pointer;border:none;background:none;color:var(--bad);font-weight:700;font-size:13px;line-height:1}
+  .subblock{border:1px dashed var(--line);border-radius:4px;padding:8px;margin-bottom:7px;background:var(--paper-2)}
+  .subblock > .sh{font-family:var(--mono);font-size:9.5px;color:var(--ink-soft);letter-spacing:0.06em;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+  .subblock > .sh .req{color:var(--bad);font-weight:800}
+  .field{margin-bottom:10px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:12px;font-weight:600;margin-bottom:3px}
+  .field label .req{color:var(--bad);font-weight:800;margin-left:2px}
+  .field .src{font-family:var(--mono);font-size:9px;letter-spacing:0.04em;padding:1px 5px;border-radius:2px;margin-left:6px;vertical-align:middle;font-weight:600}
+  .src.xsd{background:var(--bad-bg);color:var(--bad)}
+  .src.am{background:var(--warn-bg);color:var(--warn)}
+  .src.dd{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  .field input,.field select,.field textarea{width:100%;font-family:var(--sans);font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+  .field textarea{font-family:var(--mono);font-size:11px;min-height:48px;resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--amber);outline-offset:0;border-color:var(--amber)}
+  .field .hint{font-size:10.5px;color:var(--ink-soft);margin-top:2px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .add-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.05em;border:1px dashed var(--amber);background:transparent;color:var(--amber);padding:5px 10px;border-radius:3px;cursor:pointer;text-transform:lowercase}
+  .add-btn:hover{background:var(--amber-soft)}
+  .card-min{font-family:var(--mono);font-size:9px;color:var(--ink-soft);margin-bottom:6px}
+  .chk{display:flex;align-items:center;gap:7px;font-size:12px;margin:3px 0}
+  .chk input{width:auto}
+  .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:7px 14px;border-radius:3px;cursor:pointer;text-transform:uppercase}
+  .btn:hover{background:var(--ink-soft)}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:var(--paper-2)}
+  .btn.amber{background:var(--amber);border-color:var(--amber);color:#fff}
+  .btn.amber:hover{filter:brightness(1.08)}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .model-group{margin-bottom:16px}
+  .model-group .gh{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);border-bottom:1px solid var(--line);padding-bottom:3px;margin-bottom:7px;display:flex;justify-content:space-between}
+  .card{border:1px solid var(--line);border-left:3px solid var(--ink);background:var(--paper-2);border-radius:0 4px 4px 0;padding:8px 10px;margin-bottom:7px;font-size:12.5px}
+  .card .cid{font-family:var(--mono);font-size:10.5px;color:var(--amber)}
+  .card .ctitle{font-weight:600}
+  .card .cmeta{color:var(--ink-soft);font-size:11.5px}
+  .card .clink{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin-top:3px}
+  .card .x{float:right;cursor:pointer;color:var(--bad);font-weight:700;border:none;background:none;font-size:14px;line-height:1}
+  .empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:8px 0}
+  .profile-switch{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+  .profile-switch button{flex:1;font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;border:none;background:var(--paper-2);color:var(--ink-soft);padding:8px 6px;cursor:pointer}
+  .profile-switch button.on{background:var(--ink);color:var(--paper)}
+  pre.xml{background:#15212b;color:#d6e2ea;font-family:var(--mono);font-size:11px;line-height:1.5;padding:14px;border-radius:4px;overflow:auto;max-height:280px;white-space:pre;margin:0 0 12px;border:1px solid #2b3b48}
+  pre.xml .tag{color:#7fb0c9}
+  pre.xml .at{color:#c9a36a}
+  pre.xml .val{color:#a9c9a0}
+  pre.xml .dec{color:#6b8494}
+  .val-block{margin-top:6px}
+  .val-head{font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);margin:14px 0 6px}
+  .val-item{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;padding:6px 8px;border-radius:3px;margin-bottom:4px;border:1px solid transparent}
+  .val-item.ok{background:var(--ok-bg);color:var(--ok)}
+  .val-item.bad{background:var(--bad-bg);color:var(--bad)}
+  .val-item.warn{background:var(--warn-bg);color:var(--warn)}
+  .val-item.info{background:var(--paper-2);color:var(--ink-soft);border:1px solid var(--line)}
+  .val-item .ico{font-family:var(--mono);font-weight:700;flex-shrink:0}
+  .val-item .vsrc{font-family:var(--mono);font-size:9px;opacity:.8;display:block;margin-top:2px}
+  .verdict{font-family:var(--mono);font-size:12px;padding:10px;border-radius:4px;margin-bottom:10px;font-weight:600;text-align:center}
+  .verdict.ok{background:var(--ok);color:#fff}
+  .verdict.bad{background:var(--bad);color:#fff}
+  .import-zone{border:1px dashed var(--ink-soft);border-radius:5px;padding:14px;text-align:center;background:var(--paper-2);margin-bottom:12px}
+  .map-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:6px;font-size:12px}
+  .map-row .from{font-family:var(--mono);font-size:11px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:5px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .map-row .ar{color:var(--amber);font-family:var(--mono)}
+  .map-row select{font-size:11.5px;padding:5px;border:1px solid var(--line);border-radius:3px;background:#fff}
+  details.note{margin-top:14px;border:1px solid var(--line);border-radius:4px;background:var(--paper-2)}
+  details.note summary{cursor:pointer;padding:8px 10px;font-size:12px;font-weight:600;font-family:var(--mono);letter-spacing:0.04em}
+  details.note .body{padding:0 12px 12px;font-size:12px;color:var(--ink-soft)}
+  details.note .body code{font-family:var(--mono);background:var(--paper);padding:1px 4px;border-radius:2px;font-size:11px}
+  .omit{font-size:10.5px;color:var(--ink-soft);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:10.5px;color:var(--ink-soft);align-items:center}
+  .legend span{display:inline-flex;align-items:center;gap:4px}
+  .legend .sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .legend .ast{color:var(--bad);font-weight:800}
+  @media (max-width:1000px){main{grid-template-columns:1fr}.panel{border-right:none;border-bottom:1px solid var(--line);max-height:none}}
+  /* ícone de ajuda */
+  .info-i{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--ink-soft);background:transparent;color:var(--ink-soft);font-size:10px;line-height:1;cursor:pointer;margin-left:6px;padding:0;vertical-align:middle;font-family:var(--sans);font-weight:700}
+  .info-i:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  /* painel lateral de ajuda */
+  .help-panel{position:fixed;top:0;right:0;width:340px;max-width:88vw;height:100vh;background:var(--paper-2);border-left:2px solid var(--ink);box-shadow:-8px 0 24px rgba(27,42,54,.18);transform:translateX(100%);transition:transform .22s ease;z-index:50;display:flex;flex-direction:column}
+  .help-panel.open{transform:translateX(0)}
+  .help-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:2px solid var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:700}
+  .help-x{border:none;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
+  .help-body{padding:16px;overflow:auto}
+  .help-term{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--amber);margin-bottom:8px;word-break:break-word}
+  .help-def{font-size:13px;line-height:1.6;color:var(--ink);margin-bottom:14px}
+  .help-voc-h{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .help-voc{list-style:none;padding:0;margin:0 0 8px;font-size:12.5px;line-height:1.5}
+  .help-voc li{padding:4px 0;border-bottom:1px solid var(--line)}
+  .help-voc code{font-family:var(--mono);background:var(--paper);padding:1px 5px;border-radius:2px;color:var(--ink);font-size:11.5px}
+  .help-voc-note{font-size:11px;font-style:italic;color:var(--ink-soft);margin-bottom:14px}
+  .help-src{display:inline-block;font-size:11.5px;font-family:var(--mono);color:var(--amber);text-decoration:none;border:1px solid var(--amber);border-radius:3px;padding:6px 10px;margin-top:4px}
+  .help-src:hover{background:var(--amber);color:#fff}
+</style>
+</head>
+<body>
+<header class="bench">
+  <div class="brand">
+    <h1>Oficina PREMIS</h1>
+    <span class="tag">v0 · fase 2</span>
+    <span class="sub">object · event · agent · rights</span>
+  </div>
+  <div class="sub">metadados de origem → premis.xml — tudo no navegador, nada sai da máquina</div>
+</header>
+
+<nav class="flow">
+  <div class="step"><span class="n">1</span> ORIGEM</div>
+  <span class="arrow">───▶</span>
+  <div class="step"><span class="n">2</span> MODELO INTERNO</div>
+  <span class="arrow">───▶</span>
+  <div class="step"><span class="n">3</span> SAÍDA + VALIDAÇÃO</div>
+</nav>
+
+<main>
+  <section class="panel" id="panel-origem">
+    <h2><span class="idx">01</span> Origem</h2>
+    <p class="lede">Blocos repetíveis (cardinalidade do XSD) têm botão para adicionar mais de um. <span style="color:var(--bad);font-weight:700">*</span> marca o que é obrigatório pelo XSD. Blocos opcionais começam recolhidos.</p>
+
+    <div class="ent-tabs" id="entTabs">
+      <button class="on" data-ent="object">object</button>
+      <button data-ent="event">event</button>
+      <button data-ent="agent">agent</button>
+      <button data-ent="rights">rights</button>
+    </div>
+
+    <div class="profile-switch" style="margin-bottom:14px">
+      <button class="on" id="modeForm">formulário</button>
+      <button id="modeImport">importar arquivo</button>
+    </div>
+
+    <div id="formHost"></div>
+    <div id="importHost" style="display:none"></div>
+
+    <div class="legend">
+      <span><span class="ast">*</span> obrigatório XSD</span>
+      <span><span class="sw" style="background:var(--bad)"></span> XSD</span>
+      <span><span class="sw" style="background:var(--warn)"></span> Archivematica</span>
+      <span><span class="sw" style="background:var(--line)"></span> recomendado</span>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-modelo">
+    <h2><span class="idx">02</span> Modelo interno</h2>
+    <p class="lede">Representação neutra das entidades. Fonte única de onde os dois perfis derivam. Vínculos por identificador local.</p>
+    <div id="modelHost"></div>
+  </section>
+
+  <section class="panel" id="panel-saida">
+    <h2><span class="idx">03</span> Saída + validação</h2>
+    <p class="lede">O premis.xml gerado a partir do modelo, em dois perfis. A validação roda antes da exportação, com a fonte de cada regra.</p>
+
+    <div class="profile-switch">
+      <button class="on" data-profile="archivematica">perfil Archivematica</button>
+      <button data-profile="full">PREMIS 3.0 completo</button>
+    </div>
+
+    <div id="verdictHost"></div>
+    <pre class="xml" id="xmlOut"></pre>
+
+    <div class="btn-row">
+      <button class="btn amber" id="btnExport">baixar .xml</button>
+      <button class="btn" id="btnXsd">validar contra o XSD</button>
+      <button class="btn ghost" id="btnState">salvar trabalho</button>
+      <button class="btn ghost" id="btnLoad">abrir trabalho</button>
+      <input type="file" id="stateFile" accept=".json" style="display:none">
+    </div>
+
+    <div id="xsdHost" class="val-block"></div>
+    <div id="valHost" class="val-block"></div>
+
+    <details class="note">
+      <summary>asterisco e cores — o que cada um diz</summary>
+      <div class="body">
+        O <code>*</code> responde "preciso preencher?" (obrigatório no XSD). A cor responde "por ordem de quem?":
+        <code>XSD</code> bloqueia os dois perfis; <code>Archivematica</code> bloqueia só o perfil Archivematica
+        (ex.: <code>eventDateTime</code> ISO 8601, agente por evento — o XSD não exige);
+        <code>recomendado</code> nunca bloqueia. Um campo pode ser obrigatório só <em>dentro</em> de um bloco
+        opcional: <code>messageDigest</code> só é exigido se você criar um <code>fixity</code>.
+      </div>
+    </details>
+  </section>
+</main>
+
+<div id="helpPanel" class="help-panel">
+  <div class="help-head"><span>ajuda — PREMIS 3.0</span><button type="button" class="help-x" onclick="closeHelp()">×</button></div>
+  <div id="helpBody" class="help-body"></div>
+</div>
+
+<script>
+"use strict";
+/* =================================================================
+   NÚCLEO
+   ================================================================= */
+const model = { objects:[], events:[], agents:[], rights:[], relationships:[] };
+let lidCounter = 1;
+const newLid = (p)=> `${p}-${String(lidCounter++).padStart(3,'0')}`;
+
+const mk = {
+  objectIdentifier: ()=>({type:'',value:''}),
+  preservationLevel: ()=>({plType:'',value:'',role:'',rationale:'',dateAssigned:''}),
+  significantProperties: ()=>({spType:'',value:''}),
+  fixity: ()=>({algo:'',digest:'',originator:''}),
+  format: ()=>({useRegistry:false, name:'',version:'', regName:'',regKey:'',regRole:'', note:''}),
+  creatingApplication: ()=>({name:'',version:'',date:''}),
+  inhibitor: ()=>({type:'',target:'',key:''}),
+  storage: ()=>({locType:'',locValue:'',medium:''}),
+  signature: ()=>({encoding:'',signer:'',method:'',value:'',rules:'',properties:''}),
+  envFunction: ()=>({fType:'',fLevel:''}),
+  envDesignation: ()=>({name:'',version:'',origin:'',notes:[]}),
+  envRegistry: ()=>({name:'',key:'',role:''}),
+  characteristics: ()=>({ compositionLevel:'', compositionUnknown:false, size:'', fixities:[], formats:[mk.format()], creatingApps:[], inhibitors:[] }),
+  object: ()=>({ lid:newLid('obj'), objType:'file', identifiers:[mk.objectIdentifier()], preservationLevels:[], significantProperties:[], characteristics:[mk.characteristics()], originalName:'', storages:[], signatures:[], envFunctions:[], envDesignations:[], envRegistries:[], relationships:[], linkEvents:[], linkRights:[] }),
+  // event completo
+  eventDetailInfo: ()=>({detail:''}),
+  eventOutcomeInfo: ()=>({outcome:'', detailNote:''}),
+  linkingAgent: ()=>({agentLid:'', role:''}),    // vínculo por seleção + papel
+  linkingObject: ()=>({objectLid:'', role:''}),
+  event: ()=>({ lid:newLid('evt'), idType:'', idValue:'', eventType:'', dateTime:'', details:[], outcomes:[], linkAgents:[], linkObjects:[] }),
+  // agent completo
+  agentIdentifier: ()=>({type:'',value:''}),
+  agentName: ()=>({value:''}),
+  agentNote: ()=>({value:''}),
+  agent: ()=>({ lid:newLid('agt'), identifiers:[mk.agentIdentifier()], names:[], agentType:'', agentVersion:'', notes:[], linkEvents:[] }),
+  /* fase 2 */
+  relationship: ()=>({type:'',subType:'',relObjects:[],relEvents:[]}),
+  docId: ()=>({type:'',value:'',role:''}),
+  note: ()=>({value:''}),
+  granted: ()=>({act:'',restrictions:[],gStart:'',gEnd:'',rStart:'',rEnd:'',notes:[]}),
+  right: ()=>({ lid:newLid('rgt'), idType:'', idValue:'', basis:'copyright',
+    c_status:'',c_jurisdiction:'',c_date:'',c_notes:[],c_docIds:[],c_dStart:'',c_dEnd:'',
+    l_terms:'',l_notes:[],l_docIds:[],l_dStart:'',l_dEnd:'',
+    s_jurisdiction:'',s_citation:'',s_date:'',s_notes:[],s_docIds:[],s_dStart:'',s_dEnd:'',
+    o_basis:'',o_notes:[],o_docIds:[],o_dStart:'',o_dEnd:'',
+    granted:[], linkObjects:[], linkAgents:[] }),
+};
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function elv(tag, val, ind){ return `${' '.repeat(ind)}<premis:${tag}>${esc(val)}</premis:${tag}>`; }
+const has = v => v!=null && String(v).trim()!=='';
+
+/* ---- gerador: object ---- */
+/* o que cada xsi:type admite, conforme as quatro sequências do XSD */
+function allowFor(t){
+  return {
+    pl: t!=='bitstream',                      /* preservationLevel */
+    oname: t!=='bitstream',                   /* originalName */
+    chars: t==='file'||t==='bitstream',       /* objectCharacteristics (obrigatório onde existe) */
+    storage: t!=='intellectualEntity',        /* storage */
+    sig: t==='file'||t==='bitstream',         /* signatureInformation */
+    env: t==='intellectualEntity'             /* environmentFunction/Designation/Registry */
+  };
+}
+function genObject(o, L, profile){
+  const t = o.objType||'file';
+  const allow = allowFor(t);
+  L.push(`  <premis:object xsi:type="premis:${t}">`);
+  o.identifiers.forEach(id=>{
+    L.push(`    <premis:objectIdentifier>`);
+    L.push(elv('objectIdentifierType', id.type, 6));
+    L.push(elv('objectIdentifierValue', id.value, 6));
+    L.push(`    </premis:objectIdentifier>`);
+  });
+  if(allow.pl) o.preservationLevels.forEach(p=>{
+    if(!has(p.value)&&!has(p.plType)) return;
+    L.push(`    <premis:preservationLevel>`);
+    if(has(p.plType)) L.push(elv('preservationLevelType', p.plType, 6));
+    L.push(elv('preservationLevelValue', p.value, 6));
+    if(has(p.role)) L.push(elv('preservationLevelRole', p.role, 6));
+    if(has(p.rationale)) L.push(elv('preservationLevelRationale', p.rationale, 6));
+    if(has(p.dateAssigned)) L.push(elv('preservationLevelDateAssigned', p.dateAssigned, 6));
+    L.push(`    </premis:preservationLevel>`);
+  });
+  o.significantProperties.forEach(s=>{
+    if(!has(s.spType)&&!has(s.value)) return;
+    L.push(`    <premis:significantProperties>`);
+    if(has(s.spType)) L.push(elv('significantPropertiesType', s.spType, 6));
+    if(has(s.value)) L.push(elv('significantPropertiesValue', s.value, 6));
+    L.push(`    </premis:significantProperties>`);
+  });
+  if(allow.chars) o.characteristics.forEach(c=>{
+    L.push(`    <premis:objectCharacteristics>`);
+    if(has(c.compositionLevel)||c.compositionUnknown){
+      if(c.compositionUnknown) L.push(`      <premis:compositionLevel unknown="yes">${esc(c.compositionLevel||'0')}</premis:compositionLevel>`);
+      else L.push(elv('compositionLevel', c.compositionLevel, 6));
+    }
+    c.fixities.forEach(f=>{
+      if(!has(f.algo)&&!has(f.digest)) return;
+      L.push(`      <premis:fixity>`);
+      L.push(elv('messageDigestAlgorithm', f.algo, 8));
+      L.push(elv('messageDigest', f.digest, 8));
+      if(has(f.originator)) L.push(elv('messageDigestOriginator', f.originator, 8));
+      L.push(`      </premis:fixity>`);
+    });
+    if(has(c.size)) L.push(elv('size', c.size, 6));
+    c.formats.forEach(fmt=>{
+      L.push(`      <premis:format>`);
+      if(fmt.useRegistry){
+        L.push(`        <premis:formatRegistry>`);
+        L.push(elv('formatRegistryName', fmt.regName, 10));
+        L.push(elv('formatRegistryKey', fmt.regKey, 10));
+        if(has(fmt.regRole)) L.push(elv('formatRegistryRole', fmt.regRole, 10));
+        L.push(`        </premis:formatRegistry>`);
+      } else {
+        L.push(`        <premis:formatDesignation>`);
+        L.push(elv('formatName', fmt.name, 10));
+        if(has(fmt.version)) L.push(elv('formatVersion', fmt.version, 10));
+        L.push(`        </premis:formatDesignation>`);
+      }
+      if(has(fmt.note)) L.push(elv('formatNote', fmt.note, 8));
+      L.push(`      </premis:format>`);
+    });
+    c.creatingApps.forEach(a=>{
+      if(!has(a.name)&&!has(a.version)&&!has(a.date)) return;
+      L.push(`      <premis:creatingApplication>`);
+      if(has(a.name)) L.push(elv('creatingApplicationName', a.name, 8));
+      if(has(a.version)) L.push(elv('creatingApplicationVersion', a.version, 8));
+      if(has(a.date)) L.push(elv('dateCreatedByApplication', a.date, 8));
+      L.push(`      </premis:creatingApplication>`);
+    });
+    c.inhibitors.forEach(inh=>{
+      if(!has(inh.type)) return;
+      L.push(`      <premis:inhibitors>`);
+      L.push(elv('inhibitorType', inh.type, 8));
+      if(has(inh.target)) L.push(elv('inhibitorTarget', inh.target, 8));
+      if(has(inh.key)) L.push(elv('inhibitorKey', inh.key, 8));
+      L.push(`      </premis:inhibitors>`);
+    });
+    L.push(`    </premis:objectCharacteristics>`);
+  });
+  if(allow.oname && has(o.originalName)) L.push(elv('originalName', o.originalName, 4));
+  if(allow.storage) o.storages.forEach(s=>{
+    if(!has(s.locValue)&&!has(s.medium)) return;
+    L.push(`    <premis:storage>`);
+    if(has(s.locValue)){
+      L.push(`      <premis:contentLocation>`);
+      L.push(elv('contentLocationType', s.locType, 8));
+      L.push(elv('contentLocationValue', s.locValue, 8));
+      L.push(`      </premis:contentLocation>`);
+    }
+    if(has(s.medium)) L.push(elv('storageMedium', s.medium, 6));
+    L.push(`    </premis:storage>`);
+  });
+  /* environment* — apenas intellectualEntity; na sequência vêm após originalName */
+  if(allow.env){
+    (o.envFunctions||[]).forEach(f=>{
+      if(!has(f.fType)&&!has(f.fLevel)) return;
+      L.push(`    <premis:environmentFunction>`);
+      L.push(elv('environmentFunctionType', f.fType, 6));
+      L.push(elv('environmentFunctionLevel', f.fLevel, 6));
+      L.push(`    </premis:environmentFunction>`);
+    });
+    (o.envDesignations||[]).forEach(d=>{
+      if(!has(d.name)) return;
+      L.push(`    <premis:environmentDesignation>`);
+      L.push(elv('environmentName', d.name, 6));
+      if(has(d.version)) L.push(elv('environmentVersion', d.version, 6));
+      if(has(d.origin)) L.push(elv('environmentOrigin', d.origin, 6));
+      (d.notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('environmentDesignationNote', n.value, 6)); });
+      L.push(`    </premis:environmentDesignation>`);
+    });
+    (o.envRegistries||[]).forEach(r=>{
+      if(!has(r.name)&&!has(r.key)) return;
+      L.push(`    <premis:environmentRegistry>`);
+      L.push(elv('environmentRegistryName', r.name, 6));
+      L.push(elv('environmentRegistryKey', r.key, 6));
+      if(has(r.role)) L.push(elv('environmentRegistryRole', r.role, 6));
+      L.push(`    </premis:environmentRegistry>`);
+    });
+  }
+  // signatureInformation — file e bitstream
+  if(allow.sig) (o.signatures||[]).forEach(s=>{
+    if(!has(s.encoding)&&!has(s.method)&&!has(s.value)&&!has(s.rules)) return;
+    L.push(`    <premis:signatureInformation>`);
+    L.push(`      <premis:signature>`);
+    L.push(elv('signatureEncoding', s.encoding, 8));
+    if(has(s.signer)) L.push(elv('signer', s.signer, 8));
+    L.push(elv('signatureMethod', s.method, 8));
+    L.push(elv('signatureValue', s.value, 8));
+    L.push(elv('signatureValidationRules', s.rules, 8));
+    if(has(s.properties)) L.push(elv('signatureProperties', s.properties, 8));
+    L.push(`      </premis:signature>`);
+    L.push(`    </premis:signatureInformation>`);
+  });
+  /* relationship — na sequência do file vem após signatureInformation */
+  (o.relationships||[]).forEach(rel=>{
+    if(!has(rel.type)&&!has(rel.subType)&&rel.relObjects.length===0) return;
+    L.push(`    <premis:relationship>`);
+    L.push(elv('relationshipType', rel.type, 6));
+    L.push(elv('relationshipSubType', rel.subType, 6));
+    rel.relObjects.forEach(tLid=>{
+      const t=model.objects.find(x=>x.lid===tLid); if(!t) return;
+      const id=t.identifiers[0]||{};
+      L.push(`      <premis:relatedObjectIdentifier>`);
+      L.push(elv('relatedObjectIdentifierType', id.type, 8));
+      L.push(elv('relatedObjectIdentifierValue', id.value, 8));
+      L.push(`      </premis:relatedObjectIdentifier>`);
+    });
+    rel.relEvents.forEach(eLid=>{
+      const ev=model.events.find(x=>x.lid===eLid); if(!ev) return;
+      L.push(`      <premis:relatedEventIdentifier>`);
+      L.push(elv('relatedEventIdentifierType', ev.idType, 8));
+      L.push(elv('relatedEventIdentifierValue', ev.idValue, 8));
+      L.push(`      </premis:relatedEventIdentifier>`);
+    });
+    L.push(`    </premis:relationship>`);
+  });
+  o.linkEvents.forEach(evLid=>{
+    const ev = model.events.find(e=>e.lid===evLid);
+    if(ev){
+      L.push(`    <premis:linkingEventIdentifier>`);
+      L.push(elv('linkingEventIdentifierType', ev.idType, 6));
+      L.push(elv('linkingEventIdentifierValue', ev.idValue, 6));
+      L.push(`    </premis:linkingEventIdentifier>`);
+    }
+  });
+  /* linkingRightsStatementIdentifier — omitido no perfil Archivematica (rights não vão no premis.xml) */
+  if(profile!=='archivematica') (o.linkRights||[]).forEach(rLid=>{
+    const r=model.rights.find(x=>x.lid===rLid); if(!r) return;
+    L.push(`    <premis:linkingRightsStatementIdentifier>`);
+    L.push(elv('linkingRightsStatementIdentifierType', r.idType, 6));
+    L.push(elv('linkingRightsStatementIdentifierValue', r.idValue, 6));
+    L.push(`    </premis:linkingRightsStatementIdentifier>`);
+  });
+  L.push(`  </premis:object>`);
+}
+
+/* ---- gerador: event ---- */
+function genEvent(e, L){
+  L.push(`  <premis:event>`);
+  L.push(`    <premis:eventIdentifier>`);
+  L.push(elv('eventIdentifierType', e.idType, 6));
+  L.push(elv('eventIdentifierValue', e.idValue, 6));
+  L.push(`    </premis:eventIdentifier>`);
+  L.push(elv('eventType', e.eventType, 4));
+  L.push(elv('eventDateTime', e.dateTime, 4));
+  (e.details||[]).forEach(d=>{
+    if(!has(d.detail)) return;
+    L.push(`    <premis:eventDetailInformation>`);
+    L.push(elv('eventDetail', d.detail, 6));
+    L.push(`    </premis:eventDetailInformation>`);
+  });
+  (e.outcomes||[]).forEach(o=>{
+    if(!has(o.outcome)&&!has(o.detailNote)) return;
+    L.push(`    <premis:eventOutcomeInformation>`);
+    if(has(o.outcome)) L.push(elv('eventOutcome', o.outcome, 6));
+    if(has(o.detailNote)){
+      L.push(`      <premis:eventOutcomeDetail>`);
+      L.push(elv('eventOutcomeDetailNote', o.detailNote, 8));
+      L.push(`      </premis:eventOutcomeDetail>`);
+    }
+    L.push(`    </premis:eventOutcomeInformation>`);
+  });
+  (e.linkAgents||[]).forEach(la=>{
+    const ag=model.agents.find(a=>a.lid===la.agentLid); if(!ag) return;
+    const id=ag.identifiers[0]||{};
+    L.push(`    <premis:linkingAgentIdentifier>`);
+    L.push(elv('linkingAgentIdentifierType', id.type, 6));
+    L.push(elv('linkingAgentIdentifierValue', id.value, 6));
+    if(has(la.role)) L.push(elv('linkingAgentRole', la.role, 6));
+    L.push(`    </premis:linkingAgentIdentifier>`);
+  });
+  (e.linkObjects||[]).forEach(lo=>{
+    const ob=model.objects.find(o=>o.lid===lo.objectLid); if(!ob) return;
+    const id=ob.identifiers[0]||{};
+    L.push(`    <premis:linkingObjectIdentifier>`);
+    L.push(elv('linkingObjectIdentifierType', id.type, 6));
+    L.push(elv('linkingObjectIdentifierValue', id.value, 6));
+    if(has(lo.role)) L.push(elv('linkingObjectRole', lo.role, 6));
+    L.push(`    </premis:linkingObjectIdentifier>`);
+  });
+  L.push(`  </premis:event>`);
+}
+
+/* ---- gerador: agent ---- */
+function genAgent(a, L){
+  L.push(`  <premis:agent>`);
+  a.identifiers.forEach(id=>{
+    L.push(`    <premis:agentIdentifier>`);
+    L.push(elv('agentIdentifierType', id.type, 6));
+    L.push(elv('agentIdentifierValue', id.value, 6));
+    L.push(`    </premis:agentIdentifier>`);
+  });
+  (a.names||[]).forEach(n=>{ if(has(n.value)) L.push(elv('agentName', n.value, 4)); });
+  if(has(a.agentType)) L.push(elv('agentType', a.agentType, 4));
+  if(has(a.agentVersion)) L.push(elv('agentVersion', a.agentVersion, 4));
+  (a.notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('agentNote', n.value, 4)); });
+  (a.linkEvents||[]).forEach(evLid=>{
+    const ev=model.events.find(e=>e.lid===evLid); if(!ev) return;
+    L.push(`    <premis:linkingEventIdentifier>`);
+    L.push(elv('linkingEventIdentifierType', ev.idType, 6));
+    L.push(elv('linkingEventIdentifierValue', ev.idValue, 6));
+    L.push(`    </premis:linkingEventIdentifier>`);
+  });
+  L.push(`  </premis:agent>`);
+}
+
+/* ---- gerador: rights (um rightsStatement por entidade; ordem do rightsStatementComplexType) ---- */
+function genRights(r, L){
+  L.push(`  <premis:rights>`);
+  L.push(`    <premis:rightsStatement>`);
+  L.push(`      <premis:rightsStatementIdentifier>`);
+  L.push(elv('rightsStatementIdentifierType', r.idType, 8));
+  L.push(elv('rightsStatementIdentifierValue', r.idValue, 8));
+  L.push(`      </premis:rightsStatementIdentifier>`);
+  L.push(elv('rightsBasis', r.basis, 6));
+  const dates=(s,e,tag)=>{ if(!has(s)) return; L.push(`        <premis:${tag}>`); L.push(elv('startDate', s, 10)); if(has(e)) L.push(elv('endDate', e, 10)); L.push(`        </premis:${tag}>`); };
+  const docIds=(arr,prefix)=>{ (arr||[]).forEach(d=>{ if(!has(d.type)&&!has(d.value)) return;
+    L.push(`        <premis:${prefix}DocumentationIdentifier>`);
+    L.push(elv(prefix+'DocumentationIdentifierType', d.type, 10));
+    L.push(elv(prefix+'DocumentationIdentifierValue', d.value, 10));
+    if(has(d.role)) L.push(elv(prefix+'DocumentationRole', d.role, 10));
+    L.push(`        </premis:${prefix}DocumentationIdentifier>`); }); };
+  if(r.basis==='copyright'){
+    L.push(`      <premis:copyrightInformation>`);
+    L.push(elv('copyrightStatus', r.c_status, 8));
+    L.push(elv('copyrightJurisdiction', r.c_jurisdiction, 8));
+    if(has(r.c_date)) L.push(elv('copyrightStatusDeterminationDate', r.c_date, 8));
+    (r.c_notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('copyrightNote', n.value, 8)); });
+    docIds(r.c_docIds,'copyright');
+    dates(r.c_dStart,r.c_dEnd,'copyrightApplicableDates');
+    L.push(`      </premis:copyrightInformation>`);
+  } else if(r.basis==='license'){
+    L.push(`      <premis:licenseInformation>`);
+    docIds(r.l_docIds,'license');
+    if(has(r.l_terms)) L.push(elv('licenseTerms', r.l_terms, 8));
+    (r.l_notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('licenseNote', n.value, 8)); });
+    dates(r.l_dStart,r.l_dEnd,'licenseApplicableDates');
+    L.push(`      </premis:licenseInformation>`);
+  } else if(r.basis==='statute'){
+    L.push(`      <premis:statuteInformation>`);
+    L.push(elv('statuteJurisdiction', r.s_jurisdiction, 8));
+    L.push(elv('statuteCitation', r.s_citation, 8));
+    if(has(r.s_date)) L.push(elv('statuteInformationDeterminationDate', r.s_date, 8));
+    (r.s_notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('statuteNote', n.value, 8)); });
+    docIds(r.s_docIds,'statute');
+    dates(r.s_dStart,r.s_dEnd,'statuteApplicableDates');
+    L.push(`      </premis:statuteInformation>`);
+  } else if(r.basis==='other'){
+    L.push(`      <premis:otherRightsInformation>`);
+    docIds(r.o_docIds,'otherRights');
+    L.push(elv('otherRightsBasis', r.o_basis, 8));
+    dates(r.o_dStart,r.o_dEnd,'otherRightsApplicableDates');
+    (r.o_notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('otherRightsNote', n.value, 8)); });
+    L.push(`      </premis:otherRightsInformation>`);
+  }
+  (r.granted||[]).forEach(g=>{
+    if(!has(g.act)) return;
+    L.push(`      <premis:rightsGranted>`);
+    L.push(elv('act', g.act, 8));
+    (g.restrictions||[]).forEach(x=>{ if(has(x.value)) L.push(elv('restriction', x.value, 8)); });
+    if(has(g.gStart)){ L.push(`        <premis:termOfGrant>`); L.push(elv('startDate', g.gStart, 10)); if(has(g.gEnd)) L.push(elv('endDate', g.gEnd, 10)); L.push(`        </premis:termOfGrant>`); }
+    if(has(g.rStart)){ L.push(`        <premis:termOfRestriction>`); L.push(elv('startDate', g.rStart, 10)); if(has(g.rEnd)) L.push(elv('endDate', g.rEnd, 10)); L.push(`        </premis:termOfRestriction>`); }
+    (g.notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('rightsGrantedNote', n.value, 8)); });
+    L.push(`      </premis:rightsGranted>`);
+  });
+  (r.linkObjects||[]).forEach(oLid=>{
+    const ob=model.objects.find(x=>x.lid===oLid); if(!ob) return;
+    const id=ob.identifiers[0]||{};
+    L.push(`      <premis:linkingObjectIdentifier>`);
+    L.push(elv('linkingObjectIdentifierType', id.type, 8));
+    L.push(elv('linkingObjectIdentifierValue', id.value, 8));
+    L.push(`      </premis:linkingObjectIdentifier>`);
+  });
+  (r.linkAgents||[]).forEach(aLid=>{
+    const ag=model.agents.find(x=>x.lid===aLid); if(!ag) return;
+    const id=ag.identifiers[0]||{};
+    L.push(`      <premis:linkingAgentIdentifier>`);
+    L.push(elv('linkingAgentIdentifierType', id.type, 8));
+    L.push(elv('linkingAgentIdentifierValue', id.value, 8));
+    L.push(`      </premis:linkingAgentIdentifier>`);
+  });
+  L.push(`    </premis:rightsStatement>`);
+  L.push(`  </premis:rights>`);
+}
+
+function buildXML(profile){
+  const L = [];
+  L.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+  L.push(`<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">`);
+  model.objects.forEach(o=>genObject(o,L,profile));
+  model.events.forEach(e=>genEvent(e,L));
+  model.agents.forEach(a=>genAgent(a,L));
+  if(profile!=='archivematica') model.rights.forEach(r=>genRights(r,L));
+  L.push(`</premis:premis>`);
+  return L.join('\n');
+}
+
+/* ---- validação ---- */
+const ISO8601 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:\d{2}|Z)?$/;
+function validate(profile){
+  const items = [];
+  const add=(level,source,msg)=>items.push({level,source,msg});
+  if(model.objects.length===0) add('bad','XSD','Documento precisa de ao menos um object.');
+  else add('ok','XSD',`${model.objects.length} object(s) — ordem object→event→agent respeitada.`);
+  add('ok','XSD','version="3.0" presente e enumerado (tipo version3).');
+  model.objects.forEach(o=>{
+    const t=o.objType||'file';
+    const allow=allowFor(t);
+    const ref=`object ${o.lid} (${t})`;
+    if(o.identifiers.length===0 || o.identifiers.some(id=>!has(id.type)||!has(id.value)))
+      add('bad','XSD',`${ref}: objectIdentifier exige Type e Value (1..n).`);
+    if(allow.chars){
+      if(o.characteristics.length===0) add('bad','XSD',`${ref}: objectCharacteristics é obrigatório (1..n) para ${t}.`);
+      o.characteristics.forEach((c,ci)=>{
+        if(c.formats.length===0 || c.formats.some(f=> f.useRegistry ? (!has(f.regName)||!has(f.regKey)) : !has(f.name)))
+          add('bad','XSD',`${ref}/characteristics[${ci+1}]: format exige formatName (ou formatRegistry Name+Key).`);
+        c.fixities.forEach((f,fi)=>{ if((has(f.algo)||has(f.digest))&&(!has(f.algo)||!has(f.digest))) add('bad','XSD',`${ref}/fixity[${fi+1}]: messageDigestAlgorithm e messageDigest exigidos juntos.`); });
+      });
+    }
+    if(allow.sig) (o.signatures||[]).forEach((s,si)=>{
+      const any=has(s.encoding)||has(s.method)||has(s.value)||has(s.rules)||has(s.signer)||has(s.properties);
+      if(any && (!has(s.encoding)||!has(s.method)||!has(s.value)||!has(s.rules)))
+        add('bad','XSD',`${ref}/signature[${si+1}]: exige signatureEncoding, signatureMethod, signatureValue e signatureValidationRules.`);
+    });
+    if(allow.env){
+      (o.envFunctions||[]).forEach((f,fi)=>{ if((has(f.fType)||has(f.fLevel))&&(!has(f.fType)||!has(f.fLevel))) add('bad','XSD',`${ref}/environmentFunction[${fi+1}]: Type e Level são exigidos juntos.`); });
+      (o.envRegistries||[]).forEach((r,ri)=>{ if((has(r.name)||has(r.key))&&(!has(r.name)||!has(r.key))) add('bad','XSD',`${ref}/environmentRegistry[${ri+1}]: Name e Key são exigidos juntos.`); });
+    }
+    /* dados preenchidos em blocos que o tipo atual não admite: aviso informativo, sem perda */
+    const orphan=[];
+    if(!allow.chars && o.characteristics.some(c=>c.fixities.length||c.formats.some(f=>has(f.name)||has(f.regName))||has(c.size))) orphan.push('objectCharacteristics');
+    if(!allow.pl && o.preservationLevels.length) orphan.push('preservationLevel');
+    if(!allow.oname && has(o.originalName)) orphan.push('originalName');
+    if(!allow.storage && o.storages.length) orphan.push('storage');
+    if(!allow.sig && (o.signatures||[]).length) orphan.push('signatureInformation');
+    if(!allow.env && ((o.envFunctions||[]).length||(o.envDesignations||[]).length||(o.envRegistries||[]).length)) orphan.push('environment*');
+    if(orphan.length) add('info','XSD',`${ref}: dados preenchidos em ${orphan.join(', ')} não existem no tipo ${t} e serão omitidos do XML (preservados no rascunho).`);
+    if(t==='file'){
+      if(!has(o.originalName)) add('warn','Archivematica',`${ref}: sem originalName — elo com o arquivo em objects/.`);
+      else if(profile==='archivematica' && !/^objects\//.test(o.originalName.trim())) add('warn','Archivematica',`${ref}: originalName não começa com objects/.`);
+    } else if(profile==='archivematica'){
+      add('info','Archivematica',`${ref}: o template oficial de importação do Archivematica usa objetos xsi:type=file ancorados em objects/; o comportamento com o tipo ${t} não está documentado na página consultada.`);
+    }
+  });
+  model.events.forEach(e=>{
+    const ref=`event ${e.lid}`;
+    if(!has(e.idType)||!has(e.idValue)) add('bad','XSD',`${ref}: eventIdentifier exige Type e Value.`);
+    if(!has(e.eventType)) add('bad','XSD',`${ref}: eventType é obrigatório.`);
+    if(!has(e.dateTime)) add('bad','XSD',`${ref}: eventDateTime é obrigatório.`);
+    else if(profile==='archivematica' && !ISO8601.test(e.dateTime.trim())) add('warn','Archivematica',`${ref}: eventDateTime fora de ISO 8601. XSD aceita (xs:string); Archivematica exige.`);
+    if(profile==='archivematica' && (e.linkAgents||[]).length===0) add('warn','Archivematica',`${ref}: sem agente vinculado (XSD opcional; Archivematica espera).`);
+  });
+  model.agents.forEach(a=>{ if(a.identifiers.length===0 || a.identifiers.some(id=>!has(id.type)||!has(id.value))) add('bad','XSD',`agent ${a.lid}: agentIdentifier exige Type e Value (1..n).`); });
+  /* rights */
+  model.rights.forEach(r=>{
+    const ref=`rights ${r.lid}`;
+    if(!has(r.idType)||!has(r.idValue)) add('bad','XSD',`${ref}: rightsStatementIdentifier exige Type e Value.`);
+    if(!has(r.basis)) add('bad','XSD',`${ref}: rightsBasis é obrigatório.`);
+    if(r.basis==='copyright'){
+      if(!has(r.c_status)) add('bad','XSD',`${ref}: copyrightStatus é obrigatório na base copyright.`);
+      if(!has(r.c_jurisdiction)) add('bad','XSD',`${ref}: copyrightJurisdiction é obrigatório na base copyright.`);
+    } else if(r.basis==='statute'){
+      if(!has(r.s_jurisdiction)) add('bad','XSD',`${ref}: statuteJurisdiction é obrigatório na base statute.`);
+      if(!has(r.s_citation)) add('bad','XSD',`${ref}: statuteCitation é obrigatório na base statute.`);
+    } else if(r.basis==='license'){
+      const anyL = has(r.l_terms) || (r.l_notes||[]).some(n=>has(n.value)) || (r.l_docIds||[]).some(d=>has(d.value)) || has(r.l_dStart);
+      if(!anyL) add('bad','XSD',`${ref}: licenseInformation exige ao menos um entre documentationIdentifier, licenseTerms, licenseNote ou applicableDates (xs:choice).`);
+    } else if(r.basis==='other'){
+      if(!has(r.o_basis)) add('bad','XSD',`${ref}: otherRightsBasis é obrigatório na base other.`);
+    }
+    (r.granted||[]).forEach((g,gi)=>{
+      const anyG = has(g.act)||has(g.gStart)||has(g.rStart)||(g.restrictions||[]).some(x=>has(x.value))||(g.notes||[]).some(n=>has(n.value));
+      if(anyG && !has(g.act)) add('bad','XSD',`${ref}/rightsGranted[${gi+1}]: act é obrigatório.`);
+      if(has(g.gEnd)&&!has(g.gStart)) add('bad','XSD',`${ref}/rightsGranted[${gi+1}]: termOfGrant exige startDate quando usado.`);
+      if(has(g.rEnd)&&!has(g.rStart)) add('bad','XSD',`${ref}/rightsGranted[${gi+1}]: termOfRestriction exige startDate quando usado.`);
+    });
+  });
+  if(profile==='archivematica' && model.rights.length>0)
+    add('info','Archivematica',`${model.rights.length} rights no modelo serão omitidos deste premis.xml: no Archivematica, direitos entram por rights.csv ou pela interface, não pela importação de premis.xml. Use o perfil completo para exportá-los em XML.`);
+  /* relationship — estrutura (XSD); a existência dos alvos é checada na Camada 2 abaixo */
+  model.objects.forEach(o=>{
+    (o.relationships||[]).forEach((rel,ri)=>{
+      const anyR = has(rel.type)||has(rel.subType)||rel.relObjects.length>0;
+      if(!anyR) return;
+      const ref=`object ${o.lid}/relationship[${ri+1}]`;
+      if(!has(rel.type)) add('bad','XSD',`${ref}: relationshipType é obrigatório.`);
+      if(!has(rel.subType)) add('bad','XSD',`${ref}: relationshipSubType é obrigatório.`);
+      if(rel.relObjects.length===0) add('bad','XSD',`${ref}: relatedObjectIdentifier exige ao menos um objeto relacionado (1..n).`);
+    });
+  });
+
+  /* ===== Camada 2 (Data Dictionary + conformidade) ===== */
+
+  /* R2.3 — integridade referencial de TODOS os vínculos internos. Vínculo órfão
+     (aponta para entidade inexistente/removida) é defeito e BLOQUEIA o download.
+     Fonte: PREMIS DD 3.0 — modelo de dados; componente obrigatório se o contêiner existe. */
+  const exists = {
+    object: id=>model.objects.some(x=>x.lid===id),
+    event:  id=>model.events.some(x=>x.lid===id),
+    agent:  id=>model.agents.some(x=>x.lid===id),
+    rights: id=>model.rights.some(x=>x.lid===id),
+  };
+  const orphan = (ref,kind,id)=> add('bad','dd',`${ref}: vínculo a ${kind} inexistente (${id}) — órfão. Todo vínculo deve apontar para uma entidade do documento (R2.3).`);
+  model.objects.forEach(o=>{
+    (o.linkEvents||[]).forEach(id=>{ if(!exists.event(id)) orphan(`object ${o.lid}/linkingEventIdentifier`,'event',id); });
+    (o.linkRights||[]).forEach(id=>{ if(!exists.rights(id)) orphan(`object ${o.lid}/linkingRightsStatementIdentifier`,'rights',id); });
+    (o.relationships||[]).forEach((rel,ri)=>{
+      const ref=`object ${o.lid}/relationship[${ri+1}]`;
+      (rel.relObjects||[]).forEach(id=>{ if(!exists.object(id)) orphan(`${ref}/relatedObjectIdentifier`,'object',id); });
+      (rel.relEvents||[]).forEach(id=>{ if(!exists.event(id)) orphan(`${ref}/relatedEventIdentifier`,'event',id); });
+    });
+  });
+  model.events.forEach(e=>{
+    (e.linkAgents||[]).forEach(la=>{ if(la&&la.agentLid&&!exists.agent(la.agentLid)) orphan(`event ${e.lid}/linkingAgentIdentifier`,'agent',la.agentLid); });
+    (e.linkObjects||[]).forEach(lo=>{ if(lo&&lo.objectLid&&!exists.object(lo.objectLid)) orphan(`event ${e.lid}/linkingObjectIdentifier`,'object',lo.objectLid); });
+  });
+  model.agents.forEach(a=>{
+    (a.linkEvents||[]).forEach(id=>{ if(!exists.event(id)) orphan(`agent ${a.lid}/linkingEventIdentifier`,'event',id); });
+  });
+  model.rights.forEach(r=>{
+    (r.linkObjects||[]).forEach(id=>{ if(!exists.object(id)) orphan(`rights ${r.lid}/linkingObjectIdentifier`,'object',id); });
+    (r.linkAgents||[]).forEach(id=>{ if(!exists.agent(id)) orphan(`rights ${r.lid}/linkingAgentIdentifier`,'agent',id); });
+  });
+
+  /* R2.1 — unicidade de identificadores: o par (type,value) deve ser único dentro de
+     cada classe de identificador. Fonte: PREMIS DD — "Identifiers must be unique within
+     the repository." (incompletos não entram aqui; já são pegos pela regra de obrigatório.) */
+  const uniq = (label,pairs)=>{
+    const seen = new Map();
+    pairs.forEach(p=>{
+      if(!has(p.type)||!has(p.value)) return;
+      const key = p.type+' '+p.value;
+      if(seen.has(key)) seen.get(key).push(p.owner); else seen.set(key,[p.owner]);
+    });
+    seen.forEach((owners,key)=>{
+      if(owners.length>1){
+        const [type,value]=key.split(' ');
+        add('bad','dd',`${label}: identificador duplicado (${type}, ${value}) em ${owners.join(', ')}. Identificadores devem ser únicos no repositório (R2.1).`);
+      }
+    });
+  };
+  uniq('object', model.objects.flatMap(o=>(o.identifiers||[]).map(id=>({type:id.type,value:id.value,owner:o.lid}))));
+  uniq('event',  model.events.map(e=>({type:e.idType,value:e.idValue,owner:e.lid})));
+  uniq('agent',  model.agents.flatMap(a=>(a.identifiers||[]).map(id=>({type:id.type,value:id.value,owner:a.lid}))));
+  uniq('rights', model.rights.map(r=>({type:r.idType,value:r.idValue,owner:r.lid})));
+
+  /* R2.5 — entidade sem nenhum vínculo é CONFORME (linking* é opcional no PREMIS);
+     apenas aviso informativo. Aplicado ao agente desconectado (exemplo da norma). */
+  model.agents.forEach(a=>{
+    const out = (a.linkEvents||[]).some(id=>exists.event(id));
+    const incoming = model.events.some(e=>(e.linkAgents||[]).some(la=>la.agentLid===a.lid))
+                  || model.rights.some(r=>(r.linkAgents||[]).includes(a.lid));
+    if(!out && !incoming) add('info','dd',`agent ${a.lid}: sem vínculo a evento ou direito. É conforme (linking* é opcional); apenas aviso (R2.5).`);
+  });
+
+  const blocked = items.some(x=>x.level==='bad') || (profile==='archivematica' && items.some(x=>x.level==='warn'));
+  return {items, blocked, profile};
+}
+
+/* =================================================================
+   INTERFACE
+   ================================================================= */
+let currentEnt='object', currentProfile='archivematica', inputMode='form';
+let objDraft = mk.object();
+let evtDraft = mk.event();
+let agtDraft = mk.agent();
+const collapsed = {}; // estado de recolhimento por chave de bloco
+
+/* =================================================================
+   AJUDA — definições fiéis às fontes oficiais (PREMIS Data Dictionary 3.0,
+   XSD PREMIS v3 e vocabulários controlados id.loc.gov). Cada verbete traz
+   texto, fonte e link. Onde a fonte não foi confirmada, o campo declara isso.
+   ================================================================= */
+const SRC = {
+  dd:   {label:'PREMIS Data Dictionary 3.0', url:'https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf'},
+  hier: {label:'PREMIS 3.0 — listagem hierárquica', url:'https://www.loc.gov/standards/premis/v3/premis-hierarchical-3-0.html'},
+  xsd:  {label:'PREMIS XSD v3', url:'https://www.loc.gov/standards/premis/v3/premis.xsd'},
+  relSub:{label:'id.loc.gov — relationshipSubType', url:'https://id.loc.gov/vocabulary/preservation/relationshipSubType.html'},
+  relType:{label:'id.loc.gov — relationshipType', url:'https://id.loc.gov/vocabulary/preservation/relationshipType.html'},
+  agType:{label:'id.loc.gov — agentType', url:'https://id.loc.gov/vocabulary/preservation/agentType.html'},
+  evType:{label:'id.loc.gov — eventType', url:'https://id.loc.gov/vocabulary/preservation/eventType.html'},
+  rBasis:{label:'id.loc.gov — rightsBasis', url:'https://id.loc.gov/vocabulary/preservation/rightsBasis.html'},
+  hash: {label:'id.loc.gov — cryptographicHashFunctions', url:'https://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions.html'},
+  inhib:{label:'id.loc.gov — inhibitorType', url:'https://id.loc.gov/vocabulary/preservation/inhibitorType.html'},
+  am:   {label:'Archivematica 1.18 — Import metadata', url:'https://www.archivematica.org/en/docs/archivematica-1.18/user-manual/transfer/import-metadata/'},
+};
+/* HELP[chave] = {t: definição, src: chave de SRC, voc?: link de vocabulário} */
+const HELP = {
+  /* entidades */
+  'object': {t:'Unidade de informação digital. O PREMIS subdivide o objeto em quatro categorias (xsi:type): intellectualEntity, representation, file e bitstream. A categoria é registrada como atributo xsi:type, não como elemento.', src:'dd'},
+  'event': {t:'Ação que envolve ao menos um objeto, agente ou direito conhecido pelo repositório. Usado para registrar a proveniência e as ações de preservação.', src:'dd'},
+  'agent': {t:'Pessoa, organização ou software associado a eventos na vida de um objeto, ou a declarações de direitos.', src:'dd'},
+  'rights': {t:'Direitos e permissões relativos às atividades de preservação (não os de acesso/distribuição). Cada rightsStatement declara a base do direito e, opcionalmente, atos concedidos.', src:'dd'},
+  /* tipos de objeto */
+  'objType': {t:'O objectComplexType é abstrato no XSD: sem xsi:type o documento não valida. file = item digital com uma sequência de bytes em um formato; representation = conjunto de arquivos que formam uma versão completa do objeto; bitstream = dados dentro de um arquivo que não podem ser transformados sem o arquivo; intellectualEntity = unidade intelectual coerente (livro, fotografia, base de dados). A v3.0 reposicionou o intellectualEntity como categoria de objeto.', src:'dd'},
+  /* object identifier */
+  'objectIdentifier': {t:'Designação usada para identificar o objeto de forma inequívoca dentro do sistema de preservação. É composto por type e value. Obrigatório e repetível.', src:'dd'},
+  'objectIdentifierType': {t:'Designação do domínio no qual o identificador é único e foi atribuído. Deve ser definido tão especificamente quanto possível, indicando a autoridade de atribuição. Quando todos os identificadores são locais ao repositório, o tipo pode ser conhecido por contexto.', src:'dd'},
+  'objectIdentifierValue': {t:'O valor do identificador do objeto. Identificadores devem ser únicos dentro do repositório.', src:'dd'},
+  /* characteristics */
+  'objectCharacteristics': {t:'Propriedades técnicas de um arquivo ou bitstream que se aplicam a objetos de todos os formatos. Obrigatório para file e bitstream; não existe em representation nem intellectualEntity.', src:'dd'},
+  'compositionLevel': {t:'Indica o aninhamento de empacotamento/codificação de um objeto. Zero indica objeto não empacotado/não codificado; valores maiores indicam camadas de codificação (ex.: compressão). Admite o valor "unknown".', src:'dd'},
+  'fixity': {t:'Informação usada para verificar se um objeto foi alterado de forma não documentada. Composta por algoritmo, valor de digest e, opcionalmente, o originador.', src:'dd'},
+  'messageDigestAlgorithm': {t:'O algoritmo (função de hash criptográfica) usado para calcular o message digest. Valor recomendado de vocabulário controlado.', src:'hash'},
+  'messageDigest': {t:'O valor de saída do message digest (o hash) produzido pelo algoritmo indicado.', src:'dd'},
+  'size': {t:'Tamanho do objeto em bytes.', src:'dd'},
+  'format': {t:'Identificação do formato do objeto, por designação (nome/versão) e/ou por referência a um registro de formatos. Repetível; ao menos um formato é exigido.', src:'dd'},
+  'formatName': {t:'Nome do formato do objeto. Pode vir de um vocabulário controlado, como o registro PRONOM.', src:'dd'},
+  'formatVersion': {t:'A versão do formato indicado em formatName.', src:'dd'},
+  'formatRegistry': {t:'Referência a um registro externo de formatos (ex.: PRONOM), por nome e chave.', src:'dd'},
+  'creatingApplication': {t:'Informação sobre a aplicação que criou o objeto, incluindo nome, versão e data de criação.', src:'dd'},
+  'inhibitors': {t:'Recurso de segurança embutido no objeto que restringe acesso, cópia ou migração — por exemplo, criptografia ou proteção por senha. Conhecer o inibidor é necessário para a preservação a longo prazo.', src:'inhib'},
+  /* originalName, storage */
+  'originalName': {t:'Nome original do objeto na transferência para o repositório. No fluxo do Archivematica, é o valor que vincula o objeto ao arquivo físico em objects/.', src:'am'},
+  'storage': {t:'Informação sobre como e onde o conteúdo do objeto está armazenado: localização do conteúdo e/ou meio de armazenamento.', src:'dd'},
+  /* preservationLevel, significantProperties */
+  'preservationLevel': {t:'Conjunto de ações de preservação aplicadas ou pretendidas para o objeto. Não se aplica a bitstream.', src:'dd'},
+  'preservationLevelValue': {t:'Valor que indica o conjunto de funções de preservação a aplicar ao objeto.', src:'dd'},
+  'significantProperties': {t:'Características de um objeto consideradas relevantes preservar ao longo do tempo. Podem ser determinadas por tipo, por instância ou por requisitos de uma comunidade.', src:'dd'},
+  /* environment (IE) */
+  'environmentFunction': {t:'Função do ambiente em relação ao objeto: o tipo de ambiente (ex.: software, hardware) e o nível em que opera. Aplicável a intellectualEntity usado para descrever ambientes.', src:'dd'},
+  'environmentDesignation': {t:'Designação de um ambiente conhecido necessário para usar o objeto: nome, versão e origem.', src:'dd'},
+  'environmentRegistry': {t:'Referência a um registro externo que descreve o ambiente, por nome e chave.', src:'dd'},
+  /* signature */
+  'signatureInformation': {t:'Informação de assinatura digital usada para autenticar a identidade do remetente e/ou a integridade do objeto. Aplicável a file e bitstream.', src:'dd'},
+  'signatureEncoding': {t:'A codificação usada na assinatura (ex.: base64). Vocabulário controlado.', src:'dd'},
+  'signatureMethod': {t:'O método/algoritmo usado para calcular a assinatura (ex.: DSA, RSA).', src:'dd'},
+  'signatureValue': {t:'O valor da assinatura digital.', src:'dd'},
+  'signatureValidationRules': {t:'As regras a usar para validar a assinatura.', src:'dd'},
+  /* relationship */
+  'relationship': {t:'Associação entre o objeto e outro(s) objeto(s) ou evento(s). Composta por relationshipType, relationshipSubType e os identificadores relacionados.', src:'dd'},
+  'relationshipType': {t:'Natureza de alto nível da relação. Vocabulário controlado: structural, derivation, dependency, logical, reference, replacement.', src:'relType', voc:'relType'},
+  'relationshipSubType': {t:'Especialização do tipo de relação. Vocabulário controlado: por exemplo "is part of"/"has part" (structural), "is source of"/"has source" (derivation), "is included in"/"includes", "is required by"/"requires" (dependency), "is superseded by"/"supersedes" (replacement). A lista oficial é mais extensa — consulte a fonte.', src:'relSub', voc:'relSub'},
+  /* event */
+  'eventIdentifier': {t:'Designação que identifica o evento de forma inequívoca. Obrigatório. Composto por type e value.', src:'dd'},
+  'eventType': {t:'Categoria/ação do evento (ex.: ingestion, migration, virus check, message digest calculation, fixity check). Vocabulário controlado.', src:'evType', voc:'evType'},
+  'eventDateTime': {t:'Data e hora em que o evento ocorreu. No XSD é xs:string (sem validação de formato); o Archivematica exige ISO 8601, ex.: 2019-07-04T22:46:07+00:00.', src:'am'},
+  'eventDetailInformation': {t:'Informação adicional sobre o evento, em texto livre (eventDetail).', src:'dd'},
+  'eventOutcomeInformation': {t:'Resultado do evento (eventOutcome) e detalhamento opcional (eventOutcomeDetail).', src:'dd'},
+  'linkingAgentIdentifier': {t:'Vínculo a um agente associado ao evento. Pode indicar o papel do agente (linkingAgentRole). Opcional no XSD; o Archivematica espera um agente por evento.', src:'dd'},
+  'linkingObjectIdentifier': {t:'Vínculo a um objeto associado ao evento, com papel opcional.', src:'dd'},
+  /* agent */
+  'agentIdentifier': {t:'Designação que identifica o agente de forma inequívoca. Obrigatório e repetível.', src:'dd'},
+  'agentName': {t:'Nome do agente. Repetível, para registrar formas alternativas.', src:'dd'},
+  'agentType': {t:'Tipo do agente. Vocabulário controlado: person (um ser humano individual), organization, software, hardware.', src:'agType', voc:'agType'},
+  'agentVersion': {t:'A versão do agente, aplicável tipicamente a agentes de software. Novo na v3.0.', src:'dd'},
+  'agentNote': {t:'Informação adicional sobre o agente, em texto livre.', src:'dd'},
+  /* rights */
+  'rightsStatementIdentifier': {t:'Designação que identifica a declaração de direitos de forma inequívoca.', src:'dd'},
+  'rightsBasis': {t:'Base sobre a qual o direito ou permissão se apoia. Vocabulário controlado: copyright, license, statute, other.', src:'rBasis', voc:'rBasis'},
+  'copyrightInformation': {t:'Informação quando a base é copyright: situação (status), jurisdição e datas.', src:'dd'},
+  'copyrightStatus': {t:'Situação do direito autoral (ex.: copyrighted, public domain, unknown).', src:'dd'},
+  'copyrightJurisdiction': {t:'Jurisdição sob cuja lei o status de copyright é determinado. Recomenda-se código de país (ISO 3166).', src:'dd'},
+  'licenseInformation': {t:'Informação quando a base é license: identificador da documentação, termos, notas e datas. O XSD exige ao menos um desses (xs:choice).', src:'dd'},
+  'statuteInformation': {t:'Informação quando a base é statute: jurisdição, citação do dispositivo legal e datas.', src:'dd'},
+  'otherRightsInformation': {t:'Informação quando a base é "other": a base específica (otherRightsBasis) e documentação associada.', src:'dd'},
+  'rightsGranted': {t:'Ato concedido ou restrição associada ao direito (act), com termos opcionais de concessão e de restrição.', src:'dd'},
+  'act': {t:'A ação que o agente detentor do direito autorizou (ex.: replicate, migrate, modify, use, disseminate, delete).', src:'dd'},
+};
+const VOC = {
+  relType: [['structural','relação de composição/estrutura entre objetos'],['derivation','um objeto deriva de outro (ex.: por migração)'],['dependency','um objeto depende de outro para funcionar'],['logical','relação lógica'],['reference','um objeto referencia outro'],['replacement','um objeto substitui outro']],
+  relSub: [['is part of / has part','structural'],['is included in / includes','structural'],['is source of / has source','derivation'],['is required by / requires','dependency'],['is superseded by / supersedes','replacement']],
+  agType: [['person','um ser humano individual'],['organization','uma organização ou grupo'],['software','um programa de computador'],['hardware','um equipamento físico']],
+  rBasis: [['copyright','direito autoral'],['license','licença concedida'],['statute','dispositivo legal/estatutário'],['other','outra base']],
+};
+
+function helpIcon(key){
+  if(!HELP[key]) return '';
+  return `<button type="button" class="info-i" onclick="openHelp(event,'${key}')" title="o que é isto?">ⓘ</button>`;
+}
+function openHelp(ev, key){
+  ev.stopPropagation();
+  const e=HELP[key]; if(!e) return;
+  const src=SRC[e.src];
+  let body=`<div class="help-term">${key}</div><div class="help-def">${esc(e.t)}</div>`;
+  if(e.voc && VOC[e.voc]){
+    body+=`<div class="help-voc-h">valores do vocabulário (exemplos oficiais):</div><ul class="help-voc">`;
+    VOC[e.voc].forEach(([term,desc])=>{ body+=`<li><code>${esc(term)}</code> — ${esc(desc)}</li>`; });
+    body+=`</ul><div class="help-voc-note">Lista não exaustiva. A relação completa está na fonte.</div>`;
+  }
+  if(src) body+=`<a class="help-src" href="${src.url}" target="_blank" rel="noopener">fonte: ${esc(src.label)} ↗</a>`;
+  document.getElementById('helpBody').innerHTML=body;
+  const p=document.getElementById('helpPanel'); p.classList.add('open');
+}
+function closeHelp(){ document.getElementById('helpPanel').classList.remove('open'); }
+
+/* helper de campo. req=true -> asterisco. hkey -> ícone de ajuda */
+function fld(label,src,id,val,ph,hint,req,sync,hkey){
+  const srcL = src==='xsd'?'XSD':src==='am'?'ARCHIVEMATICA':src==='dd'?'DICIONÁRIO':'';
+  const srcSpan = src?`<span class="src ${src}">${srcL}</span>`:'';
+  const ast = req?'<span class="req">*</span>':'';
+  return `<div class="field"><label>${label}${ast}${srcSpan}${helpIcon(hkey)}</label>
+    <input id="${id}" value="${esc(val||'')}" placeholder="${ph||''}" oninput="${sync||'syncObj'}()">
+    ${hint?`<div class="hint">${hint}</div>`:''}</div>`;
+}
+function ta(label,src,id,val,ph,hint,req,sync){
+  const ast=req?'<span class="req">*</span>':'';
+  const srcL = src==='xsd'?'XSD':src==='am'?'ARCHIVEMATICA':src==='dd'?'DICIONÁRIO':'';
+  const srcSpan = src?`<span class="src ${src}">${srcL}</span>`:'';
+  return `<div class="field"><label>${label}${ast}${srcSpan}</label>
+    <textarea id="${id}" placeholder="${ph||''}" oninput="${sync||'syncObj'}()">${esc(val||'')}</textarea>
+    ${hint?`<div class="hint">${hint}</div>`:''}</div>`;
+}
+/* cabeçalho de bloco recolhível. reqStar marca bloco obrigatório */
+function blockHead(key,title,card,reqStar,hkey){
+  const isC = collapsed[key];
+  return `<div class="bh" onclick="toggleBlock('${key}')"><span class="bt">${title}${reqStar?'<span class="req">*</span>':''} <span class="card-c">${card}</span>${helpIcon(hkey)}</span><span class="caret">${isC?'▸ expandir':'▾'}</span></div>`;
+}
+function toggleBlock(key){ collapsed[key]=!collapsed[key]; renderForm(); }
+
+/* ====================== OBJECT ====================== */
+function renderObjectForm(){
+  const o = objDraft;
+  const t = o.objType||'file';
+  const allow = allowFor(t);
+  let h = `<div class="card-min">objectComplexType / ${t} — cardinalidade entre colchetes · * = obrigatório XSD</div>`;
+
+  // tipo do objeto (xsi:type) — primeira decisão; condiciona todo o resto
+  h += `<div class="block"><div class="bh"><span class="bt">tipo do objeto — xsi:type<span class="req">*</span> <span class="card-c">1..1</span></span></div><div class="bb">
+    <div class="field"><label>xsi:type<span class="req">*</span><span class="src xsd">XSD</span>${helpIcon('objType')}</label>
+    <select id="o_type" onchange="syncObj();renderForm()">
+      <option value="file" ${t==='file'?'selected':''}>file</option>
+      <option value="representation" ${t==='representation'?'selected':''}>representation</option>
+      <option value="bitstream" ${t==='bitstream'?'selected':''}>bitstream</option>
+      <option value="intellectualEntity" ${t==='intellectualEntity'?'selected':''}>intellectualEntity</option>
+    </select>
+    <div class="hint">O objectComplexType é abstrato: sem xsi:type o documento não valida. O data dictionary chama isto de objectCategory; o XSD o implementa como atributo, não como elemento. Os blocos abaixo mudam conforme o tipo.</div></div></div>`;
+
+  // objectIdentifier (obrigatório)
+  h += `<div class="block"><div class="bh"><span class="bt">objectIdentifier<span class="req">*</span> <span class="card-c">1..n</span>${helpIcon('objectIdentifier')}</span></div><div class="bb">`;
+  o.identifiers.forEach((id,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>identificador ${i+1}</span>${o.identifiers.length>1?`<button class="rm-x" onclick="rmRep('identifiers',${i})">×</button>`:''}</div>
+      <div class="field-row">${fld('Type','xsd',`id_t_${i}`,id.type,'ex.: UUID','',true,'syncObj','objectIdentifierType')}${fld('Value','xsd',`id_v_${i}`,id.value,'ex.: hdl:3847677','',true,'syncObj','objectIdentifierValue')}</div></div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('identifiers')">+ identificador</button></div></div>`;
+
+  // objectCharacteristics (obrigatório)
+  if(allow.chars){
+  h += `<div class="block"><div class="bh"><span class="bt">objectCharacteristics<span class="req">*</span> <span class="card-c">1..n</span>${helpIcon('objectCharacteristics')}</span></div><div class="bb">`;
+  o.characteristics.forEach((c,ci)=>{
+    h += `<div class="rep-item"><div class="rh"><span>characteristics ${ci+1}</span>${o.characteristics.length>1?`<button class="rm-x" onclick="rmRep('characteristics',${ci})">×</button>`:''}</div>`;
+    h += `<div class="field-row">${fld('compositionLevel','dd',`c_comp_${ci}`,c.compositionLevel,'inteiro ≥ 0','',false,'syncObj','compositionLevel')}${fld('size (bytes)','dd',`c_size_${ci}`,c.size,'ex.: 2048576','',false,'syncObj','size')}</div>`;
+    h += `<div class="subblock"><div class="sh"><span>fixity [0..n]${helpIcon('fixity')}</span></div>`;
+    c.fixities.forEach((f,fi)=>{
+      h += `<div class="rep-item"><div class="rh"><span>fixity ${fi+1}</span><button class="rm-x" onclick="rmSub(${ci},'fixities',${fi})">×</button></div>
+        ${fld('messageDigestAlgorithm','xsd',`f_a_${ci}_${fi}`,f.algo,'ex.: SHA-256','',true,'syncObj','messageDigestAlgorithm')}${fld('messageDigest','xsd',`f_d_${ci}_${fi}`,f.digest,'valor do hash','',true,'syncObj','messageDigest')}${fld('messageDigestOriginator','dd',`f_o_${ci}_${fi}`,f.originator,'opcional')}</div>`;
+    });
+    h += `<button class="add-btn" onclick="addSub(${ci},'fixities')">+ fixity</button></div>`;
+    h += `<div class="subblock"><div class="sh"><span>format <span class="req">*</span> [1..n]${helpIcon('format')}</span></div>`;
+    c.formats.forEach((fmt,mi)=>{
+      h += `<div class="rep-item"><div class="rh"><span>format ${mi+1}</span>${c.formats.length>1?`<button class="rm-x" onclick="rmSub(${ci},'formats',${mi})">×</button>`:''}</div>
+        <div class="chk"><input type="checkbox" id="fmt_reg_${ci}_${mi}" ${fmt.useRegistry?'checked':''} onchange="syncObj();renderForm()"><label style="font-weight:400;margin:0">usar formatRegistry em vez de formatDesignation</label></div>`;
+      if(fmt.useRegistry){
+        h += `${fld('formatRegistryName','xsd',`fmt_rn_${ci}_${mi}`,fmt.regName,'ex.: PRONOM','',true)}${fld('formatRegistryKey','xsd',`fmt_rk_${ci}_${mi}`,fmt.regKey,'ex.: fmt/134','',true)}${fld('formatRegistryRole','dd',`fmt_rr_${ci}_${mi}`,fmt.regRole,'opcional')}`;
+      } else {
+        h += `<div class="field-row">${fld('formatName','xsd',`fmt_n_${ci}_${mi}`,fmt.name,'ex.: MP3','',true,'syncObj','formatName')}${fld('formatVersion','dd',`fmt_v_${ci}_${mi}`,fmt.version,'opcional')}</div>`;
+      }
+      h += `${fld('formatNote','dd',`fmt_note_${ci}_${mi}`,fmt.note,'opcional')}</div>`;
+    });
+    h += `<button class="add-btn" onclick="addSub(${ci},'formats')">+ format</button></div>`;
+    h += `<div class="subblock"><div class="sh"><span>creatingApplication [0..n]${helpIcon('creatingApplication')}</span></div>`;
+    c.creatingApps.forEach((a,ai)=>{
+      h += `<div class="rep-item"><div class="rh"><span>aplicação ${ai+1}</span><button class="rm-x" onclick="rmSub(${ci},'creatingApps',${ai})">×</button></div>
+        <div class="field-row">${fld('Name','dd',`ca_n_${ci}_${ai}`,a.name)}${fld('Version','dd',`ca_v_${ci}_${ai}`,a.version)}</div>${fld('dateCreatedByApplication','dd',`ca_d_${ci}_${ai}`,a.date,'data')}</div>`;
+    });
+    h += `<button class="add-btn" onclick="addSub(${ci},'creatingApps')">+ creatingApplication</button></div>`;
+    h += `<div class="subblock"><div class="sh"><span>inhibitors [0..n]${helpIcon('inhibitors')}</span></div>`;
+    c.inhibitors.forEach((inh,ii)=>{
+      h += `<div class="rep-item"><div class="rh"><span>inibidor ${ii+1}</span><button class="rm-x" onclick="rmSub(${ci},'inhibitors',${ii})">×</button></div>
+        ${fld('inhibitorType','xsd',`in_t_${ci}_${ii}`,inh.type,'ex.: encryption','',true)}${fld('inhibitorTarget','dd',`in_g_${ci}_${ii}`,inh.target,'opcional')}${fld('inhibitorKey','dd',`in_k_${ci}_${ii}`,inh.key,'opcional')}</div>`;
+    });
+    h += `<button class="add-btn" onclick="addSub(${ci},'inhibitors')">+ inhibitor</button></div>`;
+    h += `</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('characteristics')">+ objectCharacteristics</button></div></div>`;
+  }
+
+  // originalName (opcional, mas em destaque pelo Archivematica) - não recolhido
+  if(allow.oname){
+  h += `<div class="block"><div class="bh"><span class="bt">originalName <span class="card-c">0..1</span>${helpIcon('originalName')}</span></div><div class="bb">
+    ${fld('originalName', t==='file'?'am':'dd', 'o_name',o.originalName,'ex.: objects/bird.mp3', t==='file'?'No Archivematica deve começar com objects/.':'Nome original do objeto no sistema de origem.')}</div></div>`;
+  }
+
+  // ---- blocos OPCIONAIS recolhidos por padrão ----
+  // preservationLevel
+  if(allow.pl){
+  h += `<div class="block ${collapsed['o_pl']!==false?'collapsed':''}">${blockHead('o_pl','preservationLevel','0..n',false,'preservationLevel')}<div class="bb">`;
+  o.preservationLevels.forEach((p,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>nível ${i+1}</span><button class="rm-x" onclick="rmRep('preservationLevels',${i})">×</button></div>
+      ${fld('preservationLevelValue','xsd',`pl_v_${i}`,p.value,'ex.: full','',true)}<div class="field-row">${fld('Type','dd',`pl_t_${i}`,p.plType)}${fld('Role','dd',`pl_r_${i}`,p.role)}</div>${fld('Rationale','dd',`pl_ra_${i}`,p.rationale)}${fld('DateAssigned','dd',`pl_d_${i}`,p.dateAssigned)}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('preservationLevels')">+ preservationLevel</button></div></div>`;
+  }
+
+  // significantProperties
+  h += `<div class="block ${collapsed['o_sp']!==false?'collapsed':''}">${blockHead('o_sp','significantProperties','0..n',false,'significantProperties')}<div class="bb">`;
+  o.significantProperties.forEach((s,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>propriedade ${i+1}</span><button class="rm-x" onclick="rmRep('significantProperties',${i})">×</button></div>
+      <div class="field-row">${fld('Type','dd',`sp_t_${i}`,s.spType)}${fld('Value','dd',`sp_v_${i}`,s.value)}</div></div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('significantProperties')">+ significantProperties</button></div></div>`;
+
+  // storage
+  if(allow.storage){
+  h += `<div class="block ${collapsed['o_st']!==false?'collapsed':''}">${blockHead('o_st','storage','0..n',false,'storage')}<div class="bb">`;
+  o.storages.forEach((s,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>storage ${i+1}</span><button class="rm-x" onclick="rmRep('storages',${i})">×</button></div>
+      <div class="field-row">${fld('contentLocationType','xsd',`st_t_${i}`,s.locType,'','',true)}${fld('contentLocationValue','xsd',`st_v_${i}`,s.locValue,'','',true)}</div>${fld('storageMedium','dd',`st_m_${i}`,s.medium)}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('storages')">+ storage</button></div></div>`;
+  }
+
+  // environment* — apenas intellectualEntity
+  if(allow.env){
+  h += `<div class="block ${collapsed['o_ef']!==false?'collapsed':''}">${blockHead('o_ef','environmentFunction','0..n',false,'environmentFunction')}<div class="bb">`;
+  (o.envFunctions||[]).forEach((f,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>função ${i+1}</span><button class="rm-x" onclick="rmRep('envFunctions',${i})">×</button></div>
+      <div class="field-row">${fld('environmentFunctionType','xsd',`ef_t_${i}`,f.fType,'ex.: software, hardware','',true,'syncObj','environmentFunction')}${fld('environmentFunctionLevel','xsd',`ef_l_${i}`,f.fLevel,'ex.: 1','',true)}</div></div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('envFunctions')">+ environmentFunction</button></div></div>`;
+
+  h += `<div class="block ${collapsed['o_ed']!==false?'collapsed':''}">${blockHead('o_ed','environmentDesignation','0..n',false,'environmentDesignation')}<div class="bb">`;
+  (o.envDesignations||[]).forEach((d,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>designação ${i+1}</span><button class="rm-x" onclick="rmRep('envDesignations',${i})">×</button></div>
+      ${fld('environmentName','xsd',`ed_n_${i}`,d.name,'ex.: Adobe Acrobat Reader','',true,'syncObj','environmentDesignation')}
+      <div class="field-row">${fld('environmentVersion','dd',`ed_v_${i}`,d.version,'opcional')}${fld('environmentOrigin','dd',`ed_o_${i}`,d.origin,'opcional')}</div>`;
+    (d.notes||[]).forEach((n,ni)=>{ h+=`<div class="rep-item"><div class="rh"><span>nota ${ni+1}</span><button class="rm-x" onclick="rmEnvNote(${i},${ni})">×</button></div>${fld('environmentDesignationNote','dd',`ed_nt_${i}_${ni}`,n.value,'','',false)}</div>`; });
+    h += `<button class="add-btn" onclick="addEnvNote(${i})">+ nota</button></div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('envDesignations')">+ environmentDesignation</button></div></div>`;
+
+  h += `<div class="block ${collapsed['o_er']!==false?'collapsed':''}">${blockHead('o_er','environmentRegistry','0..n',false,'environmentRegistry')}<div class="bb">`;
+  (o.envRegistries||[]).forEach((r,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>registro ${i+1}</span><button class="rm-x" onclick="rmRep('envRegistries',${i})">×</button></div>
+      <div class="field-row">${fld('environmentRegistryName','xsd',`er_n_${i}`,r.name,'ex.: WikiData','',true,'syncObj','environmentRegistry')}${fld('environmentRegistryKey','xsd',`er_k_${i}`,r.key,'','',true)}</div>${fld('environmentRegistryRole','dd',`er_r_${i}`,r.role,'opcional')}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('envRegistries')">+ environmentRegistry</button></div></div>`;
+  }
+
+  // signatureInformation — file e bitstream
+  if(allow.sig){
+  h += `<div class="block ${collapsed['o_sig']!==false?'collapsed':''}">${blockHead('o_sig','signatureInformation','0..n',false,'signatureInformation')}<div class="bb">`;
+  (o.signatures||[]).forEach((s,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>assinatura ${i+1}</span><button class="rm-x" onclick="rmRep('signatures',${i})">×</button></div>
+      ${fld('signatureEncoding','xsd',`sg_e_${i}`,s.encoding,'ex.: base64','',true,'syncObj','signatureEncoding')}
+      ${fld('signer','dd',`sg_s_${i}`,s.signer,'opcional')}
+      ${fld('signatureMethod','xsd',`sg_m_${i}`,s.method,'ex.: RSA, DSA','',true,'syncObj','signatureMethod')}
+      ${ta('signatureValue','xsd',`sg_v_${i}`,s.value,'valor da assinatura','',true)}
+      ${fld('signatureValidationRules','xsd',`sg_r_${i}`,s.rules,'regras de validação','',true)}
+      ${fld('signatureProperties','dd',`sg_p_${i}`,s.properties,'opcional')}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('signatures')">+ signatureInformation</button></div></div>`;
+  }
+
+  // linkingEventIdentifier (seleção)
+  h += `<div class="block ${collapsed['o_le']!==false?'collapsed':''}">${blockHead('o_le','linkingEventIdentifier','0..n')}<div class="bb">`;
+  h += model.events.length ? model.events.map(e=>`<div class="chk"><input type="checkbox" id="le_${e.lid}" ${o.linkEvents.includes(e.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="le_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum evento no modelo. Crie eventos para vincular por seleção.</div>';
+  h += `</div></div>`;
+
+  // relationship 0..n (parte do object no XSD)
+  h += `<div class="block ${collapsed['o_rel']!==false?'collapsed':''}">${blockHead('o_rel','relationship','0..n',false,'relationship')}<div class="bb">`;
+  (o.relationships||[]).forEach((rel,i)=>{
+    const others = model.objects; // pode relacionar com qualquer objeto já no modelo
+    h += `<div class="rep-item"><div class="rh"><span>relação ${i+1}</span><button class="rm-x" onclick="rmRep('relationships',${i})">×</button></div>
+      <div class="field-row">${fld('relationshipType','xsd',`rel_t_${i}`,rel.type,'ex.: structural, derivation','',true,'syncObj','relationshipType')}${fld('relationshipSubType','xsd',`rel_s_${i}`,rel.subType,'ex.: is part of','',true,'syncObj','relationshipSubType')}</div>
+      <label style="font-size:11px;font-weight:600">relatedObjectIdentifier<span class="req">*</span> [1..n] — objetos do modelo</label>
+      ${others.length? others.map(t=>`<div class="chk"><input type="checkbox" id="relo_${i}_${t.lid}" ${rel.relObjects.includes(t.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="relo_${i}_${t.lid}">${t.lid} · ${esc(t.originalName||(t.identifiers[0]?t.identifiers[0].value:''))}</label></div>`).join('') : '<div class="empty">Nenhum objeto no modelo ainda para relacionar.</div>'}
+      <label style="font-size:11px;font-weight:600;margin-top:6px">relatedEventIdentifier [0..n]</label>
+      ${model.events.length? model.events.map(e=>`<div class="chk"><input type="checkbox" id="rele_${i}_${e.lid}" ${rel.relEvents.includes(e.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="rele_${i}_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Sem eventos no modelo.</div>'}
+    </div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('relationships')">+ relationship</button></div></div>`;
+
+  // linkingRightsStatementIdentifier 0..n (seleção)
+  h += `<div class="block ${collapsed['o_lr']!==false?'collapsed':''}">${blockHead('o_lr','linkingRightsStatementIdentifier','0..n')}<div class="bb">`;
+  h += model.rights.length ? model.rights.map(r=>`<div class="chk"><input type="checkbox" id="lr_${r.lid}" ${(o.linkRights||[]).includes(r.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="lr_${r.lid}">${r.lid} · ${esc(r.basis)} · ${esc(r.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum rights no modelo. Crie na aba rights.</div>';
+  h += `<div class="hint" style="margin-top:6px">Omitido no perfil Archivematica (rights não entram no premis.xml desse fluxo).</div></div></div>`;
+
+  h += `<div class="btn-row"><button class="btn" id="btnAddObj">adicionar object ao modelo</button><button class="btn ghost" id="btnResetObj">limpar</button></div>`;
+  h += `<div class="omit">Fora por escopo: elementos <code>*Extension</code> (xs:any — ponto de extensão aberto, sem campos definidos no schema).</div>`;
+
+  document.getElementById('formHost').innerHTML = h;
+  document.getElementById('btnAddObj').onclick = commitObject;
+  document.getElementById('btnResetObj').onclick = ()=>{ objDraft=mk.object(); renderForm(); };
+}
+
+function syncObj(){
+  const o=objDraft;
+  /* gn: null se o campo não está no DOM (bloco oculto pelo tipo) — preserva rascunho; '' se visível e vazio — permite limpar */
+  const gn=id=>{const el=document.getElementById(id);return el?el.value:null;};
+  const set=(obj,key,id)=>{const v=gn(id); if(v!==null) obj[key]=v;};
+  const gc=id=>{const el=document.getElementById(id);return el?el.checked:null;};
+  const tSel=document.getElementById('o_type'); if(tSel) o.objType=tSel.value;
+  o.identifiers.forEach((id,i)=>{set(id,'type',`id_t_${i}`);set(id,'value',`id_v_${i}`);});
+  o.preservationLevels.forEach((p,i)=>{set(p,'value',`pl_v_${i}`);set(p,'plType',`pl_t_${i}`);set(p,'role',`pl_r_${i}`);set(p,'rationale',`pl_ra_${i}`);set(p,'dateAssigned',`pl_d_${i}`);});
+  o.significantProperties.forEach((s,i)=>{set(s,'spType',`sp_t_${i}`);set(s,'value',`sp_v_${i}`);});
+  o.characteristics.forEach((c,ci)=>{
+    set(c,'compositionLevel',`c_comp_${ci}`);set(c,'size',`c_size_${ci}`);
+    c.fixities.forEach((f,fi)=>{set(f,'algo',`f_a_${ci}_${fi}`);set(f,'digest',`f_d_${ci}_${fi}`);set(f,'originator',`f_o_${ci}_${fi}`);});
+    c.formats.forEach((fmt,mi)=>{const ck=gc(`fmt_reg_${ci}_${mi}`);if(ck!==null)fmt.useRegistry=ck;set(fmt,'name',`fmt_n_${ci}_${mi}`);set(fmt,'version',`fmt_v_${ci}_${mi}`);set(fmt,'regName',`fmt_rn_${ci}_${mi}`);set(fmt,'regKey',`fmt_rk_${ci}_${mi}`);set(fmt,'regRole',`fmt_rr_${ci}_${mi}`);set(fmt,'note',`fmt_note_${ci}_${mi}`);});
+    c.creatingApps.forEach((a,ai)=>{set(a,'name',`ca_n_${ci}_${ai}`);set(a,'version',`ca_v_${ci}_${ai}`);set(a,'date',`ca_d_${ci}_${ai}`);});
+    c.inhibitors.forEach((inh,ii)=>{set(inh,'type',`in_t_${ci}_${ii}`);set(inh,'target',`in_g_${ci}_${ii}`);set(inh,'key',`in_k_${ci}_${ii}`);});
+  });
+  set(o,'originalName','o_name');
+  o.storages.forEach((s,i)=>{set(s,'locType',`st_t_${i}`);set(s,'locValue',`st_v_${i}`);set(s,'medium',`st_m_${i}`);});
+  (o.signatures||[]).forEach((s,i)=>{set(s,'encoding',`sg_e_${i}`);set(s,'signer',`sg_s_${i}`);set(s,'method',`sg_m_${i}`);set(s,'value',`sg_v_${i}`);set(s,'rules',`sg_r_${i}`);set(s,'properties',`sg_p_${i}`);});
+  (o.envFunctions||[]).forEach((f,i)=>{set(f,'fType',`ef_t_${i}`);set(f,'fLevel',`ef_l_${i}`);});
+  (o.envDesignations||[]).forEach((d,i)=>{set(d,'name',`ed_n_${i}`);set(d,'version',`ed_v_${i}`);set(d,'origin',`ed_o_${i}`);(d.notes||[]).forEach((n,ni)=>set(n,'value',`ed_nt_${i}_${ni}`));});
+  (o.envRegistries||[]).forEach((r,i)=>{set(r,'name',`er_n_${i}`);set(r,'key',`er_k_${i}`);set(r,'role',`er_r_${i}`);});
+  (o.relationships||[]).forEach((rel,i)=>{
+    set(rel,'type',`rel_t_${i}`); set(rel,'subType',`rel_s_${i}`);
+    if(document.getElementById(`rel_t_${i}`)){
+      rel.relObjects=model.objects.filter(t=>gc(`relo_${i}_${t.lid}`)===true).map(t=>t.lid);
+      rel.relEvents=model.events.filter(e=>gc(`rele_${i}_${e.lid}`)===true).map(e=>e.lid);
+    }
+  });
+  if(model.rights.length && document.getElementById(`lr_${model.rights[0].lid}`)!==null || model.rights.length===0){
+    o.linkRights = model.rights.filter(r=>gc(`lr_${r.lid}`)===true).map(r=>r.lid);
+  }
+  if(model.events.length && document.getElementById(`le_${model.events[0].lid}`)!==null || model.events.length===0){
+    o.linkEvents = model.events.filter(e=>gc(`le_${e.lid}`)===true).map(e=>e.lid);
+  }
+}
+function addRep(coll){ syncObj(); const f={identifiers:mk.objectIdentifier,preservationLevels:mk.preservationLevel,significantProperties:mk.significantProperties,characteristics:mk.characteristics,storages:mk.storage,signatures:mk.signature,relationships:mk.relationship,envFunctions:mk.envFunction,envDesignations:mk.envDesignation,envRegistries:mk.envRegistry}[coll]; if(coll==='signatures'&&!objDraft.signatures)objDraft.signatures=[]; if(coll==='relationships'&&!objDraft.relationships)objDraft.relationships=[]; if(coll==='envFunctions'&&!objDraft.envFunctions)objDraft.envFunctions=[]; if(coll==='envDesignations'&&!objDraft.envDesignations)objDraft.envDesignations=[]; if(coll==='envRegistries'&&!objDraft.envRegistries)objDraft.envRegistries=[]; objDraft[coll].push(f()); const km={preservationLevels:'o_pl',significantProperties:'o_sp',storages:'o_st',signatures:'o_sig',relationships:'o_rel',envFunctions:'o_ef',envDesignations:'o_ed',envRegistries:'o_er'}[coll]; if(km)collapsed[km]=false; renderForm(); }
+function addEnvNote(i){ syncObj(); if(!objDraft.envDesignations[i].notes)objDraft.envDesignations[i].notes=[]; objDraft.envDesignations[i].notes.push({value:''}); renderForm(); }
+function rmEnvNote(i,ni){ syncObj(); objDraft.envDesignations[i].notes.splice(ni,1); renderForm(); }
+function rmRep(coll,i){ syncObj(); objDraft[coll].splice(i,1); renderForm(); }
+function addSub(ci,coll){ syncObj(); const f={fixities:mk.fixity,formats:mk.format,creatingApps:mk.creatingApplication,inhibitors:mk.inhibitor}[coll]; objDraft.characteristics[ci][coll].push(f()); renderForm(); }
+function rmSub(ci,coll,i){ syncObj(); objDraft.characteristics[ci][coll].splice(i,1); renderForm(); }
+function commitObject(){ syncObj(); model.objects.push(JSON.parse(JSON.stringify(objDraft))); objDraft = mk.object(); renderForm(); renderModel(); renderOutput(); }
+
+/* ====================== EVENT ====================== */
+function renderEventForm(){
+  const e = evtDraft;
+  let h = `<div class="card-min">eventComplexType — * = obrigatório XSD</div>`;
+  h += `<div class="block"><div class="bh"><span class="bt">eventIdentifier<span class="req">*</span> <span class="card-c">1..1</span>${helpIcon('eventIdentifier')}</span></div><div class="bb">
+    <div class="field-row">${fld('Type','xsd','ev_idt',e.idType,'ex.: UUID','',true,'syncEvt','eventIdentifier')}${fld('Value','xsd','ev_idv',e.idValue,'ex.: NRI-016','',true,'syncEvt')}</div></div></div>`;
+  h += `<div class="block"><div class="bh"><span class="bt">eventType<span class="req">*</span> <span class="card-c">1..1</span>${helpIcon('eventType')}</span></div><div class="bb">
+    ${fld('eventType','xsd','ev_type',e.eventType,'ex.: ingestion, virus check','',true,'syncEvt','eventType')}</div></div>`;
+  h += `<div class="block"><div class="bh"><span class="bt">eventDateTime<span class="req">*</span> <span class="card-c">1..1</span>${helpIcon('eventDateTime')}</span></div><div class="bb">
+    ${fld('eventDateTime','am','ev_dt',e.dateTime,'2019-07-04T22:46:07+00:00','XSD=xs:string; Archivematica exige ISO 8601.',true,'syncEvt','eventDateTime')}</div></div>`;
+
+  h += `<div class="block ${collapsed['e_det']!==false?'collapsed':''}">${blockHead('e_det','eventDetailInformation','0..n',false,'eventDetailInformation')}<div class="bb">`;
+  e.details.forEach((d,i)=>{ h += `<div class="rep-item"><div class="rh"><span>detalhe ${i+1}</span><button class="rm-x" onclick="rmEvt('details',${i})">×</button></div>${fld('eventDetail','dd',`ev_det_${i}`,d.detail,'descrição','',false,'syncEvt')}</div>`; });
+  h += `<button class="add-btn" onclick="addEvt('details')">+ eventDetailInformation</button></div></div>`;
+
+  h += `<div class="block ${collapsed['e_out']!==false?'collapsed':''}">${blockHead('e_out','eventOutcomeInformation','0..n',false,'eventOutcomeInformation')}<div class="bb">`;
+  e.outcomes.forEach((o,i)=>{ h += `<div class="rep-item"><div class="rh"><span>resultado ${i+1}</span><button class="rm-x" onclick="rmEvt('outcomes',${i})">×</button></div>${fld('eventOutcome','dd',`ev_out_${i}`,o.outcome,'ex.: Pass','',false,'syncEvt')}${fld('eventOutcomeDetailNote','dd',`ev_outn_${i}`,o.detailNote,'nota','',false,'syncEvt')}</div>`; });
+  h += `<button class="add-btn" onclick="addEvt('outcomes')">+ eventOutcomeInformation</button></div></div>`;
+
+  h += `<div class="block ${collapsed['e_la']!==false?'collapsed':''}">${blockHead('e_la','linkingAgentIdentifier','0..n',false,'linkingAgentIdentifier')}<div class="bb">`;
+  if(model.agents.length){
+    e.linkAgents.forEach((la,i)=>{
+      h += `<div class="rep-item"><div class="rh"><span>vínculo ${i+1}</span><button class="rm-x" onclick="rmEvt('linkAgents',${i})">×</button></div>
+        <div class="field"><label>agente</label><select id="ev_la_${i}" onchange="syncEvt()">${model.agents.map(a=>`<option value="${a.lid}" ${la.agentLid===a.lid?'selected':''}>${a.lid} · ${esc(a.identifiers[0]?a.identifiers[0].value:'')}</option>`).join('')}</select></div>
+        ${fld('linkingAgentRole','dd',`ev_lar_${i}`,la.role,'ex.: executing program','',false,'syncEvt')}</div>`;
+    });
+    h += `<button class="add-btn" onclick="addEvt('linkAgents')">+ vincular agente</button>`;
+  } else h += '<div class="empty">Nenhum agente no modelo. Crie agentes primeiro.</div>';
+  h += `</div></div>`;
+
+  h += `<div class="block ${collapsed['e_lo']!==false?'collapsed':''}">${blockHead('e_lo','linkingObjectIdentifier','0..n',false,'linkingObjectIdentifier')}<div class="bb">`;
+  if(model.objects.length){
+    e.linkObjects.forEach((lo,i)=>{
+      h += `<div class="rep-item"><div class="rh"><span>vínculo ${i+1}</span><button class="rm-x" onclick="rmEvt('linkObjects',${i})">×</button></div>
+        <div class="field"><label>objeto</label><select id="ev_lo_${i}" onchange="syncEvt()">${model.objects.map(o=>`<option value="${o.lid}" ${lo.objectLid===o.lid?'selected':''}>${o.lid} · ${esc(o.originalName||(o.identifiers[0]?o.identifiers[0].value:''))}</option>`).join('')}</select></div>
+        ${fld('linkingObjectRole','dd',`ev_lor_${i}`,lo.role,'opcional','',false,'syncEvt')}</div>`;
+    });
+    h += `<button class="add-btn" onclick="addEvt('linkObjects')">+ vincular objeto</button>`;
+  } else h += '<div class="empty">Nenhum objeto no modelo.</div>';
+  h += `</div></div>`;
+
+  h += `<div class="btn-row"><button class="btn" id="btnAddEvt">adicionar event ao modelo</button><button class="btn ghost" id="btnResetEvt">limpar</button></div>`;
+  document.getElementById('formHost').innerHTML = h;
+  document.getElementById('btnAddEvt').onclick = commitEvent;
+  document.getElementById('btnResetEvt').onclick = ()=>{ evtDraft=mk.event(); renderForm(); };
+}
+function syncEvt(){
+  const e=evtDraft;
+  const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  e.idType=g('ev_idt');e.idValue=g('ev_idv');e.eventType=g('ev_type');e.dateTime=g('ev_dt');
+  e.details.forEach((d,i)=>d.detail=g(`ev_det_${i}`));
+  e.outcomes.forEach((o,i)=>{o.outcome=g(`ev_out_${i}`);o.detailNote=g(`ev_outn_${i}`);});
+  e.linkAgents.forEach((la,i)=>{la.agentLid=g(`ev_la_${i}`)||(model.agents[0]&&model.agents[0].lid)||'';la.role=g(`ev_lar_${i}`);});
+  e.linkObjects.forEach((lo,i)=>{lo.objectLid=g(`ev_lo_${i}`)||(model.objects[0]&&model.objects[0].lid)||'';lo.role=g(`ev_lor_${i}`);});
+}
+function addEvt(coll){ syncEvt(); const f={details:mk.eventDetailInfo,outcomes:mk.eventOutcomeInfo,linkAgents:mk.linkingAgent,linkObjects:mk.linkingObject}[coll]; const item=f(); if(coll==='linkAgents'&&model.agents[0])item.agentLid=model.agents[0].lid; if(coll==='linkObjects'&&model.objects[0])item.objectLid=model.objects[0].lid; evtDraft[coll].push(item); const km={details:'e_det',outcomes:'e_out',linkAgents:'e_la',linkObjects:'e_lo'}[coll]; collapsed[km]=false; renderForm(); }
+function rmEvt(coll,i){ syncEvt(); evtDraft[coll].splice(i,1); renderForm(); }
+function commitEvent(){ syncEvt(); model.events.push(JSON.parse(JSON.stringify(evtDraft))); evtDraft=mk.event(); renderForm(); renderModel(); renderOutput(); }
+
+/* ====================== AGENT ====================== */
+function renderAgentForm(){
+  const a = agtDraft;
+  let h = `<div class="card-min">agentComplexType — * = obrigatório XSD</div>`;
+  h += `<div class="block"><div class="bh"><span class="bt">agentIdentifier<span class="req">*</span> <span class="card-c">1..n</span>${helpIcon('agentIdentifier')}</span></div><div class="bb">`;
+  a.identifiers.forEach((id,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>identificador ${i+1}</span>${a.identifiers.length>1?`<button class="rm-x" onclick="rmAgt('identifiers',${i})">×</button>`:''}</div>
+      <div class="field-row">${fld('Type','xsd',`ag_idt_${i}`,id.type,'ex.: repository code','',true,'syncAgt','agentIdentifier')}${fld('Value','xsd',`ag_idv_${i}`,id.value,'ex.: NRI','',true,'syncAgt')}</div></div>`;
+  });
+  h += `<button class="add-btn" onclick="addAgt('identifiers')">+ identificador</button></div></div>`;
+
+  h += `<div class="block ${collapsed['a_nm']!==false?'collapsed':''}">${blockHead('a_nm','agentName','0..n',false,'agentName')}<div class="bb">`;
+  a.names.forEach((n,i)=>{ h += `<div class="rep-item"><div class="rh"><span>nome ${i+1}</span><button class="rm-x" onclick="rmAgt('names',${i})">×</button></div>${fld('agentName','dd',`ag_nm_${i}`,n.value,'ex.: Not a Real Institution','',false,'syncAgt','agentName')}</div>`; });
+  h += `<button class="add-btn" onclick="addAgt('names')">+ agentName</button></div></div>`;
+
+  h += `<div class="block"><div class="bh"><span class="bt">agentType / agentVersion <span class="card-c">0..1</span></span></div><div class="bb">
+    ${fld('agentType','dd','ag_type',a.agentType,'ex.: organization, software','',false,'syncAgt','agentType')}
+    ${fld('agentVersion','dd','ag_ver',a.agentVersion,'ex.: 1.13.2','',false,'syncAgt','agentVersion')}</div></div>`;
+
+  h += `<div class="block ${collapsed['a_nt']!==false?'collapsed':''}">${blockHead('a_nt','agentNote','0..n',false,'agentNote')}<div class="bb">`;
+  a.notes.forEach((n,i)=>{ h += `<div class="rep-item"><div class="rh"><span>nota ${i+1}</span><button class="rm-x" onclick="rmAgt('notes',${i})">×</button></div>${fld('agentNote','dd',`ag_nt_${i}`,n.value,'observação','',false,'syncAgt')}</div>`; });
+  h += `<button class="add-btn" onclick="addAgt('notes')">+ agentNote</button></div></div>`;
+
+  h += `<div class="block ${collapsed['a_le']!==false?'collapsed':''}">${blockHead('a_le','linkingEventIdentifier','0..n')}<div class="bb">`;
+  h += model.events.length ? model.events.map(e=>`<div class="chk"><input type="checkbox" id="ag_le_${e.lid}" ${a.linkEvents.includes(e.lid)?'checked':''} onchange="syncAgt()"><label style="font-weight:400;margin:0" for="ag_le_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum evento no modelo.</div>';
+  h += `</div></div>`;
+
+  h += `<div class="btn-row"><button class="btn" id="btnAddAgt">adicionar agent ao modelo</button><button class="btn ghost" id="btnResetAgt">limpar</button></div>`;
+  h += `<div class="omit">Fora por escopo: <code>agentExtension</code> e <code>linkingEnvironmentIdentifier</code> / <code>linkingRightsStatementIdentifier</code>.</div>`;
+  document.getElementById('formHost').innerHTML = h;
+  document.getElementById('btnAddAgt').onclick = commitAgent;
+  document.getElementById('btnResetAgt').onclick = ()=>{ agtDraft=mk.agent(); renderForm(); };
+}
+function syncAgt(){
+  const a=agtDraft;
+  const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const gc=id=>{const el=document.getElementById(id);return el?el.checked:false;};
+  a.identifiers.forEach((id,i)=>{id.type=g(`ag_idt_${i}`);id.value=g(`ag_idv_${i}`);});
+  a.names.forEach((n,i)=>n.value=g(`ag_nm_${i}`));
+  a.agentType=g('ag_type');a.agentVersion=g('ag_ver');
+  a.notes.forEach((n,i)=>n.value=g(`ag_nt_${i}`));
+  a.linkEvents=model.events.filter(e=>gc(`ag_le_${e.lid}`)).map(e=>e.lid);
+}
+function addAgt(coll){ syncAgt(); const f={identifiers:mk.agentIdentifier,names:mk.agentName,notes:mk.agentNote}[coll]; agtDraft[coll].push(f()); if(coll==='names')collapsed['a_nm']=false; if(coll==='notes')collapsed['a_nt']=false; renderForm(); }
+function rmAgt(coll,i){ syncAgt(); agtDraft[coll].splice(i,1); renderForm(); }
+function commitAgent(){ syncAgt(); model.agents.push(JSON.parse(JSON.stringify(agtDraft))); agtDraft=mk.agent(); renderForm(); renderModel(); renderOutput(); }
+
+/* ====================== RIGHTS ====================== */
+let rgtDraft = null; /* criado sob demanda para não consumir lid */
+function ensureRgt(){ if(!rgtDraft) rgtDraft = mk.right(); return rgtDraft; }
+
+function renderRightsForm(){
+  const r = ensureRgt();
+  let h = `<div class="card-min">rightsStatementComplexType — um statement por base de direito (prática do data dictionary; mais estrito que o XSD, que permite combinar) · * = obrigatório XSD</div>`;
+
+  h += `<div class="block"><div class="bh"><span class="bt">rightsStatementIdentifier<span class="req">*</span> <span class="card-c">1..1</span>${helpIcon('rightsStatementIdentifier')}</span></div><div class="bb">
+    <div class="field-row">${fld('Type','xsd','rg_idt',r.idType,'ex.: UUID','',true,'syncRgt')}${fld('Value','xsd','rg_idv',r.idValue,'ex.: RS-001','',true,'syncRgt')}</div></div></div>`;
+
+  h += `<div class="block"><div class="bh"><span class="bt">rightsBasis<span class="req">*</span> <span class="card-c">1..1</span>${helpIcon('rightsBasis')}</span></div><div class="bb">
+    <div class="field"><label>base do direito<span class="req">*</span><span class="src xsd">XSD</span></label>
+    <select id="rg_basis" onchange="syncRgt();renderForm()">
+      <option value="copyright" ${r.basis==='copyright'?'selected':''}>copyright</option>
+      <option value="license" ${r.basis==='license'?'selected':''}>license</option>
+      <option value="statute" ${r.basis==='statute'?'selected':''}>statute</option>
+      <option value="other" ${r.basis==='other'?'selected':''}>other</option>
+    </select><div class="hint">Define qual bloco de informação acompanha o statement.</div></div></div></div>`;
+
+  const noteList=(arr,prefix,label)=>{ let s=`<div class="subblock"><div class="sh"><span>${label} [0..n]</span></div>`;
+    (arr||[]).forEach((n,i)=>{ s+=`<div class="rep-item"><div class="rh"><span>nota ${i+1}</span><button class="rm-x" onclick="rmRgtSub('${prefix}',${i})">×</button></div>${fld(label,'dd',`rg_${prefix}_${i}`,n.value,'','',false,'syncRgt')}</div>`; });
+    s+=`<button class="add-btn" onclick="addRgtSub('${prefix}')">+ ${label}</button></div>`; return s; };
+  const docList=(arr,prefix,label)=>{ let s=`<div class="subblock"><div class="sh"><span>${label} [0..n]</span></div>`;
+    (arr||[]).forEach((d,i)=>{ s+=`<div class="rep-item"><div class="rh"><span>doc ${i+1}</span><button class="rm-x" onclick="rmRgtSub('${prefix}',${i})">×</button></div>
+      <div class="field-row">${fld('Type','xsd',`rg_${prefix}_t_${i}`,d.type,'','',true,'syncRgt')}${fld('Value','xsd',`rg_${prefix}_v_${i}`,d.value,'','',true,'syncRgt')}</div>${fld('Role','dd',`rg_${prefix}_r_${i}`,d.role,'opcional','',false,'syncRgt')}</div>`; });
+    s+=`<button class="add-btn" onclick="addRgtSub('${prefix}')">+ documentationIdentifier</button></div>`; return s; };
+
+  if(r.basis==='copyright'){
+    h += `<div class="block"><div class="bh"><span class="bt">copyrightInformation<span class="req">*</span> <span class="card-c">0..1</span></span></div><div class="bb">
+      <div class="field-row">${fld('copyrightStatus','xsd','rg_c_status',r.c_status,'ex.: copyrighted, public domain','',true,'syncRgt','copyrightStatus')}${fld('copyrightJurisdiction','xsd','rg_c_jur',r.c_jurisdiction,'ex.: BR (ISO 3166)','',true,'syncRgt','copyrightJurisdiction')}</div>
+      ${fld('copyrightStatusDeterminationDate','dd','rg_c_date',r.c_date,'data EDTF','',false,'syncRgt')}
+      ${noteList(r.c_notes,'c_notes','copyrightNote')}
+      ${docList(r.c_docIds,'c_docIds','copyrightDocumentationIdentifier')}
+      <div class="field-row">${fld('applicableDates: startDate','dd','rg_c_ds',r.c_dStart,'','startDate é obrigatório se as datas forem usadas',false,'syncRgt')}${fld('endDate','dd','rg_c_de',r.c_dEnd,'','',false,'syncRgt')}</div>
+      </div></div>`;
+  } else if(r.basis==='license'){
+    h += `<div class="block"><div class="bh"><span class="bt">licenseInformation<span class="req">*</span> <span class="card-c">0..1</span></span></div><div class="bb">
+      <div class="hint" style="margin-bottom:8px">xs:choice: exige <strong>ao menos um</strong> entre documentationIdentifier, licenseTerms, licenseNote ou applicableDates.</div>
+      ${docList(r.l_docIds,'l_docIds','licenseDocumentationIdentifier')}
+      ${fld('licenseTerms','dd','rg_l_terms',r.l_terms,'termos da licença','',false,'syncRgt')}
+      ${noteList(r.l_notes,'l_notes','licenseNote')}
+      <div class="field-row">${fld('applicableDates: startDate','dd','rg_l_ds',r.l_dStart,'','',false,'syncRgt')}${fld('endDate','dd','rg_l_de',r.l_dEnd,'','',false,'syncRgt')}</div>
+      </div></div>`;
+  } else if(r.basis==='statute'){
+    h += `<div class="block"><div class="bh"><span class="bt">statuteInformation<span class="req">*</span> <span class="card-c">0..n</span></span></div><div class="bb">
+      <div class="field-row">${fld('statuteJurisdiction','xsd','rg_s_jur',r.s_jurisdiction,'ex.: BR','',true,'syncRgt')}${fld('statuteCitation','xsd','rg_s_cit',r.s_citation,'ex.: Lei 8.159/1991','',true,'syncRgt')}</div>
+      ${fld('statuteInformationDeterminationDate','dd','rg_s_date',r.s_date,'','',false,'syncRgt')}
+      ${noteList(r.s_notes,'s_notes','statuteNote')}
+      ${docList(r.s_docIds,'s_docIds','statuteDocumentationIdentifier')}
+      <div class="field-row">${fld('applicableDates: startDate','dd','rg_s_ds',r.s_dStart,'','',false,'syncRgt')}${fld('endDate','dd','rg_s_de',r.s_dEnd,'','',false,'syncRgt')}</div>
+      </div></div>`;
+  } else {
+    h += `<div class="block"><div class="bh"><span class="bt">otherRightsInformation<span class="req">*</span> <span class="card-c">0..1</span></span></div><div class="bb">
+      ${docList(r.o_docIds,'o_docIds','otherRightsDocumentationIdentifier')}
+      ${fld('otherRightsBasis','xsd','rg_o_basis',r.o_basis,'ex.: donor agreement, policy','',true,'syncRgt')}
+      <div class="field-row">${fld('applicableDates: startDate','dd','rg_o_ds',r.o_dStart,'','',false,'syncRgt')}${fld('endDate','dd','rg_o_de',r.o_dEnd,'','',false,'syncRgt')}</div>
+      ${noteList(r.o_notes,'o_notes','otherRightsNote')}
+      </div></div>`;
+  }
+
+  // rightsGranted
+  h += `<div class="block ${collapsed['r_gr']!==false?'collapsed':''}">${blockHead('r_gr','rightsGranted','0..n',false,'rightsGranted')}<div class="bb">`;
+  (r.granted||[]).forEach((g,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>concessão ${i+1}</span><button class="rm-x" onclick="rmRgtSub('granted',${i})">×</button></div>
+      ${fld('act','xsd',`rg_g_act_${i}`,g.act,'ex.: replicate, migrate, disseminate','',true,'syncRgt','act')}`;
+    (g.restrictions||[]).forEach((x,xi)=>{ h+=`<div class="rep-item"><div class="rh"><span>restriction ${xi+1}</span><button class="rm-x" onclick="rmRgtSub2('granted',${i},'restrictions',${xi})">×</button></div>${fld('restriction','dd',`rg_g_res_${i}_${xi}`,x.value,'','',false,'syncRgt')}</div>`; });
+    h += `<button class="add-btn" onclick="addRgtSub2('granted',${i},'restrictions')">+ restriction</button>
+      <div class="field-row" style="margin-top:8px">${fld('termOfGrant: startDate','dd',`rg_g_gs_${i}`,g.gStart,'','startDate obrigatório se o termo for usado',false,'syncRgt')}${fld('endDate','dd',`rg_g_ge_${i}`,g.gEnd,'','',false,'syncRgt')}</div>
+      <div class="field-row">${fld('termOfRestriction: startDate','dd',`rg_g_rs_${i}`,g.rStart,'','',false,'syncRgt')}${fld('endDate','dd',`rg_g_re_${i}`,g.rEnd,'','',false,'syncRgt')}</div>`;
+    (g.notes||[]).forEach((n,ni)=>{ h+=`<div class="rep-item"><div class="rh"><span>nota ${ni+1}</span><button class="rm-x" onclick="rmRgtSub2('granted',${i},'notes',${ni})">×</button></div>${fld('rightsGrantedNote','dd',`rg_g_n_${i}_${ni}`,n.value,'','',false,'syncRgt')}</div>`; });
+    h += `<button class="add-btn" onclick="addRgtSub2('granted',${i},'notes')">+ rightsGrantedNote</button></div>`;
+  });
+  h += `<button class="add-btn" onclick="addRgtSub('granted')">+ rightsGranted</button></div></div>`;
+
+  // vínculos
+  h += `<div class="block ${collapsed['r_lo']!==false?'collapsed':''}">${blockHead('r_lo','linkingObjectIdentifier','0..n')}<div class="bb">`;
+  h += model.objects.length ? model.objects.map(o=>`<div class="chk"><input type="checkbox" id="rg_lo_${o.lid}" ${(r.linkObjects||[]).includes(o.lid)?'checked':''} onchange="syncRgt()"><label style="font-weight:400;margin:0" for="rg_lo_${o.lid}">${o.lid} · ${esc(o.originalName||(o.identifiers[0]?o.identifiers[0].value:''))}</label></div>`).join('') : '<div class="empty">Nenhum objeto no modelo.</div>';
+  h += `</div></div>`;
+  h += `<div class="block ${collapsed['r_la']!==false?'collapsed':''}">${blockHead('r_la','linkingAgentIdentifier','0..n')}<div class="bb">`;
+  h += model.agents.length ? model.agents.map(a=>{const id=a.identifiers[0]||{};const nm=a.names&&a.names[0];return `<div class="chk"><input type="checkbox" id="rg_la_${a.lid}" ${(r.linkAgents||[]).includes(a.lid)?'checked':''} onchange="syncRgt()"><label style="font-weight:400;margin:0" for="rg_la_${a.lid}">${a.lid} · ${esc((nm&&nm.value)||id.value)}</label></div>`;}).join('') : '<div class="empty">Nenhum agente no modelo.</div>';
+  h += `</div></div>`;
+
+  h += `<div class="btn-row"><button class="btn" id="btnAddRgt">adicionar rights ao modelo</button><button class="btn ghost" id="btnResetRgt">limpar</button></div>`;
+  h += `<div class="omit">No perfil Archivematica, rights são omitidos do premis.xml (entram por rights.csv ou pela interface do sistema). <code>rightsExtension</code> fora por escopo (xs:any).</div>`;
+  document.getElementById('formHost').innerHTML = h;
+  document.getElementById('btnAddRgt').onclick = commitRights;
+  document.getElementById('btnResetRgt').onclick = ()=>{ rgtDraft=mk.right(); renderForm(); };
+}
+function syncRgt(){
+  const r=ensureRgt();
+  const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const gc=id=>{const el=document.getElementById(id);return el?el.checked:false;};
+  r.idType=g('rg_idt'); r.idValue=g('rg_idv'); r.basis=g('rg_basis')||r.basis;
+  r.c_status=g('rg_c_status'); r.c_jurisdiction=g('rg_c_jur'); r.c_date=g('rg_c_date'); r.c_dStart=g('rg_c_ds'); r.c_dEnd=g('rg_c_de');
+  (r.c_notes||[]).forEach((n,i)=>n.value=g(`rg_c_notes_${i}`));
+  (r.c_docIds||[]).forEach((d,i)=>{d.type=g(`rg_c_docIds_t_${i}`);d.value=g(`rg_c_docIds_v_${i}`);d.role=g(`rg_c_docIds_r_${i}`);});
+  r.l_terms=g('rg_l_terms'); r.l_dStart=g('rg_l_ds'); r.l_dEnd=g('rg_l_de');
+  (r.l_notes||[]).forEach((n,i)=>n.value=g(`rg_l_notes_${i}`));
+  (r.l_docIds||[]).forEach((d,i)=>{d.type=g(`rg_l_docIds_t_${i}`);d.value=g(`rg_l_docIds_v_${i}`);d.role=g(`rg_l_docIds_r_${i}`);});
+  r.s_jurisdiction=g('rg_s_jur'); r.s_citation=g('rg_s_cit'); r.s_date=g('rg_s_date'); r.s_dStart=g('rg_s_ds'); r.s_dEnd=g('rg_s_de');
+  (r.s_notes||[]).forEach((n,i)=>n.value=g(`rg_s_notes_${i}`));
+  (r.s_docIds||[]).forEach((d,i)=>{d.type=g(`rg_s_docIds_t_${i}`);d.value=g(`rg_s_docIds_v_${i}`);d.role=g(`rg_s_docIds_r_${i}`);});
+  r.o_basis=g('rg_o_basis'); r.o_dStart=g('rg_o_ds'); r.o_dEnd=g('rg_o_de');
+  (r.o_notes||[]).forEach((n,i)=>n.value=g(`rg_o_notes_${i}`));
+  (r.o_docIds||[]).forEach((d,i)=>{d.type=g(`rg_o_docIds_t_${i}`);d.value=g(`rg_o_docIds_v_${i}`);d.role=g(`rg_o_docIds_r_${i}`);});
+  (r.granted||[]).forEach((gr,i)=>{
+    gr.act=g(`rg_g_act_${i}`); gr.gStart=g(`rg_g_gs_${i}`); gr.gEnd=g(`rg_g_ge_${i}`); gr.rStart=g(`rg_g_rs_${i}`); gr.rEnd=g(`rg_g_re_${i}`);
+    (gr.restrictions||[]).forEach((x,xi)=>x.value=g(`rg_g_res_${i}_${xi}`));
+    (gr.notes||[]).forEach((n,ni)=>n.value=g(`rg_g_n_${i}_${ni}`));
+  });
+  r.linkObjects=model.objects.filter(o=>gc(`rg_lo_${o.lid}`)).map(o=>o.lid);
+  r.linkAgents=model.agents.filter(a=>gc(`rg_la_${a.lid}`)).map(a=>a.lid);
+}
+function addRgtSub(coll){ syncRgt(); const r=ensureRgt(); const f=coll==='granted'?mk.granted:(coll.endsWith('docIds')?mk.docId:mk.note); if(!r[coll])r[coll]=[]; r[coll].push(f()); if(coll==='granted')collapsed['r_gr']=false; renderForm(); }
+function rmRgtSub(coll,i){ syncRgt(); ensureRgt()[coll].splice(i,1); renderForm(); }
+function addRgtSub2(coll,i,sub){ syncRgt(); const item=ensureRgt()[coll][i]; if(!item[sub])item[sub]=[]; item[sub].push(sub==='restrictions'?{value:''}:mk.note()); renderForm(); }
+function rmRgtSub2(coll,i,sub,j){ syncRgt(); ensureRgt()[coll][i][sub].splice(j,1); renderForm(); }
+function commitRights(){ syncRgt(); model.rights.push(JSON.parse(JSON.stringify(ensureRgt()))); rgtDraft=mk.right(); renderForm(); renderModel(); renderOutput(); }
+
+function renderForm(){ if(currentEnt==='object') renderObjectForm(); else if(currentEnt==='event') renderEventForm(); else if(currentEnt==='rights') renderRightsForm(); else renderAgentForm(); }
+
+/* ---- modelo ---- */
+function renderModel(){
+  const host=document.getElementById('modelHost');
+  let html='';
+  const grp=(title,arr,fn)=>{html+=`<div class="model-group"><div class="gh"><span>${title}</span><span>${arr.length}</span></div>`;html+=arr.length?arr.map(fn).join(''):'<div class="empty">vazio</div>';html+=`</div>`;};
+  grp('objects',model.objects,o=>{
+    const id=o.identifiers[0]||{};
+    const t=o.objType||'file';
+    const allow=allowFor(t);
+    const nFmt=allow.chars?o.characteristics.reduce((s,c)=>s+c.formats.length,0):0;
+    const nFix=allow.chars?o.characteristics.reduce((s,c)=>s+c.fixities.length,0):0;
+    const nSig=allow.sig?(o.signatures||[]).length:0;
+    const nEnv=allow.env?((o.envFunctions||[]).length+(o.envDesignations||[]).length+(o.envRegistries||[]).length):0;
+    const bits=[`${o.identifiers.length} id`];
+    if(allow.chars) bits.push(`${nFmt} format`, `${nFix} fixity`);
+    if(nSig) bits.push(`${nSig} assinatura`);
+    if(nEnv) bits.push(`${nEnv} environment`);
+    return `<div class="card"><button class="x" onclick="removeEnt('objects','${o.lid}')">×</button>
+      <span class="cid">${o.lid}</span> <span class="src xsd" style="margin:0 4px">${t}</span> <span class="ctitle">${esc(o.originalName||id.value||'(sem id)')}</span>
+      <div class="cmeta">${bits.join(' · ')}</div>
+      ${o.linkEvents.length?`<div class="clink">→ eventos: ${o.linkEvents.join(', ')}</div>`:''}</div>`;
+  });
+  grp('events',model.events,e=>`<div class="card"><button class="x" onclick="removeEnt('events','${e.lid}')">×</button>
+    <span class="cid">${e.lid}</span> <span class="ctitle">${esc(e.eventType||'(sem tipo)')}</span>
+    <div class="cmeta">${esc(e.dateTime||'sem data')} · ${esc(e.idValue)}</div>
+    ${(e.linkAgents||[]).length?`<div class="clink">→ agentes: ${e.linkAgents.map(x=>x.agentLid).join(', ')}</div>`:''}${(e.linkObjects||[]).length?`<div class="clink">→ objetos: ${e.linkObjects.map(x=>x.objectLid).join(', ')}</div>`:''}</div>`);
+  grp('agents',model.agents,a=>{const id=a.identifiers[0]||{};const nm=a.names[0];return `<div class="card"><button class="x" onclick="removeEnt('agents','${a.lid}')">×</button>
+    <span class="cid">${a.lid}</span> <span class="ctitle">${esc((nm&&nm.value)||id.value||'(sem nome)')}</span>
+    <div class="cmeta">${esc(a.agentType||'sem tipo')} · ${esc(id.value)}</div>
+    ${(a.linkEvents||[]).length?`<div class="clink">→ eventos: ${a.linkEvents.join(', ')}</div>`:''}</div>`;});
+  grp('rights',model.rights,r=>`<div class="card"><button class="x" onclick="removeEnt('rights','${r.lid}')">×</button>
+    <span class="cid">${r.lid}</span> <span class="ctitle">${esc(r.basis)}</span>
+    <div class="cmeta">${esc(r.idValue||'sem id')} · ${(r.granted||[]).length} concessão(ões)</div>
+    ${(r.linkObjects||[]).length?`<div class="clink">→ objetos: ${r.linkObjects.join(', ')}</div>`:''}</div>`);
+  host.innerHTML=html;
+}
+function removeEnt(coll,lid){
+  /* A remoção NÃO limpa vínculos: deixa o órfão visível para o verificador de
+     integridade relatar e bloquear o download, conforme escolhido. O gerador de
+     XML já ignora vínculos órfãos (find falha), então o XML não sai inválido —
+     mas o download fica travado até a correção. */
+  model[coll]=model[coll].filter(x=>x.lid!==lid);
+  renderForm();renderModel();renderOutput();
+}
+
+/* ---- saída ---- */
+function highlight(xml){return esc(xml).replace(/(&lt;\?[\s\S]*?\?&gt;)/g,'<span class="dec">$1</span>').replace(/(&lt;\/?)([a-zA-Z:]+)/g,'$1<span class="tag">$2</span>').replace(/([a-zA-Z:]+)=(&quot;.*?&quot;)/g,'<span class="at">$1</span>=<span class="val">$2</span>');}
+function renderOutput(){
+  document.getElementById('xmlOut').innerHTML=highlight(buildXML(currentProfile));
+  const result=validate(currentProfile);
+  const vh=document.getElementById('verdictHost');
+  const hasContent=model.objects.length||model.events.length||model.agents.length||model.rights.length;
+  if(!hasContent) vh.innerHTML='';
+  else if(result.blocked) vh.innerHTML=`<div class="verdict bad">✕ não exportável no perfil ${currentProfile==='archivematica'?'Archivematica':'completo'}</div>`;
+  else vh.innerHTML=`<div class="verdict ok">✓ conforme as regras verificadas</div>`;
+  const vhost=document.getElementById('valHost');
+  if(!hasContent){vhost.innerHTML='<div class="empty">Adicione entidades para ver a validação.</div>';}
+  else{
+    let html='<div class="val-head">verificações</div>';
+    result.items.forEach(it=>{const ico=it.level==='ok'?'✓':it.level==='bad'?'✕':it.level==='info'?'i':'!';html+=`<div class="val-item ${it.level}"><span class="ico">${ico}</span><span>${it.msg}<span class="vsrc">fonte: ${it.source}</span></span></div>`;});
+    vhost.innerHTML=html;
+  }
+  document.getElementById('btnExport').disabled=result.blocked||!hasContent;
+  renderXsd();
+}
+
+/* ---- import ---- */
+function renderImport(){
+  document.getElementById('importHost').innerHTML=`<div class="import-zone"><p style="margin:0 0 8px;font-size:12.5px">Importe <strong>CSV</strong> ou <strong>JSON</strong> do sistema produtor.</p><button class="btn ghost" id="pickFile">escolher arquivo</button><input type="file" id="impFile" accept=".csv,.json,.txt" style="display:none"></div><div id="mapHost"></div>
+  <p class="hint">A importação cria entidades com os campos básicos. A estrutura completa (sub-blocos repetíveis, assinatura) é montada pelo formulário.</p>`;
+  document.getElementById('pickFile').onclick=()=>document.getElementById('impFile').click();
+  document.getElementById('impFile').onchange=handleImport;
+}
+function flattenJSON(obj,prefix,out){out=out||{};prefix=prefix||'';if(Array.isArray(obj)){if(obj.length)flattenJSON(obj[0],prefix,out);}else if(obj&&typeof obj==='object'){Object.keys(obj).forEach(k=>flattenJSON(obj[k],prefix?prefix+'.'+k:k,out));}else{out[prefix]=obj;}return out;}
+let importedRows=[],importedKeys=[];
+function handleImport(ev){const file=ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{const txt=e.target.result;try{if(file.name.toLowerCase().endsWith('.json')){const data=JSON.parse(txt);const arr=Array.isArray(data)?data:[data];importedRows=arr.map(r=>flattenJSON(r));importedKeys=Object.keys(importedRows[0]||{});}else{const lines=txt.split(/\r?\n/).filter(l=>l.trim());const head=splitCSV(lines[0]);importedKeys=head;importedRows=lines.slice(1).map(l=>{const c=splitCSV(l);const o={};head.forEach((h,i)=>o[h]=c[i]||'');return o;});}renderMapping();}catch(err){document.getElementById('mapHost').innerHTML=`<div class="val-item bad"><span class="ico">✕</span><span>Não foi possível ler: ${esc(err.message)}.</span></div>`;}};reader.readAsText(file);}
+function splitCSV(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(ch===','&&!q){out.push(cur);cur='';}else cur+=ch;}out.push(cur);return out.map(s=>s.trim());}
+const SEMUNITS={object:['—','idType','idValue','formatName','originalName'],event:['—','idType','idValue','eventType','dateTime'],agent:['—','idType','idValue','name','type']};
+function renderMapping(){const host=document.getElementById('mapHost');if(currentEnt==='rights'){host.innerHTML='<div class="val-item info"><span class="ico">i</span><span>Importação de rights não está disponível — a estrutura condicional por base de direito exige o formulário. Use a aba rights no modo formulário.</span></div>';return;}if(!importedKeys.length){host.innerHTML='<div class="empty">Arquivo sem colunas.</div>';return;}const units=SEMUNITS[currentEnt];let html=`<div class="val-head">mapeamento → ${currentEnt} (${importedRows.length} registro(s))</div>`;importedKeys.forEach((k,i)=>{html+=`<div class="map-row"><span class="from" title="${esc(k)}">${esc(k)}</span><span class="ar">▶</span><select id="map_${i}">${units.map(u=>`<option value="${u}"${guessMap(k,u)?' selected':''}>${u}</option>`).join('')}</select></div>`;});html+=`<div class="btn-row"><button class="btn amber" id="btnApplyMap">criar ${importedRows.length} ${currentEnt}(s)</button></div>`;host.innerHTML=html;document.getElementById('btnApplyMap').onclick=applyMapping;}
+function guessMap(key,unit){if(unit==='—')return false;const k=key.toLowerCase(),u=unit.toLowerCase();return k===u||k.endsWith('.'+u)||(u==='idvalue'&&/id$|identifier/.test(k))||(u==='name'&&/name|nome/.test(k))||(u==='datetime'&&/date|data|time/.test(k));}
+function applyMapping(){const mapping={};importedKeys.forEach((k,i)=>{const v=document.getElementById('map_'+i).value;if(v!=='—')mapping[k]=v;});importedRows.forEach(row=>{const vals={};Object.keys(mapping).forEach(sk=>vals[mapping[sk]]=row[sk]);if(currentEnt==='object'){const o=mk.object();o.identifiers[0]={type:vals.idType||'',value:vals.idValue||''};if(vals.formatName)o.characteristics[0].formats[0].name=vals.formatName;o.originalName=vals.originalName||'';model.objects.push(o);}else if(currentEnt==='event'){const e=mk.event();e.idType=vals.idType||'';e.idValue=vals.idValue||'';e.eventType=vals.eventType||'';e.dateTime=vals.dateTime||'';model.events.push(e);}else{const a=mk.agent();a.identifiers[0]={type:vals.idType||'',value:vals.idValue||''};if(vals.name){a.names.push({value:vals.name});}a.agentType=vals.type||'';model.agents.push(a);}});renderModel();renderOutput();document.getElementById('mapHost').innerHTML=`<div class="val-item ok"><span class="ico">✓</span><span>${importedRows.length} ${currentEnt}(s) adicionado(s).</span></div>`;}
+
+function download(filename,text,mime){const blob=new Blob([text],{type:mime||'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);}
+
+/* =================================================================
+   CAMADA 1 — orquestração no app: chama window.PremisXSD (definido no
+   módulo ES ao fim do arquivo), exibe o resultado e gata o download.
+   Roda sob demanda (botão e clique em baixar), não a cada tecla.
+   ================================================================= */
+let xsdState = { status:'idle', forXml:null, result:null, error:null };
+/* status: idle | running | valid | invalid | error */
+function xsdHasContent(){ return model.objects.length||model.events.length||model.agents.length||model.rights.length; }
+function renderXsd(){
+  const host=document.getElementById('xsdHost'); if(!host) return;
+  if(!xsdHasContent()){ host.innerHTML=''; return; }
+  const xml=buildXML(currentProfile);
+  const s=xsdState;
+  const head='<div class="val-head">camada 1 — schema (XSD oficial PREMIS 3.0)</div>';
+  if(s.status==='running'){ host.innerHTML=head+`<div class="val-item info"><span class="ico">…</span><span>validando estrutura contra o premis-v3-0.xsd…</span></div>`; return; }
+  if(s.status==='idle' || s.forXml!==xml){
+    host.innerHTML=head+`<div class="val-item info"><span class="ico">i</span><span>Estrutura ainda não validada contra o XSD nesta versão do documento — clique em <strong>validar contra o XSD</strong>. Roda no navegador (libxml2/wasm); nada sai da máquina.<span class="vsrc">fonte: XSD PREMIS v3 — validação exaustiva de estrutura</span></span></div>`;
+    return;
+  }
+  if(s.status==='valid'){
+    host.innerHTML=head+`<div class="val-item ok"><span class="ico">✓</span><span>Válido contra o premis-v3-0.xsd oficial (libxml2 via xmllint-wasm).<span class="vsrc">fonte: XSD PREMIS v3</span></span></div>`;
+    return;
+  }
+  if(s.status==='invalid'){
+    let h=head+`<div class="val-item bad"><span class="ico">✕</span><span>Inválido contra o XSD — ${s.result.errors.length} erro(s) de estrutura. Download bloqueado.<span class="vsrc">fonte: XSD PREMIS v3</span></span></div>`;
+    s.result.errors.forEach(e=>{ h+=`<div class="val-item bad"><span class="ico">·</span><span>${esc(e.message)}${e.loc&&e.loc.lineNumber?` <span class="vsrc">linha ${e.loc.lineNumber}</span>`:''}</span></div>`; });
+    host.innerHTML=h; return;
+  }
+  if(s.status==='error'){
+    host.innerHTML=head+`<div class="val-item warn"><span class="ico">!</span><span>A validação de schema não pôde rodar aqui: ${esc(s.error||'')}. Em Chrome/Edge/Safari servido por http(s) ela funciona; sob file:// (ou Firefox, sem suporte a module worker) não. As camadas 2 e 3 continuam valendo.</span></div>`;
+    return;
+  }
+}
+async function runXsd(){
+  if(!xsdHasContent()) return null;
+  const xml=buildXML(currentProfile);
+  xsdState={status:'running',forXml:xml,result:null,error:null}; renderXsd();
+  try{
+    if(!window.PremisXSD) throw new Error('módulo de validação não carregado — abra a página via http(s), não file://');
+    const result=await window.PremisXSD.validate(xml);
+    xsdState={status:result.valid?'valid':'invalid',forXml:xml,result,error:null};
+  }catch(err){
+    xsdState={status:'error',forXml:xml,result:null,error:(err&&err.message)||String(err)};
+  }
+  renderXsd(); return xsdState;
+}
+
+function bind(){
+  document.querySelectorAll('#entTabs button[data-ent]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('#entTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentEnt=b.dataset.ent;if(inputMode==='form')renderForm();else renderMapping();};});
+  document.getElementById('modeForm').onclick=()=>{inputMode='form';document.getElementById('modeForm').classList.add('on');document.getElementById('modeImport').classList.remove('on');document.getElementById('formHost').style.display='';document.getElementById('importHost').style.display='none';renderForm();};
+  document.getElementById('modeImport').onclick=()=>{inputMode='import';document.getElementById('modeImport').classList.add('on');document.getElementById('modeForm').classList.remove('on');document.getElementById('formHost').style.display='none';document.getElementById('importHost').style.display='';renderImport();};
+  document.querySelectorAll('.profile-switch button[data-profile]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.profile-switch button[data-profile]').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentProfile=b.dataset.profile;renderOutput();};});
+  document.getElementById('btnExport').onclick=async ()=>{
+    const profile=currentProfile;
+    if(validate(profile).blocked){ renderOutput(); return; }          /* camadas 2/3 (já gatam o botão) */
+    const fn=profile==='archivematica'?'premis.xml':'premis-completo.xml';
+    const xml=buildXML(profile);
+    const st=await runXsd();                                           /* camada 1 — XSD real */
+    if(st && st.status==='valid'){ download(fn,xml,'application/xml'); }
+    else if(st && st.status==='error'){
+      if(confirm('A validação contra o XSD não pôde rodar neste ambiente (as camadas 2 e 3 passaram). Baixar mesmo assim, sem a validação de schema?')) download(fn,xml,'application/xml');
+    }
+    /* status==='invalid' → não baixa; os erros de schema ficam no painel */
+  };
+  document.getElementById('btnXsd').onclick=()=>runXsd();
+  document.getElementById('btnState').onclick=()=>{if(currentEnt==='object')syncObj();else if(currentEnt==='event')syncEvt();else if(currentEnt==='rights')syncRgt();else syncAgt();download('oficina-premis-trabalho.json',JSON.stringify({model,lidCounter},null,2),'application/json');};
+  document.getElementById('btnLoad').onclick=()=>document.getElementById('stateFile').click();
+  document.getElementById('stateFile').onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);Object.assign(model,{objects:[],events:[],agents:[],rights:[],relationships:[]},data.model);lidCounter=data.lidCounter||1;objDraft=mk.object();evtDraft=mk.event();agtDraft=mk.agent();rgtDraft=null;renderForm();renderModel();renderOutput();}catch(err){alert('Arquivo inválido: '+err.message);}};r.readAsText(f);};
+}
+
+bind(); renderForm(); renderModel(); renderOutput();
+</script>
+<script type="module">
+/* =================================================================
+   CAMADA 1 — validação XSD real no navegador (xmllint-wasm / libxml2).
+   Carrega o XSD oficial local (premis-v3-0.xsd) e expõe
+   window.PremisXSD.validate(xml) -> {valid, errors:[{message,loc}], rawOutput}.
+   Requer servir por http(s): módulo ES + Web Worker (type:module) + .wasm e o
+   fetch do XSD NÃO funcionam sob file://. Em produção (GitHub Pages, https)
+   funciona; o .wasm fica como arquivo servido, não embutido em base64.
+   ================================================================= */
+import { validateXML } from './vendor/xmllint-wasm/index-browser.mjs';
+const SCHEMA_URL = './premis-v3-0.xsd';
+const SCHEMA_FILENAME = 'premis-v3-0.xsd';
+let _schema = null;
+async function ensureSchema(){
+  if(_schema!==null) return _schema;
+  const r = await fetch(SCHEMA_URL);
+  if(!r.ok) throw new Error('falha ao carregar '+SCHEMA_FILENAME+' (HTTP '+r.status+')');
+  _schema = await r.text();
+  return _schema;
+}
+window.PremisXSD = {
+  async validate(xmlString){
+    const schema = await ensureSchema();
+    return await validateXML({
+      xml:    [{ fileName:'premis.xml',     contents: xmlString }],
+      schema: [{ fileName: SCHEMA_FILENAME, contents: schema    }],
+    });
+  }
+};
+</script>
+</body>
+</html>
