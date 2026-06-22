@@ -984,7 +984,27 @@ function renderObjectForm(){
   });
   h += `<button class="add-btn" onclick="addRep('identifiers')">+ identificador</button></div></div>`;
 
-  // objectCharacteristics (obrigatório)
+  // ---- blocos na ordem hierárquica do PREMIS (sequência do XSD / DD 3.0) ----
+
+  // preservationLevel (DD 1.3) — não se aplica a bitstream
+  if(allow.pl){
+  h += `<div class="block ${collapsed['o_pl']!==false?'collapsed':''}">${blockHead('o_pl','preservationLevel','0..n',false,'preservationLevel')}<div class="bb">`;
+  o.preservationLevels.forEach((p,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>nível ${i+1}</span><button class="rm-x" onclick="rmRep('preservationLevels',${i})">×</button></div>
+      ${fld('preservationLevelValue','xsd',`pl_v_${i}`,p.value,'ex.: full','',true)}<div class="field-row">${fld('Type','dd',`pl_t_${i}`,p.plType)}${fld('Role','dd',`pl_r_${i}`,p.role)}</div>${fld('Rationale','dd',`pl_ra_${i}`,p.rationale)}${fld('DateAssigned','dd',`pl_d_${i}`,p.dateAssigned)}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('preservationLevels')">+ preservationLevel</button></div></div>`;
+  }
+
+  // significantProperties (DD 1.4)
+  h += `<div class="block ${collapsed['o_sp']!==false?'collapsed':''}">${blockHead('o_sp','significantProperties','0..n',false,'significantProperties')}<div class="bb">`;
+  o.significantProperties.forEach((s,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>propriedade ${i+1}</span><button class="rm-x" onclick="rmRep('significantProperties',${i})">×</button></div>
+      <div class="field-row">${fld('Type','dd',`sp_t_${i}`,s.spType)}${fld('Value','dd',`sp_v_${i}`,s.value)}</div></div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('significantProperties')">+ significantProperties</button></div></div>`;
+
+  // objectCharacteristics (DD 1.5, obrigatório) — file e bitstream
   if(allow.chars){
   h += `<div class="block"><div class="bh"><span class="bt">objectCharacteristics<span class="req">*</span> <span class="card-c">1..n</span>${helpIcon('objectCharacteristics')}</span></div><div class="bb">`;
   o.characteristics.forEach((c,ci)=>{
@@ -1031,26 +1051,7 @@ function renderObjectForm(){
     ${fld('originalName', t==='file'?'am':'dd', 'o_name',o.originalName,'ex.: objects/bird.mp3', t==='file'?'No Archivematica deve começar com objects/.':'Nome original do objeto no sistema de origem.')}</div></div>`;
   }
 
-  // ---- blocos OPCIONAIS recolhidos por padrão ----
-  // preservationLevel
-  if(allow.pl){
-  h += `<div class="block ${collapsed['o_pl']!==false?'collapsed':''}">${blockHead('o_pl','preservationLevel','0..n',false,'preservationLevel')}<div class="bb">`;
-  o.preservationLevels.forEach((p,i)=>{
-    h += `<div class="rep-item"><div class="rh"><span>nível ${i+1}</span><button class="rm-x" onclick="rmRep('preservationLevels',${i})">×</button></div>
-      ${fld('preservationLevelValue','xsd',`pl_v_${i}`,p.value,'ex.: full','',true)}<div class="field-row">${fld('Type','dd',`pl_t_${i}`,p.plType)}${fld('Role','dd',`pl_r_${i}`,p.role)}</div>${fld('Rationale','dd',`pl_ra_${i}`,p.rationale)}${fld('DateAssigned','dd',`pl_d_${i}`,p.dateAssigned)}</div>`;
-  });
-  h += `<button class="add-btn" onclick="addRep('preservationLevels')">+ preservationLevel</button></div></div>`;
-  }
-
-  // significantProperties
-  h += `<div class="block ${collapsed['o_sp']!==false?'collapsed':''}">${blockHead('o_sp','significantProperties','0..n',false,'significantProperties')}<div class="bb">`;
-  o.significantProperties.forEach((s,i)=>{
-    h += `<div class="rep-item"><div class="rh"><span>propriedade ${i+1}</span><button class="rm-x" onclick="rmRep('significantProperties',${i})">×</button></div>
-      <div class="field-row">${fld('Type','dd',`sp_t_${i}`,s.spType)}${fld('Value','dd',`sp_v_${i}`,s.value)}</div></div>`;
-  });
-  h += `<button class="add-btn" onclick="addRep('significantProperties')">+ significantProperties</button></div></div>`;
-
-  // storage
+  // storage (DD 1.7) — não se aplica a intellectualEntity
   if(allow.storage){
   h += `<div class="block ${collapsed['o_st']!==false?'collapsed':''}">${blockHead('o_st','storage','0..n',false,'storage')}<div class="bb">`;
   o.storages.forEach((s,i)=>{
@@ -1060,7 +1061,22 @@ function renderObjectForm(){
   h += `<button class="add-btn" onclick="addRep('storages')">+ storage</button></div></div>`;
   }
 
-  // environment* — apenas intellectualEntity
+  // signatureInformation (DD 1.8) — file e bitstream
+  if(allow.sig){
+  h += `<div class="block ${collapsed['o_sig']!==false?'collapsed':''}">${blockHead('o_sig','signatureInformation','0..n',false,'signatureInformation')}<div class="bb">`;
+  (o.signatures||[]).forEach((s,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>assinatura ${i+1}</span><button class="rm-x" onclick="rmRep('signatures',${i})">×</button></div>
+      ${fld('signatureEncoding','xsd',`sg_e_${i}`,s.encoding,'ex.: base64','',true,'syncObj','signatureEncoding')}
+      ${fld('signer','dd',`sg_s_${i}`,s.signer,'opcional')}
+      ${fld('signatureMethod','xsd',`sg_m_${i}`,s.method,'ex.: RSA, DSA','',true,'syncObj','signatureMethod')}
+      ${ta('signatureValue','xsd',`sg_v_${i}`,s.value,'valor da assinatura','',true)}
+      ${fld('signatureValidationRules','xsd',`sg_r_${i}`,s.rules,'regras de validação','',true)}
+      ${fld('signatureProperties','dd',`sg_p_${i}`,s.properties,'opcional')}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addRep('signatures')">+ signatureInformation</button></div></div>`;
+  }
+
+  // environment* (DD 1.9–1.11) — apenas intellectualEntity
   if(allow.env){
   h += `<div class="block ${collapsed['o_ef']!==false?'collapsed':''}">${blockHead('o_ef','environmentFunction','0..n',false,'environmentFunction')}<div class="bb">`;
   (o.envFunctions||[]).forEach((f,i)=>{
@@ -1087,27 +1103,7 @@ function renderObjectForm(){
   h += `<button class="add-btn" onclick="addRep('envRegistries')">+ environmentRegistry</button></div></div>`;
   }
 
-  // signatureInformation — file e bitstream
-  if(allow.sig){
-  h += `<div class="block ${collapsed['o_sig']!==false?'collapsed':''}">${blockHead('o_sig','signatureInformation','0..n',false,'signatureInformation')}<div class="bb">`;
-  (o.signatures||[]).forEach((s,i)=>{
-    h += `<div class="rep-item"><div class="rh"><span>assinatura ${i+1}</span><button class="rm-x" onclick="rmRep('signatures',${i})">×</button></div>
-      ${fld('signatureEncoding','xsd',`sg_e_${i}`,s.encoding,'ex.: base64','',true,'syncObj','signatureEncoding')}
-      ${fld('signer','dd',`sg_s_${i}`,s.signer,'opcional')}
-      ${fld('signatureMethod','xsd',`sg_m_${i}`,s.method,'ex.: RSA, DSA','',true,'syncObj','signatureMethod')}
-      ${ta('signatureValue','xsd',`sg_v_${i}`,s.value,'valor da assinatura','',true)}
-      ${fld('signatureValidationRules','xsd',`sg_r_${i}`,s.rules,'regras de validação','',true)}
-      ${fld('signatureProperties','dd',`sg_p_${i}`,s.properties,'opcional')}</div>`;
-  });
-  h += `<button class="add-btn" onclick="addRep('signatures')">+ signatureInformation</button></div></div>`;
-  }
-
-  // linkingEventIdentifier (seleção)
-  h += `<div class="block ${collapsed['o_le']!==false?'collapsed':''}">${blockHead('o_le','linkingEventIdentifier','0..n')}<div class="bb">`;
-  h += model.events.length ? model.events.map(e=>`<div class="chk"><input type="checkbox" id="le_${e.lid}" ${o.linkEvents.includes(e.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="le_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum evento no modelo. Crie eventos para vincular por seleção.</div>';
-  h += `</div></div>`;
-
-  // relationship 0..n (parte do object no XSD)
+  // relationship (DD 1.13)
   h += `<div class="block ${collapsed['o_rel']!==false?'collapsed':''}">${blockHead('o_rel','relationship','0..n',false,'relationship')}<div class="bb">`;
   (o.relationships||[]).forEach((rel,i)=>{
     const others = model.objects; // pode relacionar com qualquer objeto já no modelo
@@ -1120,6 +1116,11 @@ function renderObjectForm(){
     </div>`;
   });
   h += `<button class="add-btn" onclick="addRep('relationships')">+ relationship</button></div></div>`;
+
+  // linkingEventIdentifier (DD 1.14, seleção)
+  h += `<div class="block ${collapsed['o_le']!==false?'collapsed':''}">${blockHead('o_le','linkingEventIdentifier','0..n')}<div class="bb">`;
+  h += model.events.length ? model.events.map(e=>`<div class="chk"><input type="checkbox" id="le_${e.lid}" ${o.linkEvents.includes(e.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="le_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum evento no modelo. Crie eventos para vincular por seleção.</div>';
+  h += `</div></div>`;
 
   // linkingRightsStatementIdentifier 0..n (seleção)
   h += `<div class="block ${collapsed['o_lr']!==false?'collapsed':''}">${blockHead('o_lr','linkingRightsStatementIdentifier','0..n')}<div class="bb">`;
