@@ -90,6 +90,9 @@
   .card .cmeta{color:var(--ink-soft);font-size:11.5px}
   .card .clink{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin-top:3px}
   .card .x{float:right;cursor:pointer;color:var(--bad);font-weight:700;border:none;background:none;font-size:14px;line-height:1}
+  .card .ed{float:right;cursor:pointer;color:var(--amber);font-weight:700;border:none;background:none;font-size:11px;line-height:1.3;margin-right:8px;font-family:var(--mono);text-transform:lowercase}
+  .card .ed:hover{text-decoration:underline}
+  .edit-banner{background:var(--amber-soft);border:1px solid var(--amber);color:var(--ink);font-family:var(--mono);font-size:11px;padding:6px 9px;border-radius:4px;margin-bottom:10px}
   .empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:8px 0}
   .profile-switch{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
   .profile-switch button{flex:1;font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;border:none;background:var(--paper-2);color:var(--ink-soft);padding:8px 6px;cursor:pointer}
@@ -836,6 +839,7 @@ let objDraft = mk.object();
 let evtDraft = mk.event();
 let agtDraft = mk.agent();
 const collapsed = {}; // estado de recolhimento por chave de bloco
+let editing = {object:null,event:null,agent:null,rights:null}; // lid em edição por aba (null = novo)
 
 /* =================================================================
    AJUDA — definições fiéis às fontes oficiais (PREMIS Data Dictionary 3.0,
@@ -1148,12 +1152,12 @@ function renderObjectForm(){
   h += model.rights.length ? model.rights.map(r=>`<div class="chk"><input type="checkbox" id="lr_${r.lid}" ${(o.linkRights||[]).includes(r.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="lr_${r.lid}">${r.lid} · ${esc(r.basis)} · ${esc(r.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum rights no modelo. Crie na aba rights.</div>';
   h += `<div class="hint" style="margin-top:6px">Omitido no perfil Archivematica (rights não entram no premis.xml desse fluxo).</div></div></div>`;
 
-  h += `<div class="btn-row"><button class="btn" id="btnAddObj">adicionar object ao modelo</button><button class="btn ghost" id="btnResetObj">limpar</button></div>`;
+  h += `<div class="btn-row"><button class="btn" id="btnAddObj">${editing.object?'salvar alterações':'adicionar object ao modelo'}</button><button class="btn ghost" id="btnResetObj">${editing.object?'cancelar edição':'limpar'}</button></div>`;
   h += `<div class="omit">Fora por escopo: elementos <code>*Extension</code> (xs:any — ponto de extensão aberto, sem campos definidos no schema).</div>`;
 
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddObj').onclick = commitObject;
-  document.getElementById('btnResetObj').onclick = ()=>{ objDraft=mk.object(); renderForm(); };
+  document.getElementById('btnResetObj').onclick = ()=>{ objDraft=mk.object(); editing.object=null; renderForm(); };
 }
 
 function syncObj(){
@@ -1199,7 +1203,7 @@ function rmEnvNote(i,ni){ syncObj(); objDraft.envDesignations[i].notes.splice(ni
 function rmRep(coll,i){ syncObj(); objDraft[coll].splice(i,1); renderForm(); }
 function addSub(ci,coll){ syncObj(); const f={fixities:mk.fixity,formats:mk.format,creatingApps:mk.creatingApplication,inhibitors:mk.inhibitor}[coll]; objDraft.characteristics[ci][coll].push(f()); renderForm(); }
 function rmSub(ci,coll,i){ syncObj(); objDraft.characteristics[ci][coll].splice(i,1); renderForm(); }
-function commitObject(){ syncObj(); model.objects.push(JSON.parse(JSON.stringify(objDraft))); objDraft = mk.object(); renderForm(); renderModel(); renderOutput(); }
+function commitObject(){ syncObj(); const c=JSON.parse(JSON.stringify(objDraft)); if(editing.object){ const i=model.objects.findIndex(o=>o.lid===editing.object); if(i>=0)model.objects[i]=c; else model.objects.push(c); editing.object=null; } else model.objects.push(c); objDraft = mk.object(); renderForm(); renderModel(); renderOutput(); }
 
 /* ====================== EVENT ====================== */
 function renderEventForm(){
@@ -1242,10 +1246,10 @@ function renderEventForm(){
   } else h += '<div class="empty">Nenhum objeto no modelo.</div>';
   h += `</div></div>`;
 
-  h += `<div class="btn-row"><button class="btn" id="btnAddEvt">adicionar event ao modelo</button><button class="btn ghost" id="btnResetEvt">limpar</button></div>`;
+  h += `<div class="btn-row"><button class="btn" id="btnAddEvt">${editing.event?'salvar alterações':'adicionar event ao modelo'}</button><button class="btn ghost" id="btnResetEvt">${editing.event?'cancelar edição':'limpar'}</button></div>`;
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddEvt').onclick = commitEvent;
-  document.getElementById('btnResetEvt').onclick = ()=>{ evtDraft=mk.event(); renderForm(); };
+  document.getElementById('btnResetEvt').onclick = ()=>{ evtDraft=mk.event(); editing.event=null; renderForm(); };
 }
 function syncEvt(){
   const e=evtDraft;
@@ -1258,7 +1262,7 @@ function syncEvt(){
 }
 function addEvt(coll){ syncEvt(); const f={details:mk.eventDetailInfo,outcomes:mk.eventOutcomeInfo,linkAgents:mk.linkingAgent,linkObjects:mk.linkingObject}[coll]; const item=f(); if(coll==='linkAgents'&&model.agents[0])item.agentLid=model.agents[0].lid; if(coll==='linkObjects'&&model.objects[0])item.objectLid=model.objects[0].lid; evtDraft[coll].push(item); const km={details:'e_det',outcomes:'e_out',linkAgents:'e_la',linkObjects:'e_lo'}[coll]; collapsed[km]=false; renderForm(); }
 function rmEvt(coll,i){ syncEvt(); evtDraft[coll].splice(i,1); renderForm(); }
-function commitEvent(){ syncEvt(); model.events.push(JSON.parse(JSON.stringify(evtDraft))); evtDraft=mk.event(); renderForm(); renderModel(); renderOutput(); }
+function commitEvent(){ syncEvt(); const c=JSON.parse(JSON.stringify(evtDraft)); if(editing.event){ const i=model.events.findIndex(e=>e.lid===editing.event); if(i>=0)model.events[i]=c; else model.events.push(c); editing.event=null; } else model.events.push(c); evtDraft=mk.event(); renderForm(); renderModel(); renderOutput(); }
 
 /* ====================== AGENT ====================== */
 function renderAgentForm(){
@@ -1301,11 +1305,11 @@ function renderAgentForm(){
   h += `<button class="add-btn" onclick="addAgt('linkEnvironments')">+ linkingEnvironmentIdentifier</button>
     <div class="hint" style="margin-top:6px">Referência a um ambiente (na v3, um intellectualEntity de tipo environment). Entrada livre, pois o app não modela ambientes como entidades.</div></div></div>`;
 
-  h += `<div class="btn-row"><button class="btn" id="btnAddAgt">adicionar agent ao modelo</button><button class="btn ghost" id="btnResetAgt">limpar</button></div>`;
+  h += `<div class="btn-row"><button class="btn" id="btnAddAgt">${editing.agent?'salvar alterações':'adicionar agent ao modelo'}</button><button class="btn ghost" id="btnResetAgt">${editing.agent?'cancelar edição':'limpar'}</button></div>`;
   h += `<div class="omit">Fora por escopo: <code>agentExtension</code> (xs:any — ponto de extensão para XML de schema externo).</div>`;
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddAgt').onclick = commitAgent;
-  document.getElementById('btnResetAgt').onclick = ()=>{ agtDraft=mk.agent(); renderForm(); };
+  document.getElementById('btnResetAgt').onclick = ()=>{ agtDraft=mk.agent(); editing.agent=null; renderForm(); };
 }
 function syncAgt(){
   const a=agtDraft;
@@ -1321,7 +1325,7 @@ function syncAgt(){
 }
 function addAgt(coll){ syncAgt(); const f={identifiers:mk.agentIdentifier,names:mk.agentName,notes:mk.agentNote,linkEnvironments:mk.agentLinkEnv}[coll]; agtDraft[coll].push(f()); if(coll==='names')collapsed['a_nm']=false; if(coll==='notes')collapsed['a_nt']=false; if(coll==='linkEnvironments')collapsed['a_lenv']=false; renderForm(); }
 function rmAgt(coll,i){ syncAgt(); agtDraft[coll].splice(i,1); renderForm(); }
-function commitAgent(){ syncAgt(); model.agents.push(JSON.parse(JSON.stringify(agtDraft))); agtDraft=mk.agent(); renderForm(); renderModel(); renderOutput(); }
+function commitAgent(){ syncAgt(); const c=JSON.parse(JSON.stringify(agtDraft)); if(editing.agent){ const i=model.agents.findIndex(a=>a.lid===editing.agent); if(i>=0)model.agents[i]=c; else model.agents.push(c); editing.agent=null; } else model.agents.push(c); agtDraft=mk.agent(); renderForm(); renderModel(); renderOutput(); }
 
 /* ====================== RIGHTS ====================== */
 let rgtDraft = null; /* criado sob demanda para não consumir lid */
@@ -1406,11 +1410,11 @@ function renderRightsForm(){
   h += model.agents.length ? model.agents.map(a=>{const id=a.identifiers[0]||{};const nm=a.names&&a.names[0];return `<div class="chk"><input type="checkbox" id="rg_la_${a.lid}" ${(r.linkAgents||[]).includes(a.lid)?'checked':''} onchange="syncRgt()"><label style="font-weight:400;margin:0" for="rg_la_${a.lid}">${a.lid} · ${esc((nm&&nm.value)||id.value)}</label></div>`;}).join('') : '<div class="empty">Nenhum agente no modelo.</div>';
   h += `</div></div>`;
 
-  h += `<div class="btn-row"><button class="btn" id="btnAddRgt">adicionar rights ao modelo</button><button class="btn ghost" id="btnResetRgt">limpar</button></div>`;
+  h += `<div class="btn-row"><button class="btn" id="btnAddRgt">${editing.rights?'salvar alterações':'adicionar rights ao modelo'}</button><button class="btn ghost" id="btnResetRgt">${editing.rights?'cancelar edição':'limpar'}</button></div>`;
   h += `<div class="omit">No perfil Archivematica, rights são omitidos do premis.xml (entram por rights.csv ou pela interface do sistema). <code>rightsExtension</code> fora por escopo (xs:any).</div>`;
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddRgt').onclick = commitRights;
-  document.getElementById('btnResetRgt').onclick = ()=>{ rgtDraft=mk.right(); renderForm(); };
+  document.getElementById('btnResetRgt').onclick = ()=>{ rgtDraft=mk.right(); editing.rights=null; renderForm(); };
 }
 function syncRgt(){
   const r=ensureRgt();
@@ -1441,9 +1445,12 @@ function addRgtSub(coll){ syncRgt(); const r=ensureRgt(); const f=coll==='grante
 function rmRgtSub(coll,i){ syncRgt(); ensureRgt()[coll].splice(i,1); renderForm(); }
 function addRgtSub2(coll,i,sub){ syncRgt(); const item=ensureRgt()[coll][i]; if(!item[sub])item[sub]=[]; item[sub].push(sub==='restrictions'?{value:''}:mk.note()); renderForm(); }
 function rmRgtSub2(coll,i,sub,j){ syncRgt(); ensureRgt()[coll][i][sub].splice(j,1); renderForm(); }
-function commitRights(){ syncRgt(); model.rights.push(JSON.parse(JSON.stringify(ensureRgt()))); rgtDraft=mk.right(); renderForm(); renderModel(); renderOutput(); }
+function commitRights(){ syncRgt(); const c=JSON.parse(JSON.stringify(ensureRgt())); if(editing.rights){ const i=model.rights.findIndex(r=>r.lid===editing.rights); if(i>=0)model.rights[i]=c; else model.rights.push(c); editing.rights=null; } else model.rights.push(c); rgtDraft=mk.right(); renderForm(); renderModel(); renderOutput(); }
 
-function renderForm(){ if(currentEnt==='object') renderObjectForm(); else if(currentEnt==='event') renderEventForm(); else if(currentEnt==='rights') renderRightsForm(); else renderAgentForm(); }
+function renderForm(){
+  if(currentEnt==='object') renderObjectForm(); else if(currentEnt==='event') renderEventForm(); else if(currentEnt==='rights') renderRightsForm(); else renderAgentForm();
+  if(editing[currentEnt]){ const host=document.getElementById('formHost'); if(host) host.insertAdjacentHTML('afterbegin', `<div class="edit-banner">✎ editando ${editing[currentEnt]} — altere e clique em "salvar alterações"</div>`); }
+}
 
 /* ---- modelo ---- */
 function renderModel(){
@@ -1462,20 +1469,20 @@ function renderModel(){
     if(allow.chars) bits.push(`${nFmt} format`, `${nFix} fixity`);
     if(nSig) bits.push(`${nSig} assinatura`);
     if(nEnv) bits.push(`${nEnv} environment`);
-    return `<div class="card"><button class="x" onclick="removeEnt('objects','${o.lid}')">×</button>
+    return `<div class="card"><button class="x" onclick="removeEnt('objects','${o.lid}')">×</button><button class="ed" onclick="editEnt('objects','${o.lid}')">editar</button>
       <span class="cid">${o.lid}</span> <span class="src xsd" style="margin:0 4px">${t}</span> <span class="ctitle">${esc(o.originalName||id.value||'(sem id)')}</span>
       <div class="cmeta">${bits.join(' · ')}</div>
       ${o.linkEvents.length?`<div class="clink">→ eventos: ${o.linkEvents.join(', ')}</div>`:''}</div>`;
   });
-  grp('events',model.events,e=>`<div class="card"><button class="x" onclick="removeEnt('events','${e.lid}')">×</button>
+  grp('events',model.events,e=>`<div class="card"><button class="x" onclick="removeEnt('events','${e.lid}')">×</button><button class="ed" onclick="editEnt('events','${e.lid}')">editar</button>
     <span class="cid">${e.lid}</span> <span class="ctitle">${esc(e.eventType||'(sem tipo)')}</span>
     <div class="cmeta">${esc(e.dateTime||'sem data')} · ${esc(e.idValue)}</div>
     ${(e.linkAgents||[]).length?`<div class="clink">→ agentes: ${e.linkAgents.map(x=>x.agentLid).join(', ')}</div>`:''}${(e.linkObjects||[]).length?`<div class="clink">→ objetos: ${e.linkObjects.map(x=>x.objectLid).join(', ')}</div>`:''}</div>`);
-  grp('agents',model.agents,a=>{const id=a.identifiers[0]||{};const nm=a.names[0];return `<div class="card"><button class="x" onclick="removeEnt('agents','${a.lid}')">×</button>
+  grp('agents',model.agents,a=>{const id=a.identifiers[0]||{};const nm=a.names[0];return `<div class="card"><button class="x" onclick="removeEnt('agents','${a.lid}')">×</button><button class="ed" onclick="editEnt('agents','${a.lid}')">editar</button>
     <span class="cid">${a.lid}</span> <span class="ctitle">${esc((nm&&nm.value)||id.value||'(sem nome)')}</span>
     <div class="cmeta">${esc(a.agentType||'sem tipo')} · ${esc(id.value)}</div>
     ${(a.linkEvents||[]).length?`<div class="clink">→ eventos: ${a.linkEvents.join(', ')}</div>`:''}</div>`;});
-  grp('rights',model.rights,r=>`<div class="card"><button class="x" onclick="removeEnt('rights','${r.lid}')">×</button>
+  grp('rights',model.rights,r=>`<div class="card"><button class="x" onclick="removeEnt('rights','${r.lid}')">×</button><button class="ed" onclick="editEnt('rights','${r.lid}')">editar</button>
     <span class="cid">${r.lid}</span> <span class="ctitle">${esc(r.basis)}</span>
     <div class="cmeta">${esc(r.idValue||'sem id')} · ${(r.granted||[]).length} concessão(ões)</div>
     ${(r.linkObjects||[]).length?`<div class="clink">→ objetos: ${r.linkObjects.join(', ')}</div>`:''}</div>`);
@@ -1486,8 +1493,22 @@ function removeEnt(coll,lid){
      integridade relatar e bloquear o download, conforme escolhido. O gerador de
      XML já ignora vínculos órfãos (find falha), então o XML não sai inválido —
      mas o download fica travado até a correção. */
+  const type={objects:'object',events:'event',agents:'agent',rights:'rights'}[coll];
+  if(editing[type]===lid){ editing[type]=null; if(type==='object')objDraft=mk.object(); else if(type==='event')evtDraft=mk.event(); else if(type==='agent')agtDraft=mk.agent(); else rgtDraft=mk.right(); }
   model[coll]=model[coll].filter(x=>x.lid!==lid);
   renderForm();renderModel();renderOutput();
+}
+function editEnt(coll,lid){
+  const type={objects:'object',events:'event',agents:'agent',rights:'rights'}[coll];
+  const ent=model[coll].find(x=>x.lid===lid); if(!ent) return;
+  const copy=JSON.parse(JSON.stringify(ent));
+  if(type==='object')objDraft=copy; else if(type==='event')evtDraft=copy; else if(type==='agent')agtDraft=copy; else rgtDraft=copy;
+  editing[type]=lid; currentEnt=type; inputMode='form';
+  document.querySelectorAll('#entTabs button[data-ent]').forEach(b=>b.classList.toggle('on', b.dataset.ent===type));
+  document.getElementById('modeForm').classList.add('on'); document.getElementById('modeImport').classList.remove('on');
+  document.getElementById('formHost').style.display=''; document.getElementById('importHost').style.display='none';
+  renderForm();
+  const p=document.getElementById('panel-origem'); if(p) p.scrollTop=0;
 }
 
 /* ---- saída ---- */
