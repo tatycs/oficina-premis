@@ -1046,11 +1046,12 @@ const VOC = {
 
 function helpIcon(key){
   if(!HELP[key]) return '';
-  return `<button type="button" class="info-i" onclick="openHelp(event,'${key}')" title="o que é isto?">ⓘ</button>`;
+  return `<button type="button" class="info-i" onclick="toggleHelp(event,'${key}')" title="o que é isto? (clique de novo para fechar)" aria-haspopup="dialog">ⓘ</button>`;
 }
 function openHelp(ev, key){
   ev.stopPropagation();
   const e=HELP[key]; if(!e) return;
+  window.__helpKey=key;
   const src=SRC[e.src];
   let body=`<div class="help-term">${key}</div><div class="help-def">${esc(e.t)}</div>`;
   if(e.voc && VOC[e.voc]){
@@ -1064,7 +1065,8 @@ function openHelp(ev, key){
   const p=document.getElementById('helpPanel'); p.classList.add('open'); p.setAttribute('aria-hidden','false');
   const hx=p.querySelector('.help-x'); if(hx) hx.focus();
 }
-function closeHelp(){ const p=document.getElementById('helpPanel'); p.classList.remove('open'); p.setAttribute('aria-hidden','true'); if(window.__helpReturn&&window.__helpReturn.focus){ try{window.__helpReturn.focus();}catch(e){} } }
+function closeHelp(){ const p=document.getElementById('helpPanel'); p.classList.remove('open'); p.setAttribute('aria-hidden','true'); window.__helpKey=null; if(window.__helpReturn&&window.__helpReturn.focus){ try{window.__helpReturn.focus();}catch(e){} } }
+function toggleHelp(ev,key){ const p=document.getElementById('helpPanel'); if(p&&p.classList.contains('open')&&window.__helpKey===key){ closeHelp(); } else { openHelp(ev,key); } }
 
 /* helper de campo. req=true -> asterisco. hkey -> ícone de ajuda */
 function fld(label,src,id,val,ph,hint,req,sync,hkey){
