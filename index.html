@@ -27,13 +27,25 @@
   .brand h1{font-size:21px;margin:0;font-weight:800;letter-spacing:-0.01em}
   .brand .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);border-radius:2px;padding:2px 7px}
   .brand .sub{font-size:12.5px;color:var(--ink-soft);font-family:var(--mono)}
-  .flow{display:flex;gap:0;padding:10px 26px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:11.5px;letter-spacing:0.08em;flex-wrap:wrap}
-  .flow .step{display:flex;align-items:center;gap:8px;padding:3px 0;opacity:1}
-  .flow .step .n{border:1px solid var(--paper);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;background:var(--amber);border-color:var(--amber);color:var(--ink)}
-  .flow .arrow{padding:0 14px;opacity:.4}
-  main{display:grid;grid-template-columns:1.15fr 0.85fr 1.0fr;gap:0;min-height:calc(100vh - 116px)}
-  .panel{padding:20px 22px;border-right:1px solid var(--line);overflow:auto;max-height:calc(100vh - 116px)}
-  .panel:last-child{border-right:none}
+  .workbar{position:sticky;top:0;z-index:20;background:var(--ink);color:var(--paper);padding:8px 26px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid #2b3b48}
+  .stepper{display:flex;gap:6px;flex-wrap:wrap}
+  .stepbtn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:0.04em;color:var(--paper);background:transparent;border:1px solid transparent;border-radius:5px;padding:5px 10px;cursor:pointer}
+  .stepbtn:hover{background:#2b3b48}
+  .stepbtn.on{background:var(--paper);color:var(--ink)}
+  .stepbtn .sn{border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;background:var(--amber);color:var(--ink)}
+  .stepbtn.on .sn{background:var(--ink);color:var(--paper)}
+  .stepbtn .ss{font-size:9.5px;opacity:.85}
+  .statusbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px}
+  .statusbar .sc{background:#2b3b48;color:var(--paper);border-radius:10px;padding:2px 8px}
+  .statusbar .sv.ok{background:var(--ok);color:#fff}
+  .statusbar .sv.bad{background:var(--bad);color:#fff}
+  .statusbar .sv.warn{background:var(--warn-bg);color:var(--warn)}
+  main{display:block;min-height:calc(100vh - 150px)}
+  .panel{display:none;padding:22px 26px;max-width:1000px;margin:0 auto}
+  .panel.active{display:block}
+  .stepnav{display:flex;justify-content:space-between;gap:8px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+  .onboard{border:1px dashed var(--amber);background:var(--amber-soft);border-radius:6px;padding:14px;font-size:13px;color:var(--ink);margin-bottom:12px}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
   .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:0.16em;color:var(--ink-soft);margin:0 0 4px;font-weight:700;display:flex;align-items:center;gap:8px}
   .panel h2 .idx{font-family:var(--mono);color:var(--amber);font-size:12px}
   .panel .lede{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;max-width:46ch}
@@ -141,7 +153,7 @@
   .legend span{display:inline-flex;align-items:center;gap:4px}
   .legend .sw{width:9px;height:9px;border-radius:2px;display:inline-block}
   .legend .ast{color:var(--bad);font-weight:800}
-  @media (max-width:1000px){main{grid-template-columns:1fr}.panel{border-right:none;border-bottom:1px solid var(--line);max-height:none}}
+  @media (max-width:1000px){.workbar{padding:8px 14px}.panel{padding:16px 14px}}
   /* ícone de ajuda */
   .info-i{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--ink-soft);background:transparent;color:var(--ink-soft);font-size:10px;line-height:1;cursor:pointer;margin-left:6px;padding:0;vertical-align:middle;font-family:var(--sans);font-weight:700}
   .info-i:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -172,16 +184,17 @@
   <div class="sub">metadados de origem → premis.xml — tudo no navegador, nada sai da máquina</div>
 </header>
 
-<nav class="flow">
-  <div class="step"><span class="n">1</span> ORIGEM</div>
-  <span class="arrow">───▶</span>
-  <div class="step"><span class="n">2</span> MODELO INTERNO</div>
-  <span class="arrow">───▶</span>
-  <div class="step"><span class="n">3</span> SAÍDA + VALIDAÇÃO</div>
-</nav>
+<div class="workbar">
+  <nav class="stepper" id="stepper" role="tablist" aria-label="etapas do fluxo">
+    <button class="stepbtn on" id="step-origem" role="tab" aria-selected="true" aria-controls="panel-origem" tabindex="0"><span class="sn">1</span> <span class="sl">Origem</span> <span class="ss" id="ss-origem"></span></button>
+    <button class="stepbtn" id="step-modelo" role="tab" aria-selected="false" aria-controls="panel-modelo" tabindex="-1"><span class="sn">2</span> <span class="sl">Modelo</span> <span class="ss" id="ss-modelo"></span></button>
+    <button class="stepbtn" id="step-saida" role="tab" aria-selected="false" aria-controls="panel-saida" tabindex="-1"><span class="sn">3</span> <span class="sl">Saída</span> <span class="ss" id="ss-saida"></span></button>
+  </nav>
+  <div class="statusbar" id="statusHost" aria-live="polite" aria-atomic="true"></div>
+</div>
 
 <main>
-  <section class="panel" id="panel-origem">
+  <section class="panel active" id="panel-origem" role="tabpanel" aria-labelledby="step-origem" tabindex="-1">
     <h2><span class="idx">01</span> Origem</h2>
     <p class="lede">Blocos repetíveis (cardinalidade do XSD) têm botão para adicionar mais de um. <span style="color:var(--bad);font-weight:700">*</span> marca o que é obrigatório pelo XSD. Blocos opcionais começam recolhidos.</p>
 
@@ -208,15 +221,17 @@
       <span><span class="sw" style="background:var(--warn)"></span> Archivematica</span>
       <span><span class="sw" style="background:var(--line)"></span> recomendado</span>
     </div>
+    <div class="stepnav"><span></span><button class="btn" onclick="setStep('modelo')">ir para Modelo <span aria-hidden="true">→</span></button></div>
   </section>
 
-  <section class="panel" id="panel-modelo">
+  <section class="panel" id="panel-modelo" role="tabpanel" aria-labelledby="step-modelo" tabindex="-1">
     <h2><span class="idx">02</span> Modelo interno</h2>
     <p class="lede">Representação neutra das entidades. Fonte única de onde os dois perfis derivam. Vínculos por identificador local.</p>
     <div id="modelHost"></div>
+    <div class="stepnav"><button class="btn ghost" onclick="setStep('origem')"><span aria-hidden="true">←</span> Origem</button><button class="btn" onclick="setStep('saida')">ir para Saída <span aria-hidden="true">→</span></button></div>
   </section>
 
-  <section class="panel" id="panel-saida">
+  <section class="panel" id="panel-saida" role="tabpanel" aria-labelledby="step-saida" tabindex="-1">
     <h2><span class="idx">03</span> Saída + validação</h2>
     <p class="lede">O premis.xml gerado a partir do modelo, em dois perfis. A validação roda antes da exportação, com a fonte de cada regra.</p>
 
@@ -249,10 +264,11 @@
         opcional: <code>messageDigest</code> só é exigido se você criar um <code>fixity</code>.
       </div>
     </details>
+    <div class="stepnav"><button class="btn ghost" onclick="setStep('modelo')"><span aria-hidden="true">←</span> Modelo</button><span></span></div>
   </section>
 </main>
 
-<div id="helpPanel" class="help-panel">
+<div id="helpPanel" class="help-panel" role="dialog" aria-modal="true" aria-label="ajuda PREMIS" aria-hidden="true">
   <div class="help-head"><span>ajuda — PREMIS 3.0</span><button type="button" class="help-x" onclick="closeHelp()">×</button></div>
   <div id="helpBody" class="help-body"></div>
 </div>
@@ -964,9 +980,11 @@ function openHelp(ev, key){
   }
   if(src) body+=`<a class="help-src" href="${src.url}" target="_blank" rel="noopener">fonte: ${esc(src.label)} ↗</a>`;
   document.getElementById('helpBody').innerHTML=body;
-  const p=document.getElementById('helpPanel'); p.classList.add('open');
+  window.__helpReturn=document.activeElement;
+  const p=document.getElementById('helpPanel'); p.classList.add('open'); p.setAttribute('aria-hidden','false');
+  const hx=p.querySelector('.help-x'); if(hx) hx.focus();
 }
-function closeHelp(){ document.getElementById('helpPanel').classList.remove('open'); }
+function closeHelp(){ const p=document.getElementById('helpPanel'); p.classList.remove('open'); p.setAttribute('aria-hidden','true'); if(window.__helpReturn&&window.__helpReturn.focus){ try{window.__helpReturn.focus();}catch(e){} } }
 
 /* helper de campo. req=true -> asterisco. hkey -> ícone de ajuda */
 function fld(label,src,id,val,ph,hint,req,sync,hkey){
@@ -1495,6 +1513,7 @@ function renderTree(roots, childrenOf){
 function renderModel(){
   const host=document.getElementById('modelHost');
   let html='';
+  if(!(model.objects.length||model.events.length||model.agents.length||model.rights.length)) html+=`<div class="onboard">Nada no modelo ainda. Vá para a etapa <strong>Origem</strong> e adicione um object, event, agent ou rights — ele aparece aqui para revisão.</div>`;
   const grp=(title,arr,fn)=>{html+=`<div class="model-group"><div class="gh"><span>${title}</span><span>${arr.length}</span></div>`;html+=arr.length?arr.map(fn).join(''):'<div class="empty">vazio</div>';html+=`</div>`;};
   grp('objects',model.objects,o=>{
     const id=o.identifiers[0]||{};
@@ -1574,6 +1593,7 @@ function renderOutput(){
   document.getElementById('btnExport').disabled=result.blocked||!hasContent;
   renderXsd();
   renderVerdict();
+  renderStatus();
 }
 
 /* ---- import ---- */
@@ -1981,11 +2001,50 @@ async function verifyIntegrity(){
   return {ok:S.overall==='ok', state:S};
 }
 
+/* etapas guiadas (stepper) + barra de status sempre visível */
+let currentStep='origem';
+function setStep(step){
+  if(!document.getElementById('panel-'+step)) return;
+  currentStep=step;
+  ['origem','modelo','saida'].forEach(s=>{
+    const panel=document.getElementById('panel-'+s), btn=document.getElementById('step-'+s), on=(s===step);
+    if(panel) panel.classList.toggle('active', on);
+    if(btn){ btn.classList.toggle('on', on); btn.setAttribute('aria-selected', on?'true':'false'); btn.tabIndex=on?0:-1; }
+  });
+  const sb=document.getElementById('step-'+step); if(sb){ try{sb.focus({preventScroll:true});}catch(e){sb.focus();} }
+  window.scrollTo(0,0);
+  renderStatus();
+}
+function renderStatus(){
+  const o=model.objects.length,e=model.events.length,a=model.agents.length,r=model.rights.length, total=o+e+a+r;
+  const host=document.getElementById('statusHost');
+  let badge='', sSaida='';
+  if(total){
+    const S=integrityState(currentProfile);
+    if(S.overall==='ok'){ badge='<span class="sc sv ok">✓ conforme</span>'; sSaida='· ✓'; }
+    else if(S.overall==='blocked'){ badge='<span class="sc sv bad">✕ corrigir</span>'; sSaida='· ✕'; }
+    else { badge='<span class="sc sv warn">⚠ validar</span>'; sSaida='· ⚠'; }
+  }
+  if(host) host.innerHTML = total ? `<span class="sc">${o} obj</span><span class="sc">${e} ev</span><span class="sc">${a} ag</span><span class="sc">${r} dir</span>${badge}` : `<span class="sc">modelo vazio — comece na Origem</span>`;
+  const ss=(id,t)=>{const el=document.getElementById(id); if(el) el.textContent=t;};
+  ss('ss-origem', total?('· '+total):''); ss('ss-modelo', total?('· '+total):'· vazio'); ss('ss-saida', sSaida);
+}
+
 function bind(){
   document.querySelectorAll('#entTabs button[data-ent]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('#entTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentEnt=b.dataset.ent;if(inputMode==='form')renderForm();else if(inputMode==='import')renderMapping();else renderExtract();};});
   document.getElementById('modeForm').onclick=()=>setMode('form');
   document.getElementById('modeImport').onclick=()=>setMode('import');
   document.getElementById('modeExtract').onclick=()=>setMode('extract');
+  ['origem','modelo','saida'].forEach(s=>{ const b=document.getElementById('step-'+s); if(b) b.onclick=()=>setStep(s); });
+  const stepperEl=document.getElementById('stepper');
+  if(stepperEl) stepperEl.addEventListener('keydown', ev=>{
+    const order=['origem','modelo','saida'], i=order.indexOf(currentStep);
+    if(ev.key==='ArrowRight'||ev.key==='ArrowDown'){ ev.preventDefault(); setStep(order[Math.min(2,i+1)]); }
+    else if(ev.key==='ArrowLeft'||ev.key==='ArrowUp'){ ev.preventDefault(); setStep(order[Math.max(0,i-1)]); }
+    else if(ev.key==='Home'){ ev.preventDefault(); setStep('origem'); }
+    else if(ev.key==='End'){ ev.preventDefault(); setStep('saida'); }
+  });
+  document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=document.getElementById('helpPanel'); if(p&&p.classList.contains('open')) closeHelp(); } });
   document.querySelectorAll('.profile-switch button[data-profile]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.profile-switch button[data-profile]').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentProfile=b.dataset.profile;renderOutput();};});
   document.getElementById('btnExport').onclick=async ()=>{
     const profile=currentProfile;
