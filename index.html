@@ -112,6 +112,7 @@
   .card-min{font-family:var(--mono);font-size:9px;color:var(--ink-soft);margin-bottom:6px}
   .chk{display:flex;align-items:center;gap:7px;font-size:12px;margin:3px 0}
   .chk input{width:auto}
+  .chk .seq-in{width:56px;font-family:var(--mono);font-size:11px;padding:3px 5px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)}
   .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:7px 14px;border-radius:3px;cursor:pointer;text-transform:uppercase}
   .btn:hover{background:var(--ink-soft)}
   .btn.ghost{background:transparent;color:var(--ink)}
@@ -349,7 +350,7 @@ const mk = {
   agentLinkEnv: ()=>({type:'',value:'',role:''}),
   agent: ()=>({ lid:newLid('agt'), identifiers:[mk.agentIdentifier()], names:[], agentType:'', agentVersion:'', notes:[], linkEvents:[], linkRights:[], linkEnvironments:[] }),
   /* fase 2 */
-  relationship: ()=>({type:'',subType:'',relObjects:[],relEvents:[]}),
+  relationship: ()=>({type:'',subType:'',relObjects:[],relEvents:[],relObjSeq:{},relEvtSeq:{},relEnvPurpose:[],relEnvChar:''}),
   docId: ()=>({type:'',value:'',role:''}),
   note: ()=>({value:''}),
   granted: ()=>({act:'',restrictions:[],gStart:'',gEnd:'',rStart:'',rEnd:'',notes:[]}),
@@ -521,6 +522,8 @@ function genObject(o, L, profile){
       L.push(`      <premis:relatedObjectIdentifier>`);
       L.push(elv('relatedObjectIdentifierType', id.type, 8));
       L.push(elv('relatedObjectIdentifierValue', id.value, 8));
+      const seq=(rel.relObjSeq||{})[tLid];
+      if(has(seq)) L.push(elv('relatedObjectSequence', seq, 8));
       L.push(`      </premis:relatedObjectIdentifier>`);
     });
     rel.relEvents.forEach(eLid=>{
@@ -528,8 +531,12 @@ function genObject(o, L, profile){
       L.push(`      <premis:relatedEventIdentifier>`);
       L.push(elv('relatedEventIdentifierType', ev.idType, 8));
       L.push(elv('relatedEventIdentifierValue', ev.idValue, 8));
+      const eseq=(rel.relEvtSeq||{})[eLid];
+      if(has(eseq)) L.push(elv('relatedEventSequence', eseq, 8));
       L.push(`      </premis:relatedEventIdentifier>`);
     });
+    (rel.relEnvPurpose||[]).forEach(p=>{ if(has(p)) L.push(elv('relatedEnvironmentPurpose', p, 6)); });
+    if(has(rel.relEnvChar)) L.push(elv('relatedEnvironmentCharacteristic', rel.relEnvChar, 6));
     L.push(`    </premis:relationship>`);
   });
   o.linkEvents.forEach(evLid=>{
@@ -1044,6 +1051,10 @@ const HELP = {
   'linkingEnvironmentIdentifier': {t:'Vínculo a um ambiente (na v3, um intellectualEntity de tipo environment), por type e value, com papel opcional.', src:'dd'},
   'startDate': {t:'Data inicial do período (datas aplicáveis, termo de concessão ou de restrição).', src:'dd'},
   'endDate': {t:'Data final do período. Deixe vazio se ainda em aberto.', src:'dd'},
+  'relatedObjectSequence': {t:'Ordem (sequência) do objeto relacionado dentro da relação — usada para ordenar partes/itens (ex.: páginas de um documento) em relações structural.', src:'dd'},
+  'relatedEventSequence': {t:'Ordem (sequência) do evento relacionado dentro da relação.', src:'dd'},
+  'relatedEnvironmentPurpose': {t:'Finalidade do ambiente relacionado em relação ao objeto (ex.: render). Aplicável a relações com um ambiente.', src:'dd'},
+  'relatedEnvironmentCharacteristic': {t:'Característica do ambiente relacionado (ex.: se é o ambiente conhecido/recomendado).', src:'dd'},
 };
 const VOC = {
   relType: [['structural','relação de composição/estrutura entre objetos'],['derivation','um objeto deriva de outro (ex.: por migração)'],['dependency','um objeto depende de outro para funcionar'],['logical','relação lógica'],['reference','um objeto referencia outro'],['replacement','um objeto substitui outro']],
@@ -1295,10 +1306,11 @@ function renderObjectForm(){
     const others = model.objects; // pode relacionar com qualquer objeto já no modelo
     h += `<div class="rep-item"><div class="rh"><span>relação ${i+1}</span><button class="rm-x" onclick="rmRep('relationships',${i})">×</button></div>
       <div class="field-row">${fld('relationshipType','xsd',`rel_t_${i}`,rel.type,'ex.: structural, derivation','',true,'syncObj','relationshipType')}${fld('relationshipSubType','xsd',`rel_s_${i}`,rel.subType,'ex.: is part of','',true,'syncObj','relationshipSubType')}</div>
-      <label style="font-size:11px;font-weight:600">relatedObjectIdentifier<span class="req">*</span> [1..n] — objetos do modelo</label>
-      ${others.length? others.map(t=>`<div class="chk"><input type="checkbox" id="relo_${i}_${t.lid}" ${rel.relObjects.includes(t.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="relo_${i}_${t.lid}">${t.lid} · ${esc(t.originalName||(t.identifiers[0]?t.identifiers[0].value:''))}</label></div>`).join('') : '<div class="empty">Nenhum objeto no modelo ainda para relacionar.</div>'}
+      <label style="font-size:11px;font-weight:600">relatedObjectIdentifier<span class="req">*</span> [1..n] — objetos do modelo · seq = ordem ${helpIcon('relatedObjectSequence')}</label>
+      ${others.length? others.map(t=>`<div class="chk"><input type="checkbox" id="relo_${i}_${t.lid}" ${rel.relObjects.includes(t.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0;flex:1" for="relo_${i}_${t.lid}">${t.lid} · ${esc(t.originalName||(t.identifiers[0]?t.identifiers[0].value:''))}</label><input type="number" min="1" class="seq-in" id="reloseq_${i}_${t.lid}" value="${esc(((rel.relObjSeq||{})[t.lid])||'')}" placeholder="seq" title="relatedObjectSequence — ordem" oninput="syncObj()"></div>`).join('') : '<div class="empty">Nenhum objeto no modelo ainda para relacionar.</div>'}
       <label style="font-size:11px;font-weight:600;margin-top:6px">relatedEventIdentifier [0..n]</label>
-      ${model.events.length? model.events.map(e=>`<div class="chk"><input type="checkbox" id="rele_${i}_${e.lid}" ${rel.relEvents.includes(e.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0" for="rele_${i}_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Sem eventos no modelo.</div>'}
+      ${model.events.length? model.events.map(e=>`<div class="chk"><input type="checkbox" id="rele_${i}_${e.lid}" ${rel.relEvents.includes(e.lid)?'checked':''} onchange="syncObj()"><label style="font-weight:400;margin:0;flex:1" for="rele_${i}_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label><input type="number" min="1" class="seq-in" id="releseq_${i}_${e.lid}" value="${esc(((rel.relEvtSeq||{})[e.lid])||'')}" placeholder="seq" title="relatedEventSequence — ordem" oninput="syncObj()"></div>`).join('') : '<div class="empty">Sem eventos no modelo.</div>'}
+      <div class="field-row" style="margin-top:6px">${fld('relatedEnvironmentPurpose','dd',`rel_ep_${i}`,(rel.relEnvPurpose||[]).join(', '),'ex.: render','0..n — separe por vírgula')}${fld('relatedEnvironmentCharacteristic','dd',`rel_ec_${i}`,rel.relEnvChar||'','','0..1')}</div>
     </div>`;
   });
   h += `<button class="add-btn" onclick="addRep('relationships')">+ relationship</button></div></div>`;
@@ -1349,6 +1361,10 @@ function syncObj(){
     if(document.getElementById(`rel_t_${i}`)){
       rel.relObjects=model.objects.filter(t=>gc(`relo_${i}_${t.lid}`)===true).map(t=>t.lid);
       rel.relEvents=model.events.filter(e=>gc(`rele_${i}_${e.lid}`)===true).map(e=>e.lid);
+      rel.relObjSeq={}; model.objects.forEach(t=>{ const el=document.getElementById(`reloseq_${i}_${t.lid}`); if(el&&el.value.trim()) rel.relObjSeq[t.lid]=el.value.trim(); });
+      rel.relEvtSeq={}; model.events.forEach(e=>{ const el=document.getElementById(`releseq_${i}_${e.lid}`); if(el&&el.value.trim()) rel.relEvtSeq[e.lid]=el.value.trim(); });
+      const ep=document.getElementById(`rel_ep_${i}`); rel.relEnvPurpose= ep ? ep.value.split(',').map(s=>s.trim()).filter(Boolean) : (rel.relEnvPurpose||[]);
+      const ec=document.getElementById(`rel_ec_${i}`); if(ec) rel.relEnvChar=ec.value.trim();
     }
   });
   if(model.rights.length && document.getElementById(`lr_${model.rights[0].lid}`)!==null || model.rights.length===0){
@@ -1618,17 +1634,18 @@ function renderForm(){
 function buildStructuralEdges(){
   const childrenOf=new Map(); const isChild=new Set();
   const exists=lid=>model.objects.some(o=>o.lid===lid);
-  const add=(p,c,sub)=>{ if(p===c||!exists(p)||!exists(c)) return; if(!childrenOf.has(p))childrenOf.set(p,[]); if(!childrenOf.get(p).some(e=>e.lid===c)) childrenOf.get(p).push({lid:c,subType:sub}); isChild.add(c); };
+  const add=(p,c,sub,seq)=>{ if(p===c||!exists(p)||!exists(c)) return; if(!childrenOf.has(p))childrenOf.set(p,[]); if(!childrenOf.get(p).some(e=>e.lid===c)) childrenOf.get(p).push({lid:c,subType:sub,seq:seq}); isChild.add(c); };
   model.objects.forEach(o=>{
     (o.relationships||[]).forEach(rel=>{
       if(!/structural/i.test(rel.type||'')) return;
       const sub=(rel.subType||'').toLowerCase().replace(/[^a-z]/g,'');
       (rel.relObjects||[]).forEach(t=>{
         if(sub==='ispartof'||sub==='isincludedin'||sub==='isrootof') add(t, o.lid, rel.subType||'');   /* o é parte de t → t é pai (is part of / isIncludedIn / …) */
-        else add(o.lid, t, rel.subType||'');                                                            /* o contém t (has part / includes / hasPart / …) */
+        else add(o.lid, t, rel.subType||'', (rel.relObjSeq||{})[t]);                                    /* o contém t (has part / includes / …) — ordena por relatedObjectSequence */
       });
     });
   });
+  childrenOf.forEach(arr=>arr.sort((a,b)=>{ let av=a.seq?parseInt(a.seq,10):NaN, bv=b.seq?parseInt(b.seq,10):NaN; av=isNaN(av)?Infinity:av; bv=isNaN(bv)?Infinity:bv; return av-bv; }));
   return {childrenOf, isChild};
 }
 function renderTree(roots, childrenOf){
@@ -1819,9 +1836,10 @@ function parsePremisXML(xmlString){
     o.envDesignations=xCh(oel,'environmentDesignation').map(e=>({name:xT(e,'environmentName'),version:xT(e,'environmentVersion'),origin:xT(e,'environmentOrigin'),notes:xCh(e,'environmentDesignationNote').map(n=>({value:(n.textContent||'').trim()}))}));
     o.envRegistries=xCh(oel,'environmentRegistry').map(e=>({name:xT(e,'environmentRegistryName'),key:xT(e,'environmentRegistryKey'),role:xT(e,'environmentRegistryRole')}));
     o.relationships=xCh(oel,'relationship').map(re=>({type:xT(re,'relationshipType'),subType:xT(re,'relationshipSubType'),
-      _ro:xCh(re,'relatedObjectIdentifier').map(x=>xTV(x,'relatedObjectIdentifierType','relatedObjectIdentifierValue')),
-      _re:xCh(re,'relatedEventIdentifier').map(x=>xTV(x,'relatedEventIdentifierType','relatedEventIdentifierValue')),
-      relObjects:[],relEvents:[]}));
+      _ro:xCh(re,'relatedObjectIdentifier').map(x=>({...xTV(x,'relatedObjectIdentifierType','relatedObjectIdentifierValue'),seq:xT(x,'relatedObjectSequence')})),
+      _re:xCh(re,'relatedEventIdentifier').map(x=>({...xTV(x,'relatedEventIdentifierType','relatedEventIdentifierValue'),seq:xT(x,'relatedEventSequence')})),
+      relEnvPurpose:xCh(re,'relatedEnvironmentPurpose').map(n=>(n.textContent||'').trim()).filter(Boolean), relEnvChar:xT(re,'relatedEnvironmentCharacteristic'),
+      relObjSeq:{},relEvtSeq:{},relObjects:[],relEvents:[]}));
     o._le=xCh(oel,'linkingEventIdentifier').map(x=>xTV(x,'linkingEventIdentifierType','linkingEventIdentifierValue'));
     o._lr=xCh(oel,'linkingRightsStatementIdentifier').map(x=>xTV(x,'linkingRightsStatementIdentifierType','linkingRightsStatementIdentifierValue'));
     o.linkEvents=[]; o.linkRights=[];
@@ -1885,7 +1903,7 @@ function parsePremisXML(xmlString){
   m.objects.forEach(o=>{
     o.linkEvents=(o._le||[]).map(p=>rs(eMap,p,'object→event')).filter(Boolean);
     o.linkRights=(o._lr||[]).map(p=>rs(rMap,p,'object→rights')).filter(Boolean);
-    (o.relationships||[]).forEach(rel=>{ rel.relObjects=(rel._ro||[]).map(p=>rs(oMap,p,'relatedObject')).filter(Boolean); rel.relEvents=(rel._re||[]).map(p=>rs(eMap,p,'relatedEvent')).filter(Boolean); delete rel._ro; delete rel._re; });
+    (o.relationships||[]).forEach(rel=>{ rel.relObjSeq=rel.relObjSeq||{}; rel.relEvtSeq=rel.relEvtSeq||{}; rel.relObjects=(rel._ro||[]).map(p=>{ const l=rs(oMap,p,'relatedObject'); if(l&&has(p.seq)) rel.relObjSeq[l]=p.seq; return l; }).filter(Boolean); rel.relEvents=(rel._re||[]).map(p=>{ const l=rs(eMap,p,'relatedEvent'); if(l&&has(p.seq)) rel.relEvtSeq[l]=p.seq; return l; }).filter(Boolean); delete rel._ro; delete rel._re; });
     delete o._le; delete o._lr;
   });
   m.events.forEach(e=>{
