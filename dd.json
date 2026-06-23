@@ -50,7 +50,11 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.1.1 objectIdentifierType 1.1.2 objectIdentifierValue"
+   "semanticComponents": "1.1.1 objectIdentifierType 1.1.2 objectIdentifierValue",
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar o Objeto de forma inequívoca dentro do sistema de repositório de preservação em que ele está armazenado.",
+   "rationale": "Cada Objeto mantido no repositório de preservação precisa ter um identificador único, para que outras entidades possam se referir a ele e relacioná-lo, sem ambiguidade, a metadados descritivos, técnicos e de outros tipos.",
+   "creationMaintenanceNotes": "Um identificador pode ser criado pelo sistema do repositório no momento do ingest, ou pode ser criado/atribuído fora do repositório e enviado junto com o objeto como metadado. Da mesma forma, identificadores podem ser gerados de forma automática ou manual."
   }
  },
  "objectIdentifierType": {
@@ -108,7 +112,11 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.html.",
+   "definition": "Designação do domínio dentro do qual o identificador do objeto é único.",
+   "rationale": "Não se pode presumir que valores de identificador sejam únicos entre domínios; a combinação de objectIdentifierType e objectIdentifierValue deve garantir a unicidade.",
+   "usageNotes": "O tipo do identificador pode ser implícito dentro do repositório, desde que possa ser comunicado explicitamente quando o objeto digital for disseminado fora dele."
   }
  },
  "objectIdentifierValue": {
@@ -164,7 +172,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "objectCategory": {
@@ -222,7 +231,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/objectCategory.html."
   }
  },
  "preservationLevel": {
@@ -272,7 +282,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.3.1 preservationLevelType 1.3.2 preservationLevelValue 1.3.3 preservationLevelRole 1.3.4 preservationLevelRationale 1.3.5 preservationLevelDateAssigned"
+   "semanticComponents": "1.3.1 preservationLevelType 1.3.2 preservationLevelValue 1.3.3 preservationLevelRole 1.3.4 preservationLevelRationale 1.3.5 preservationLevelDateAssigned",
+   "dataConstraint": "Contêiner"
   }
  },
  "preservationLevelType": {
@@ -326,7 +337,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "preservationLevelValue": {
@@ -380,7 +392,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Se preservationLevelType e/ou preservationLevelRole forem usados, o vocabulário controlado disponível deve depender dos valores definidos para cada um desses tipos."
   }
  },
  "preservationLevelRole": {
@@ -433,7 +446,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há uma lista de vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/preservationLevelRole.html ."
   }
  },
  "preservationLevelRationale": {
@@ -486,7 +500,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "preservationLevelDateAssigned": {
@@ -538,7 +553,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "significantProperties": {
@@ -592,7 +608,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.4.1 significantPropertiesType 1.4.2 significantPropertiesValue 1.4.3 significantPropertiesExtension"
+   "semanticComponents": "1.4.1 significantPropertiesType 1.4.2 significantPropertiesValue 1.4.3 significantPropertiesExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "significantPropertiesType": {
@@ -650,7 +667,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "significantPropertiesValue": {
@@ -708,7 +726,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "significantPropertiesExtension": {
@@ -761,7 +780,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  },
  "objectCharacteristics": {
@@ -810,7 +830,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.1 compositionLevel 1.5.2 fixity 1.5.3 size 1.5.4 format 1.5.5 creatingApplication 1.5.6 inhibitors 1.5.7 objectCharacteristicsExtension"
+   "semanticComponents": "1.5.1 compositionLevel 1.5.2 fixity 1.5.3 size 1.5.4 format 1.5.5 creatingApplication 1.5.6 inhibitors 1.5.7 objectCharacteristicsExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "compositionLevel": {
@@ -864,7 +885,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Inteiros não negativos (ou “unknown”)"
   }
  },
  "fixity": {
@@ -913,7 +935,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.2.1 messageDigestAlgorithm 1.5.2.2 messageDigest 1.5.2.3 messageDigestOriginator"
+   "semanticComponents": "1.5.2.1 messageDigestAlgorithm 1.5.2.2 messageDigest 1.5.2.3 messageDigestOriginator",
+   "dataConstraint": "Contêiner"
   }
  },
  "messageDigestAlgorithm": {
@@ -964,7 +987,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há uma lista de vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/cryptographicHashFunction s.html."
   }
  },
  "messageDigest": {
@@ -1016,7 +1040,10 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma",
+   "definition": "A saída do algoritmo de message digest.",
+   "rationale": "Deve ser armazenado para que possa ser comparado em futuras verificações de fixidez."
   }
  },
  "messageDigestOriginator": {
@@ -1070,7 +1097,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "size": {
@@ -1124,7 +1152,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Inteiro"
   }
  },
  "format": {
@@ -1174,7 +1203,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.4.1 formatDesignation 1.5.4.2 formatRegistry 1.5.4.3 formatNote"
+   "semanticComponents": "1.5.4.1 formatDesignation 1.5.4.2 formatRegistry 1.5.4.3 formatNote",
+   "dataConstraint": "Contêiner"
   }
  },
  "formatDesignation": {
@@ -1222,7 +1252,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.4.1.1 formatName 1.5.4.1.2 formatVersion"
+   "semanticComponents": "1.5.4.1.1 formatName 1.5.4.1.2 formatVersion",
+   "dataConstraint": "Contêiner"
   }
  },
  "formatName": {
@@ -1274,7 +1305,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "formatVersion": {
@@ -1327,7 +1359,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "formatRegistry": {
@@ -1376,7 +1409,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.4.2.1 formatRegistryName 1.5.4.2.2 formatRegistryKey 1.5.4.2.3 formatRegistryRole"
+   "semanticComponents": "1.5.4.2.1 formatRegistryName 1.5.4.2.2 formatRegistryKey 1.5.4.2.3 formatRegistryRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "formatRegistryName": {
@@ -1428,7 +1462,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "formatRegistryKey": {
@@ -1479,7 +1514,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "formatRegistryRole": {
@@ -1531,7 +1567,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/formatRegistryRole.html."
   }
  },
  "formatNote": {
@@ -1584,7 +1621,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "creatingApplication": {
@@ -1634,7 +1672,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.5.1 creatingApplicationName 1.5.5.2 creatingApplicationVersion 1.5.5.3 dateCreatedByApplication 1.5.5.4 creatingApplicationExtension"
+   "semanticComponents": "1.5.5.1 creatingApplicationName 1.5.5.2 creatingApplicationVersion 1.5.5.3 dateCreatedByApplication 1.5.5.4 creatingApplicationExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "creatingApplicationName": {
@@ -1686,7 +1725,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "creatingApplicationVersion": {
@@ -1737,7 +1777,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "dateCreatedByApplication": {
@@ -1789,7 +1830,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "creatingApplicationExtension": {
@@ -1838,7 +1880,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  },
  "inhibitors": {
@@ -1888,7 +1931,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.5.6.1 inhibitorType 1.5.6.2 inhibitorTarget 1.5.6.3 inhibitorKey"
+   "semanticComponents": "1.5.6.1 inhibitorType 1.5.6.2 inhibitorTarget 1.5.6.3 inhibitorKey",
+   "dataConstraint": "Contêiner"
   }
  },
  "inhibitorType": {
@@ -1940,7 +1984,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/inhibitorType.html."
   }
  },
  "inhibitorTarget": {
@@ -1992,7 +2037,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/inhibitorTarget.html."
   }
  },
  "inhibitorKey": {
@@ -2044,7 +2090,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "objectCharacteristicsExtension": {
@@ -2093,7 +2140,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  },
  "originalName": {
@@ -2147,7 +2195,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "storage": {
@@ -2204,7 +2253,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.7.1 contentLocation 1.7.2 storageMedium"
+   "semanticComponents": "1.7.1 contentLocation 1.7.2 storageMedium",
+   "dataConstraint": "Contêiner"
   }
  },
  "contentLocation": {
@@ -2261,7 +2311,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.7.1.1 contentLocationType 1.7.1.2 contentLocationValue"
+   "semanticComponents": "1.7.1.1 contentLocationType 1.7.1.2 contentLocationValue",
+   "dataConstraint": "Contêiner"
   }
  },
  "contentLocationType": {
@@ -2322,7 +2373,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/contentLocationType.html."
   }
  },
  "contentLocationValue": {
@@ -2383,7 +2435,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "storageMedium": {
@@ -2445,7 +2498,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Vocabulários controlados de exemplo estão disponíveis em: http://id.loc.gov/vocabulary/preservation/storageMedium.html. e http://metadataregistry.org/concept/list/vocabulary_id/145.html."
   }
  },
  "signatureInformation": {
@@ -2494,7 +2548,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.8.1 signature 1.8.2 signatureInformationExtension"
+   "semanticComponents": "1.8.1 signature 1.8.2 signatureInformationExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "signature": {
@@ -2543,7 +2598,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.8.1.1 signatureEncoding 1.8.1.2 signer 1.8.1.3 signatureMethod 1.8.1.4 signatureValue 1.8.1.5 signatureValidationRules 1.8.1.6 signatureProperties 1.8.1.7 keyInformation"
+   "semanticComponents": "1.8.1.1 signatureEncoding 1.8.1.2 signer 1.8.1.3 signatureMethod 1.8.1.4 signatureValue 1.8.1.5 signatureValidationRules 1.8.1.6 signatureProperties 1.8.1.7 keyInformation",
+   "dataConstraint": "Contêiner"
   }
  },
  "signatureEncoding": {
@@ -2595,7 +2651,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/signatureEncoding.html."
   }
  },
  "signer": {
@@ -2644,7 +2701,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "signatureMethod": {
@@ -2697,7 +2755,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/signatureMethod.html."
   }
  },
  "signatureValue": {
@@ -2748,7 +2807,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "signatureValidationRules": {
@@ -2797,7 +2857,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "signatureProperties": {
@@ -2845,7 +2906,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "keyInformation": {
@@ -2894,7 +2956,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Extensible container"
+   "semanticComponents": "Extensible container",
+   "dataConstraint": "Contêiner"
   }
  },
  "signatureInformationExtension": {
@@ -2943,7 +3006,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  },
  "environmentFunction": {
@@ -2992,7 +3056,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.9.1 environmentFunctionType 1.9.2 environmentFunctionLevel"
+   "semanticComponents": "1.9.1 environmentFunctionType 1.9.2 environmentFunctionLevel",
+   "dataConstraint": "Contêiner"
   }
  },
  "environmentFunctionType": {
@@ -3043,7 +3108,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentFunctionType."
   }
  },
  "environmentFunctionLevel": {
@@ -3094,7 +3160,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Inteiro positivo"
   }
  },
  "environmentDesignation": {
@@ -3142,7 +3209,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.10.1 environmentName 1.10.2 environmentVersion 1.10.3 environmentOrigin 1.10.4 environmentDesignationNote 1.10.5 environmentDesignationExtension"
+   "semanticComponents": "1.10.1 environmentName 1.10.2 environmentVersion 1.10.3 environmentOrigin 1.10.4 environmentDesignationNote 1.10.5 environmentDesignationExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "environmentName": {
@@ -3193,7 +3261,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Recomenda-se retirar esta informação de um vocabulário controlado."
   }
  },
  "environmentVersion": {
@@ -3244,7 +3313,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "environmentOrigin": {
@@ -3295,7 +3365,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "environmentDesignationNote": {
@@ -3347,7 +3418,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "environmentDesignationExtension": {
@@ -3396,7 +3468,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "environmentRegistry": {
@@ -3444,7 +3517,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.11.1 environmentRegistryName 1.11.2 environmentRegistryKey 1.11.3 environmentRegistryRole"
+   "semanticComponents": "1.11.1 environmentRegistryName 1.11.2 environmentRegistryKey 1.11.3 environmentRegistryRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "environmentRegistryName": {
@@ -3494,7 +3568,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "environmentRegistryKey": {
@@ -3544,7 +3619,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "environmentRegistryRole": {
@@ -3595,7 +3671,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentRegistryRole."
   }
  },
  "environmentExtension": {
@@ -3644,7 +3721,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "relationship": {
@@ -3697,7 +3775,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.13.1 relationshipType 1.13.2 relationshipSubType 1.13.3 relatedObjectIdentifier 1.13.4 relatedEventIdentifier 1.13.5 relatedEnvironmentPurpose 1.13.6 relatedEnvironmentCharacteristic"
+   "semanticComponents": "1.13.1 relationshipType 1.13.2 relationshipSubType 1.13.3 relatedObjectIdentifier 1.13.4 relatedEventIdentifier 1.13.5 relatedEnvironmentPurpose 1.13.6 relatedEnvironmentCharacteristic",
+   "dataConstraint": "Contêiner"
   }
  },
  "relationshipType": {
@@ -3754,7 +3833,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/relationshipType.html."
   }
  },
  "relationshipSubType": {
@@ -3811,7 +3891,9 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/relationshipSubType.html.",
+   "definition": "Caracterização específica da natureza da relação documentada em relationshipType."
   }
  },
  "relatedObjectIdentifier": {
@@ -3863,7 +3945,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.14.3.1 relatedObjectIdentifierType 1.14.3.2 relatedObjectIdentifierValue 1.14.3.3 relatedObjectSequence"
+   "semanticComponents": "1.14.3.1 relatedObjectIdentifierType 1.14.3.2 relatedObjectIdentifierValue 1.14.3.3 relatedObjectSequence",
+   "dataConstraint": "Contêiner"
   }
  },
  "relatedObjectIdentifierType": {
@@ -3920,7 +4003,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "relatedObjectIdentifierValue": {
@@ -3977,7 +4061,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "relatedObjectSequence": {
@@ -4035,7 +4120,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "relatedEventIdentifier": {
@@ -4088,7 +4174,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.13.4.1 relatedEventIdentifierType 1.13.4.2 relatedEventIdentifierValue 1.13.4.3 relatedEventSequence"
+   "semanticComponents": "1.13.4.1 relatedEventIdentifierType 1.13.4.2 relatedEventIdentifierValue 1.13.4.3 relatedEventSequence",
+   "dataConstraint": "Contêiner"
   }
  },
  "relatedEventIdentifierType": {
@@ -4145,7 +4232,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor eventIdentifierType existente."
   }
  },
  "relatedEventIdentifierValue": {
@@ -4201,7 +4289,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor eventIdentifierValue existente."
   }
  },
  "relatedEventSequence": {
@@ -4258,7 +4347,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "relatedEnvironmentPurpose": {
@@ -4317,7 +4407,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentPurpose."
   }
  },
  "relatedEnvironmentCharacteristic": {
@@ -4376,7 +4467,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentCharacteristic."
   }
  },
  "linkingEventIdentifier": {
@@ -4428,7 +4520,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.14.1 linkingEventIdentifierType 1.14.2 linkingEventIdentifierValue"
+   "semanticComponents": "1.14.1 linkingEventIdentifierType 1.14.2 linkingEventIdentifierValue",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingEventIdentifierType": {
@@ -4484,7 +4577,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor eventIdentifierType existente."
   }
  },
  "linkingEventIdentifierValue": {
@@ -4540,7 +4634,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor eventIdentifierValue existente."
   }
  },
  "linkingRightsStatementIdentifier": {
@@ -4593,7 +4688,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "1.15.1 linkingRightsStatementIdentifierType 1.15.2 linkingRightsStatementIdentifierValue"
+   "semanticComponents": "1.15.1 linkingRightsStatementIdentifierType 1.15.2 linkingRightsStatementIdentifierValue",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingRightsStatementIdentifierType": {
@@ -4649,7 +4745,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor rightsStatementIdentifierType existente."
   }
  },
  "linkingRightsStatementIdentifierValue": {
@@ -4700,7 +4797,8 @@
     "Arquivo",
     "Bitstream"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor rightsStatementIdentifierValue existente."
   }
  },
  "eventIdentifier": {
@@ -4725,7 +4823,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "2.1.1 eventIdentifierType 2.1.2 eventIdentifierValue"
+   "semanticComponents": "2.1.1 eventIdentifierType 2.1.2 eventIdentifierValue",
+   "dataConstraint": "Contêiner"
   }
  },
  "eventIdentifierType": {
@@ -4752,7 +4851,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "eventIdentifierValue": {
@@ -4778,7 +4878,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "eventType": {
@@ -4806,7 +4907,10 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventType.",
+   "definition": "Categorização da natureza do Evento.",
+   "rationale": "Categorizar Eventos ajuda o repositório de preservação no processamento por máquina das informações de Evento, sobretudo na geração de relatórios."
   }
  },
  "eventDateTime": {
@@ -4833,7 +4937,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "eventDetailInformation": {
@@ -4857,7 +4962,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "2.4.1 eventDetail 2.4.2 eventDetailExtension"
+   "semanticComponents": "2.4.1 eventDetail 2.4.2 eventDetailExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "eventDetail": {
@@ -4884,7 +4990,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "eventDetailExtension": {
@@ -4909,7 +5016,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  },
  "eventOutcomeInformation": {
@@ -4933,7 +5041,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "2.5.1 eventOutcome 2.5.2 eventOutcomeDetail"
+   "semanticComponents": "2.5.1 eventOutcome 2.5.2 eventOutcomeDetail",
+   "dataConstraint": "Contêiner"
   }
  },
  "eventOutcome": {
@@ -4961,7 +5070,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "eventOutcomeDetail": {
@@ -4986,7 +5096,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "2.5.2.1 eventOutcomeDetailNote 2.5.2.2 eventOutcomeDetailExtension"
+   "semanticComponents": "2.5.2.1 eventOutcomeDetailNote 2.5.2.2 eventOutcomeDetailExtension",
+   "dataConstraint": "Contêiner"
   }
  },
  "eventOutcomeDetailNote": {
@@ -5013,7 +5124,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "eventOutcomeDetailExtension": {
@@ -5038,7 +5150,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingAgentIdentifier": {
@@ -5063,7 +5176,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "2.6.1 linkingAgentIdentifierType 2.6.2 linkingAgentIdentifierValue 2.6.3 linkingAgentRole"
+   "semanticComponents": "2.6.1 linkingAgentIdentifierType 2.6.2 linkingAgentIdentifierValue 2.6.3 linkingAgentRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingAgentIdentifierType": {
@@ -5089,7 +5203,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor agentIdentifierType existente."
   }
  },
  "linkingAgentIdentifierValue": {
@@ -5115,7 +5230,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor agentIdentifierValue existente."
   }
  },
  "linkingAgentRole": {
@@ -5142,7 +5258,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventRelatedAgentRole."
   }
  },
  "linkingObjectIdentifier": {
@@ -5167,7 +5284,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "2.7.1 linkingObjectIdentifierType 2.7.2 linkingObjectIdentifierValue 2.7.3 linkingObjectRole"
+   "semanticComponents": "2.7.1 linkingObjectIdentifierType 2.7.2 linkingObjectIdentifierValue 2.7.3 linkingObjectRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingObjectIdentifierType": {
@@ -5193,7 +5311,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor objectIdentifierType existente."
   }
  },
  "linkingObjectIdentifierValue": {
@@ -5219,7 +5338,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor objectIdentifierValue existente."
   }
  },
  "linkingObjectRole": {
@@ -5246,7 +5366,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole."
   }
  },
  "agentIdentifier": {
@@ -5272,7 +5393,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "3.1.1 agentIdentifierType 3.1.2 agentIdentifierValue"
+   "semanticComponents": "3.1.1 agentIdentifierType 3.1.2 agentIdentifierValue",
+   "dataConstraint": "Contêiner"
   }
  },
  "agentIdentifierType": {
@@ -5298,7 +5420,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "agentIdentifierValue": {
@@ -5325,7 +5448,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor pode ser retirado de um vocabulário controlado. Se agentType for organization, há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/organizations."
   }
  },
  "agentName": {
@@ -5353,7 +5477,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "agentType": {
@@ -5379,7 +5504,9 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/agentType.html.",
+   "definition": "Caracterização de alto nível do tipo de Agente."
   }
  },
  "agentVersion": {
@@ -5407,7 +5534,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "agentNote": {
@@ -5435,7 +5563,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "agentExtension": {
@@ -5460,7 +5589,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Defined externally."
+   "semanticComponents": "Defined externally.",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingEnvironmentIdentifier": {
@@ -5488,7 +5618,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "3.9.1 linkingEnvironmentIdentifierType 3.9.2 linkingEnvironmentIdentifierValue 3.9.3 linkingEnvironmentRole"
+   "semanticComponents": "3.9.1 linkingEnvironmentIdentifierType 3.9.2 linkingEnvironmentIdentifierValue 3.9.3 linkingEnvironmentRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "linkingEnvironmentIdentifierType": {
@@ -5514,7 +5645,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um valor objectIdentifierType existente."
   }
  },
  "linkingEnvironmentIdentifierValue": {
@@ -5540,7 +5672,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Deve ser um objectIdentifierValue existente."
   }
  },
  "linkingEnvironmentRole": {
@@ -5568,7 +5701,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/linkingEnvironmentRole.ht ml."
   }
  },
  "rightsStatement": {
@@ -5592,7 +5726,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.1 rightsStatementIdentifier 4.1.2 rightsBasis 4.1.3 copyrightInformation 4.1.4 licenseInformation 4.1.5 statuteInformation 4.1.6 otherRightsInformation 4.1.7 rightsGranted 4.1.8 linkingObjectIdentifier 4.1.9 linkingAgentIdentifier"
+   "semanticComponents": "4.1.1 rightsStatementIdentifier 4.1.2 rightsBasis 4.1.3 copyrightInformation 4.1.4 licenseInformation 4.1.5 statuteInformation 4.1.6 otherRightsInformation 4.1.7 rightsGranted 4.1.8 linkingObjectIdentifier 4.1.9 linkingAgentIdentifier",
+   "dataConstraint": "Contêiner"
   }
  },
  "rightsStatementIdentifier": {
@@ -5621,7 +5756,8 @@
     "Creation/ maintenance notes",
     "The rightsStatementIdentifier is likely to be system generated. There is no global scheme or standard for these identifiers. The identifier is therefore not repeatable."
    ],
-   "semanticComponents": "4.1.1.1 rightsStatementIdentifierType 4.1.1.2 rightsStatementIdentifierValue"
+   "semanticComponents": "4.1.1.1 rightsStatementIdentifierType 4.1.1.2 rightsStatementIdentifierValue",
+   "dataConstraint": "Contêiner"
   }
  },
  "rightsStatementIdentifierType": {
@@ -5644,7 +5780,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.html."
   }
  },
  "rightsStatementIdentifierValue": {
@@ -5667,7 +5804,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "rightsBasis": {
@@ -5694,7 +5832,9 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/rightsBasis.html.",
+   "definition": "Designação da base do direito ou permissão identificado pelo rightsStatementIdentifier."
   }
  },
  "copyrightInformation": {
@@ -5718,7 +5858,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.3.1 copyrightStatus 4.1.3.2 copyrightJurisdiction 4.1.3.3 copyrightStatusDeterminationDate 4.1.3.4 copyrightNote 4.1.3.5 copyrightDocumentationIdentifier 4.1.3.6 copyrightApplicableDates"
+   "semanticComponents": "4.1.3.1 copyrightStatus 4.1.3.2 copyrightJurisdiction 4.1.3.3 copyrightStatusDeterminationDate 4.1.3.4 copyrightNote 4.1.3.5 copyrightDocumentationIdentifier 4.1.3.6 copyrightApplicableDates",
+   "dataConstraint": "Contêiner"
   }
  },
  "copyrightStatus": {
@@ -5744,7 +5885,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/copyrightStatus.html."
   }
  },
  "copyrightJurisdiction": {
@@ -5768,7 +5910,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados da ISO 3166. Exemplo: us de"
   }
  },
  "copyrightStatusDeterminationDate": {
@@ -5794,7 +5937,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "copyrightNote": {
@@ -5820,7 +5964,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "copyrightDocumentationIdentifier": {
@@ -5844,7 +5989,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.3.5.1 copyrightDocumentationIdentifierType 4.1.3.5.2 copyrightDocumentationIdentifierValue 4.1.3.5.3 copyrightDocumentationRole"
+   "semanticComponents": "4.1.3.5.1 copyrightDocumentationIdentifierType 4.1.3.5.2 copyrightDocumentationIdentifierValue 4.1.3.5.3 copyrightDocumentationRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "copyrightDocumentationIdentifierType": {
@@ -5867,7 +6013,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers."
   }
  },
  "copyrightDocumentationIdentifierValue": {
@@ -5890,7 +6037,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "copyrightDocumentationRole": {
@@ -5917,7 +6065,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "copyrightApplicableDates": {
@@ -5942,7 +6091,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.3.6.1 startDate 4.1.3.6.2 endDate"
+   "semanticComponents": "4.1.3.6.1 startDate 4.1.3.6.2 endDate",
+   "dataConstraint": "Contêiner"
   }
  },
  "startDate": {
@@ -5968,7 +6118,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "endDate": {
@@ -5995,7 +6146,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "licenseInformation": {
@@ -6019,7 +6171,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.4.1 licenseDocumentationIdentifier 4.1.4.2 licenseTerms 4.1.4.3 licenseNote 4.1.4.4 licenseApplicableDates"
+   "semanticComponents": "4.1.4.1 licenseDocumentationIdentifier 4.1.4.2 licenseTerms 4.1.4.3 licenseNote 4.1.4.4 licenseApplicableDates",
+   "dataConstraint": "Contêiner"
   }
  },
  "licenseDocumentationIdentifier": {
@@ -6043,7 +6196,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.4.1.1 licenseDocumentationIdentifierType 4.1.4.1.2 licenseDocumentationIdentifierValue 4.1.4.1.3 licenseDocumentationRole"
+   "semanticComponents": "4.1.4.1.1 licenseDocumentationIdentifierType 4.1.4.1.2 licenseDocumentationIdentifierValue 4.1.4.1.3 licenseDocumentationRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "licenseDocumentationIdentifierType": {
@@ -6066,7 +6220,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers. Exemplo: Digital Object Identifier"
   }
  },
  "licenseDocumentationIdentifierValue": {
@@ -6089,7 +6244,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma Exemplo: http://nrs.harvard.edu/urn-3:HUL.DRS.OBJECT:6789"
   }
  },
  "licenseDocumentationRole": {
@@ -6113,7 +6269,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Exemplo: donor agreement"
   }
  },
  "licenseTerms": {
@@ -6137,7 +6294,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "licenseNote": {
@@ -6161,7 +6319,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma Exemplo: License is embedded in XMP block in file header."
   }
  },
  "licenseApplicableDates": {
@@ -6186,7 +6345,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.4.4.1 startDate 4.1.4.4.2 endDate"
+   "semanticComponents": "4.1.4.4.1 startDate 4.1.4.4.2 endDate",
+   "dataConstraint": "Contêiner"
   }
  },
  "statuteInformation": {
@@ -6210,7 +6370,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.5.1 statuteJurisdiction 4.1.5.2 statuteCitation 4.1.5.3 statuteInformationDeterminationDate 4.1.5.4 statuteNote 4.1.5.5 statuteDocumentationIdentifier 4.1.5.6 statuteApplicableDates"
+   "semanticComponents": "4.1.5.1 statuteJurisdiction 4.1.5.2 statuteCitation 4.1.5.3 statuteInformationDeterminationDate 4.1.5.4 statuteNote 4.1.5.5 statuteDocumentationIdentifier 4.1.5.6 statuteApplicableDates",
+   "dataConstraint": "Contêiner"
   }
  },
  "statuteJurisdiction": {
@@ -6234,7 +6395,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados da ISO 3166, se aplicável. Exemplo: us de"
   }
  },
  "statuteCitation": {
@@ -6258,7 +6420,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma Exemplo: Legal Deposit (Jersey) Law 200- National Library of New Zealand (Te Puna Mātauranga o Aotearoa) Act 2003 no 19 part 4 s 34"
   }
  },
  "statuteInformationDeterminationDate": {
@@ -6285,7 +6448,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
   }
  },
  "statuteNote": {
@@ -6308,7 +6472,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma Exemplo: Applicability to web-published content sent for review by general counsel 9/19/2008."
   }
  },
  "statuteDocumentationIdentifier": {
@@ -6332,7 +6497,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.5.5.1 statuteDocumentationIdentifierType 4.1.5.5.2 statuteDocumentationIdentifierValue 4.1.5.5.3 statuteDocumentationRole"
+   "semanticComponents": "4.1.5.5.1 statuteDocumentationIdentifierType 4.1.5.5.2 statuteDocumentationIdentifierValue 4.1.5.5.3 statuteDocumentationRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "statuteDocumentationIdentifierType": {
@@ -6355,7 +6521,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers."
   }
  },
  "statuteDocumentationIdentifierValue": {
@@ -6378,7 +6545,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "statuteDocumentationRole": {
@@ -6406,7 +6574,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "statuteApplicableDates": {
@@ -6431,7 +6600,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.5.6.1 startDate 4.1.5.6.2 endDate"
+   "semanticComponents": "4.1.5.6.1 startDate 4.1.5.6.2 endDate",
+   "dataConstraint": "Contêiner"
   }
  },
  "otherRightsInformation": {
@@ -6455,7 +6625,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.6.1 otherRightsDocumentationIdentifier 4.1.6.2 otherRightsBasis 4.1.6.3 otherRightsApplicableDates 4.1.6.4 otherRightsNote"
+   "semanticComponents": "4.1.6.1 otherRightsDocumentationIdentifier 4.1.6.2 otherRightsBasis 4.1.6.3 otherRightsApplicableDates 4.1.6.4 otherRightsNote",
+   "dataConstraint": "Contêiner"
   }
  },
  "otherRightsDocumentationIdentifier": {
@@ -6484,7 +6655,8 @@
     "Creation/ maintenance notes",
     "The semantic unit is repeatable because there may be more than one document that provides information about the Rights."
    ],
-   "semanticComponents": "4.1.6.1.1 otherRightsDocumentationIdentifierType 4.1.6.1.2 otherRightsDocumentationIdentifierValue 4.1.6.1.3 otherRightsDocumentationRole"
+   "semanticComponents": "4.1.6.1.1 otherRightsDocumentationIdentifierType 4.1.6.1.2 otherRightsDocumentationIdentifierValue 4.1.6.1.3 otherRightsDocumentationRole",
+   "dataConstraint": "Contêiner"
   }
  },
  "otherRightsDocumentationIdentifierType": {
@@ -6507,7 +6679,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers."
   }
  },
  "otherRightsDocumentationIdentifierValue": {
@@ -6530,7 +6703,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "otherRightsDocumentationRole": {
@@ -6557,7 +6731,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
   }
  },
  "otherRightsBasis": {
@@ -6581,7 +6756,8 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Exemplo: Harvard policy"
   }
  },
  "otherRightsApplicableDates": {
@@ -6606,7 +6782,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.6.3.1 startDate 4.1.6.3.2 endDate"
+   "semanticComponents": "4.1.6.3.1 startDate 4.1.6.3.2 endDate",
+   "dataConstraint": "Contêiner"
   }
  },
  "otherRightsNote": {
@@ -6632,7 +6809,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "rightsGranted": {
@@ -6655,7 +6833,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.7.1 act 4.1.7.2 restriction 4.1.7.3 termOfGrant 4.1.7.4 termOfRestriction 4.1.7.5 rightsGrantedNote"
+   "semanticComponents": "4.1.7.1 act 4.1.7.2 restriction 4.1.7.3 termOfGrant 4.1.7.4 termOfRestriction 4.1.7.5 rightsGrantedNote",
+   "dataConstraint": "Contêiner"
   }
  },
  "act": {
@@ -6682,7 +6861,9 @@
    "obligation": [
     "Obrigatório"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/actionsGranted.html.",
+   "definition": "A ação que o repositório de preservação está autorizado a executar."
   }
  },
  "restriction": {
@@ -6708,7 +6889,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "termOfGrant": {
@@ -6732,7 +6914,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.7.3.1 startDate 4.1.7.3.2 endDate"
+   "semanticComponents": "4.1.7.3.1 startDate 4.1.7.3.2 endDate",
+   "dataConstraint": "Contêiner"
   }
  },
  "termOfRestriction": {
@@ -6756,7 +6939,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "4.1.7.4.1 startDate 4.1.7.4.2 endDate"
+   "semanticComponents": "4.1.7.4.1 startDate 4.1.7.4.2 endDate",
+   "dataConstraint": "Contêiner"
   }
  },
  "rightsGrantedNote": {
@@ -6781,7 +6965,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Nenhuma"
+   "semanticComponents": "Nenhuma",
+   "dataConstraint": "Nenhuma"
   }
  },
  "rightsExtension": {
@@ -6806,7 +6991,8 @@
    "obligation": [
     "Opcional"
    ],
-   "semanticComponents": "Defined externally"
+   "semanticComponents": "Defined externally",
+   "dataConstraint": "Contêiner"
   }
  }
 }
