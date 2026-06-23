@@ -189,10 +189,12 @@
     <div class="profile-switch" style="margin-bottom:14px">
       <button class="on" id="modeForm">formulário</button>
       <button id="modeImport">importar arquivo</button>
+      <button id="modeExtract">extrair metadados</button>
     </div>
 
     <div id="formHost"></div>
     <div id="importHost" style="display:none"></div>
+    <div id="extractHost" style="display:none"></div>
 
     <div class="legend">
       <span><span class="ast">*</span> obrigatório XSD</span>
@@ -358,17 +360,18 @@ function genObject(o, L, profile){
     if(has(c.size)) L.push(elv('size', c.size, 6));
     c.formats.forEach(fmt=>{
       L.push(`      <premis:format>`);
-      if(fmt.useRegistry){
+      if(has(fmt.name)){
+        L.push(`        <premis:formatDesignation>`);
+        L.push(elv('formatName', fmt.name, 10));
+        if(has(fmt.version)) L.push(elv('formatVersion', fmt.version, 10));
+        L.push(`        </premis:formatDesignation>`);
+      }
+      if(has(fmt.regName)||has(fmt.regKey)){
         L.push(`        <premis:formatRegistry>`);
         L.push(elv('formatRegistryName', fmt.regName, 10));
         L.push(elv('formatRegistryKey', fmt.regKey, 10));
         if(has(fmt.regRole)) L.push(elv('formatRegistryRole', fmt.regRole, 10));
         L.push(`        </premis:formatRegistry>`);
-      } else {
-        L.push(`        <premis:formatDesignation>`);
-        L.push(elv('formatName', fmt.name, 10));
-        if(has(fmt.version)) L.push(elv('formatVersion', fmt.version, 10));
-        L.push(`        </premis:formatDesignation>`);
       }
       if(has(fmt.note)) L.push(elv('formatNote', fmt.note, 8));
       L.push(`      </premis:format>`);
@@ -682,7 +685,7 @@ function validate(profile){
     if(allow.chars){
       if(o.characteristics.length===0) add('bad','XSD',`${ref}: objectCharacteristics é obrigatório (1..n) para ${t}.`);
       o.characteristics.forEach((c,ci)=>{
-        if(c.formats.length===0 || c.formats.some(f=> f.useRegistry ? (!has(f.regName)||!has(f.regKey)) : !has(f.name)))
+        if(c.formats.length===0 || c.formats.some(f=> !( has(f.name) || (has(f.regName)&&has(f.regKey)) )))
           add('bad','XSD',`${ref}/characteristics[${ci+1}]: format exige formatName (ou formatRegistry Name+Key).`);
         c.fixities.forEach((f,fi)=>{ if((has(f.algo)||has(f.digest))&&(!has(f.algo)||!has(f.digest))) add('bad','XSD',`${ref}/fixity[${fi+1}]: messageDigestAlgorithm e messageDigest exigidos juntos.`); });
       });
@@ -1601,8 +1604,9 @@ function parsePremisXML(xmlString){
       cc.size=xT(ce,'size');
       cc.fixities=xCh(ce,'fixity').map(fe=>({algo:xT(fe,'messageDigestAlgorithm'),digest:xT(fe,'messageDigest'),originator:xT(fe,'messageDigestOriginator')}));
       cc.formats=xCh(ce,'format').map(fe=>{ const f=mk.format(); const reg=xC1(fe,'formatRegistry'),des=xC1(fe,'formatDesignation');
-        if(reg&&!des){ f.useRegistry=true; f.regName=xT(reg,'formatRegistryName'); f.regKey=xT(reg,'formatRegistryKey'); f.regRole=xT(reg,'formatRegistryRole'); }
-        else if(des){ f.name=xT(des,'formatName'); f.version=xT(des,'formatVersion'); }
+        if(des){ f.name=xT(des,'formatName'); f.version=xT(des,'formatVersion'); }
+        if(reg){ f.regName=xT(reg,'formatRegistryName'); f.regKey=xT(reg,'formatRegistryKey'); f.regRole=xT(reg,'formatRegistryRole'); }
+        f.useRegistry=(reg&&!des)?true:false;
         f.note=xT(fe,'formatNote'); return f; });
       if(!cc.formats.length) cc.formats=[mk.format()];
       cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication')}));
@@ -1739,6 +1743,99 @@ function downloadTemplate(fmt){
   }
 }
 
+function setMode(mode){
+  inputMode=mode;
+  document.getElementById('modeForm').classList.toggle('on', mode==='form');
+  document.getElementById('modeImport').classList.toggle('on', mode==='import');
+  document.getElementById('modeExtract').classList.toggle('on', mode==='extract');
+  document.getElementById('formHost').style.display = mode==='form'?'':'none';
+  document.getElementById('importHost').style.display = mode==='import'?'':'none';
+  document.getElementById('extractHost').style.display = mode==='extract'?'':'none';
+  if(mode==='form') renderForm(); else if(mode==='import') renderImport(); else renderExtract();
+}
+
+/* =================================================================
+   EXTRAIR METADADOS no navegador — sem instalar nada e sem enviar o
+   arquivo a lugar nenhum. Calcula tamanho e fixity (SHA-256/512 via Web
+   Crypto) e identifica o formato por magic-byte; atribui PUID do PRONOM
+   só quando dá para determinar com segurança (PDF/GIF têm a versão no
+   arquivo; MP3=fmt/134; XML=fmt/101; texto=x-fmt/111). Para PRONOM
+   completo, use DROID/Siegfried local e importe o CSV.
+   ================================================================= */
+function detectFormat(b,name){
+  const ext=(name.split('.').pop()||'').toLowerCase(), n=b.length;
+  const at=(arr,off)=>arr.every((v,i)=>b[(off||0)+i]===v);
+  const asc=(off,len)=>{let s='';for(let i=0;i<len&&off+i<n;i++)s+=String.fromCharCode(b[off+i]);return s;};
+  if(at([0x25,0x50,0x44,0x46,0x2D])){ const ver=asc(5,3); const map={'1.0':'fmt/14','1.1':'fmt/15','1.2':'fmt/16','1.3':'fmt/17','1.4':'fmt/18','1.5':'fmt/19','1.6':'fmt/20','1.7':'fmt/276'}; return {name:'Portable Document Format (PDF)',version:/^1\.[0-7]$/.test(ver)?ver:'',mime:'application/pdf',puid:map[ver]||''}; }
+  if(asc(0,6)==='GIF87a') return {name:'Graphics Interchange Format (GIF)',version:'87a',mime:'image/gif',puid:'fmt/3'};
+  if(asc(0,6)==='GIF89a') return {name:'Graphics Interchange Format (GIF)',version:'89a',mime:'image/gif',puid:'fmt/4'};
+  if(at([0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A])) return {name:'Portable Network Graphics (PNG)',version:'',mime:'image/png',puid:''};
+  if(at([0xFF,0xD8,0xFF])) return {name:'JPEG',version:'',mime:'image/jpeg',puid:''};
+  if(at([0x49,0x49,0x2A,0x00])||at([0x4D,0x4D,0x00,0x2A])) return {name:'Tagged Image File Format (TIFF)',version:'',mime:'image/tiff',puid:''};
+  if(asc(0,4)==='RIFF'){ const s=asc(8,4); if(s==='WAVE')return {name:'Waveform Audio (WAV)',version:'',mime:'audio/x-wav',puid:''}; if(s==='WEBP')return {name:'WebP',version:'',mime:'image/webp',puid:''}; if(s==='AVI ')return {name:'Audio Video Interleave (AVI)',version:'',mime:'video/x-msvideo',puid:''}; return {name:'RIFF',version:'',mime:'',puid:''}; }
+  if(asc(0,3)==='ID3'||(b[0]===0xFF&&(b[1]&0xE0)===0xE0)) return {name:'MP3 (MPEG-1/2 Audio Layer 3)',version:'',mime:'audio/mpeg',puid:'fmt/134'};
+  if(asc(4,4)==='ftyp') return {name:'MPEG-4 / ISO BMFF',version:'',mime:'video/mp4',puid:''};
+  if(at([0x50,0x4B,0x03,0x04])||at([0x50,0x4B,0x05,0x06])||at([0x50,0x4B,0x07,0x08])) return {name:'ZIP (ou formato baseado em ZIP: OOXML/ODF/EPUB)',version:'',mime:'application/zip',puid:''};
+  let off=0; if(b[0]===0xEF&&b[1]===0xBB&&b[2]===0xBF) off=3;
+  if(asc(off,5)==='<?xml') return {name:'Extensible Markup Language (XML)',version:'',mime:'application/xml',puid:'fmt/101'};
+  let isText=n>off; const lim=Math.min(n,1024); for(let i=off;i<lim;i++){ const x=b[i]; if(x===9||x===10||x===13)continue; if(x<32){isText=false;break;} }
+  if(isText){ if(ext==='csv') return {name:'Comma-Separated Values (CSV)',version:'',mime:'text/csv',puid:''}; return {name:'Plain Text',version:'',mime:'text/plain',puid:'x-fmt/111'}; }
+  return {name:ext?ext.toUpperCase():'',version:'',mime:'',puid:''};
+}
+async function extractOne(file,algo){
+  const buf=await file.arrayBuffer(); const u8=new Uint8Array(buf);
+  const fmt=detectFormat(u8,file.name);
+  const hb=await crypto.subtle.digest(algo,buf);
+  const sha=[...new Uint8Array(hb)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  return {name:file.name,path:file.webkitRelativePath||file.name,size:file.size,sha,algo,fmt};
+}
+function recordsToObjects(recs,prefix){
+  recs.forEach(r=>{
+    const o=mk.object(); o.objType='file';
+    o.identifiers[0]={type:'UUID',value:(self.crypto&&crypto.randomUUID)?crypto.randomUUID():('sha-'+r.sha.slice(0,12))};
+    const on=r.path; o.originalName=(prefix&&!/^objects\//.test(on))?('objects/'+on):on;
+    const c=o.characteristics[0]; c.size=String(r.size); c.fixities=[{algo:r.algo,digest:r.sha,originator:''}];
+    const f=mk.format(); f.name=r.fmt.name||''; f.version=r.fmt.version||'';
+    if(r.fmt.puid){ f.regName='PRONOM'; f.regKey=r.fmt.puid; f.regRole='specification'; }
+    else if(r.fmt.mime){ f.note='MIME: '+r.fmt.mime; }
+    c.formats=[f];
+    model.objects.push(o);
+  });
+  renderModel(); renderOutput();
+}
+function renderExtract(){
+  document.getElementById('extractHost').innerHTML=`
+  <div class="import-zone">
+    <p style="margin:0 0 8px;font-size:12.5px"><strong>Extrair metadados no navegador</strong> — tudo local, nada é enviado. Calcula tamanho, fixity (hash) e identifica o formato por conteúdo, criando objects no modelo.</p>
+    <div class="btn-row" style="margin-bottom:8px"><button class="btn" id="pickExtract">escolher arquivos</button><button class="btn ghost" id="pickExtractDir">escolher pasta</button></div>
+    <div class="chk"><input type="checkbox" id="ex_sha512"><label style="font-weight:400;margin:0" for="ex_sha512">usar SHA-512 (padrão: SHA-256)</label></div>
+    <div class="chk"><input type="checkbox" id="ex_prefix" checked><label style="font-weight:400;margin:0" for="ex_prefix">prefixar originalName com objects/ (Archivematica)</label></div>
+    <input type="file" id="exFiles" multiple style="display:none"><input type="file" id="exDir" webkitdirectory style="display:none">
+  </div>
+  <div id="exResult"></div>
+  <p class="hint">Formato por magic-byte; PUID do PRONOM quando determinável com segurança (PDF, GIF, MP3, XML, texto). Para PRONOM completo, rode DROID/Siegfried local e importe o CSV. <a href="https://github.com/tatycs/oficina-premis/blob/main/docs/IMPORTACAO.md" target="_blank" rel="noopener">tutorial</a>.</p>`;
+  document.getElementById('pickExtract').onclick=()=>document.getElementById('exFiles').click();
+  document.getElementById('pickExtractDir').onclick=()=>document.getElementById('exDir').click();
+  document.getElementById('exFiles').onchange=handleExtract;
+  document.getElementById('exDir').onchange=handleExtract;
+}
+async function handleExtract(ev){
+  const files=[...ev.target.files]; if(!files.length) return;
+  const algo=(document.getElementById('ex_sha512')||{}).checked?'SHA-512':'SHA-256';
+  const prefix=(document.getElementById('ex_prefix')||{}).checked||false;
+  const host=document.getElementById('exResult');
+  host.innerHTML=`<div class="val-item info"><span class="ico">…</span><span>processando ${files.length} arquivo(s)…</span></div>`;
+  const recs=[];
+  for(const f of files){ try{ recs.push(await extractOne(f,algo)); }catch(err){ recs.push({name:f.name,size:f.size,error:(err&&err.message)||String(err)}); } }
+  const ok=recs.filter(r=>!r.error);
+  let h=`<div class="val-head">${recs.length} arquivo(s) lido(s) · ${algo}</div><div style="max-height:240px;overflow:auto">`;
+  recs.forEach(r=>{ h+=`<div class="card"><span class="ctitle">${esc(r.name)}</span><div class="cmeta">${r.error?('erro: '+esc(r.error)):`${r.size} bytes · ${esc(r.fmt.name||'formato não identificado')}${r.fmt.puid?(' · '+esc(r.fmt.puid)):''} · <span style="font-family:var(--mono);font-size:10px">${esc((r.sha||'').slice(0,16))}…</span>`}</div></div>`; });
+  h+=`</div><div class="btn-row"><button class="btn amber" id="btnAddExtract">adicionar ${ok.length} object(s) ao modelo</button></div>`;
+  host.innerHTML=h;
+  document.getElementById('btnAddExtract').onclick=()=>{ recordsToObjects(ok,prefix); host.innerHTML=`<div class="val-item ok"><span class="ico">✓</span><span>${ok.length} object(s) adicionado(s) — edite pelos cards/abas.</span></div>`; };
+  ev.target.value='';
+}
+
 /* =================================================================
    CAMADA 1 — orquestração no app: chama window.PremisXSD (definido no
    módulo ES ao fim do arquivo), exibe o resultado e gata o download.
@@ -1841,9 +1938,10 @@ async function verifyIntegrity(){
 }
 
 function bind(){
-  document.querySelectorAll('#entTabs button[data-ent]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('#entTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentEnt=b.dataset.ent;if(inputMode==='form')renderForm();else renderMapping();};});
-  document.getElementById('modeForm').onclick=()=>{inputMode='form';document.getElementById('modeForm').classList.add('on');document.getElementById('modeImport').classList.remove('on');document.getElementById('formHost').style.display='';document.getElementById('importHost').style.display='none';renderForm();};
-  document.getElementById('modeImport').onclick=()=>{inputMode='import';document.getElementById('modeImport').classList.add('on');document.getElementById('modeForm').classList.remove('on');document.getElementById('formHost').style.display='none';document.getElementById('importHost').style.display='';renderImport();};
+  document.querySelectorAll('#entTabs button[data-ent]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('#entTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentEnt=b.dataset.ent;if(inputMode==='form')renderForm();else if(inputMode==='import')renderMapping();else renderExtract();};});
+  document.getElementById('modeForm').onclick=()=>setMode('form');
+  document.getElementById('modeImport').onclick=()=>setMode('import');
+  document.getElementById('modeExtract').onclick=()=>setMode('extract');
   document.querySelectorAll('.profile-switch button[data-profile]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.profile-switch button[data-profile]').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentProfile=b.dataset.profile;renderOutput();};});
   document.getElementById('btnExport').onclick=async ()=>{
     const profile=currentProfile;

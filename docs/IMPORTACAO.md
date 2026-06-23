@@ -1,8 +1,9 @@
 # Importação na Oficina PREMIS
 
-A aba **importar arquivo** (no painel "Origem") tem dois caminhos: importar um
-`premis.xml` inteiro para edição, ou importar **CSV/JSON** de um sistema produtor
-para criar entidades em lote. Tudo roda no navegador — nenhum arquivo sai da máquina.
+O painel **Origem** tem, além do **formulário**, dois modos de entrada por arquivo:
+**importar arquivo** (um `premis.xml` inteiro para edição, ou **CSV/JSON** em lote) e
+**extrair metadados** (lê os próprios arquivos e gera os objects). Tudo roda no
+navegador — nenhum arquivo sai da máquina.
 
 ## 1. Importar um `premis.xml` (PREMIS 3.0) e editar
 
@@ -79,6 +80,29 @@ UUID,5b2c8d1e-0000-4aaa-bbbb-1234567890ab,MP3,objects/bird.mp3
   { "idType": "repository code", "idValue": "NRI", "name": "Not a Real Institution", "type": "organization" }
 ]
 ```
+
+## 3. Extrair metadados no navegador (sem instalar nada)
+
+Em vez de instalar DROID/Siegfried, dá para extrair metadados técnicos **no próprio
+navegador** — os arquivos **não saem da máquina**.
+
+1. No painel **Origem**, clique em **extrair metadados**.
+2. Clique em **escolher arquivos** (ou **escolher pasta**, para um lote).
+3. Para cada arquivo o app calcula:
+   - **tamanho** (`size`);
+   - **fixity**: hash **SHA-256** (ou SHA-512, opcional) — via Web Crypto, nativo do navegador;
+   - **formato** por *magic-byte* (conteúdo), com **PUID do PRONOM quando determinável
+     com segurança** (PDF e GIF trazem a versão no próprio arquivo; MP3 = `fmt/134`;
+     XML = `fmt/101`; texto = `x-fmt/111`).
+4. Revise a lista e clique em **adicionar N object(s) ao modelo**. Cada arquivo vira um
+   `object` (xsi:type `file`) com `objectIdentifier` (UUID gerado), `originalName`,
+   `size`, `fixity` e `format` (nome + registro PRONOM/PUID, quando houver) preenchidos.
+5. Edite o que faltar pelos cards/abas e valide.
+
+**Limites (honestos):** a identificação por magic-byte cobre os formatos mais comuns;
+onde não há PUID seguro, o app preenche só **nome/MIME** (sem PUID). Para identificação
+**PRONOM completa e autoritativa**, rode **DROID** ou **Siegfried** localmente e importe
+o CSV (seção 2). Arquivos muito grandes são lidos inteiros na memória para o cálculo do hash.
 
 ## Depois de importar
 Reveja sempre em **Saída + validação**: a **camada 1** valida a estrutura contra o
