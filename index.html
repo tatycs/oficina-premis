@@ -1470,10 +1470,10 @@ function buildStructuralEdges(){
   model.objects.forEach(o=>{
     (o.relationships||[]).forEach(rel=>{
       if(!/structural/i.test(rel.type||'')) return;
-      const sub=(rel.subType||'').toLowerCase();
+      const sub=(rel.subType||'').toLowerCase().replace(/[^a-z]/g,'');
       (rel.relObjects||[]).forEach(t=>{
-        if(/is part of|is included in|is root of/.test(sub)) add(t, o.lid, rel.subType||'');   /* o é parte de t → t é pai */
-        else add(o.lid, t, rel.subType||'');                                                    /* o contém t (has part / includes / etc.) */
+        if(sub==='ispartof'||sub==='isincludedin'||sub==='isrootof') add(t, o.lid, rel.subType||'');   /* o é parte de t → t é pai (is part of / isIncludedIn / …) */
+        else add(o.lid, t, rel.subType||'');                                                            /* o contém t (has part / includes / hasPart / …) */
       });
     });
   });
