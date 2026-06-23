@@ -327,7 +327,7 @@ const mk = {
   preservationLevel: ()=>({plType:'',value:'',role:'',rationale:'',dateAssigned:''}),
   significantProperties: ()=>({spType:'',value:''}),
   fixity: ()=>({algo:'',digest:'',originator:''}),
-  format: ()=>({useRegistry:false, name:'',version:'', regName:'',regKey:'',regRole:'', note:''}),
+  format: ()=>({name:'',version:'', regName:'',regKey:'',regRole:'', notes:[]}),
   creatingApplication: ()=>({name:'',version:'',date:''}),
   inhibitor: ()=>({type:'',target:'',key:''}),
   storage: ()=>({locType:'',locValue:'',medium:''}),
@@ -435,7 +435,7 @@ function genObject(o, L, profile){
         if(has(fmt.regRole)) L.push(elv('formatRegistryRole', fmt.regRole, 10));
         L.push(`        </premis:formatRegistry>`);
       }
-      if(has(fmt.note)) L.push(elv('formatNote', fmt.note, 8));
+      (fmt.notes||[]).forEach(n=>{ if(has(n)) L.push(elv('formatNote', n, 8)); });
       L.push(`      </premis:format>`);
     });
     c.creatingApps.forEach(a=>{
@@ -954,6 +954,7 @@ const HELP = {
   'formatName': {t:'Nome do formato do objeto. Pode vir de um vocabulário controlado, como o registro PRONOM.', src:'dd'},
   'formatVersion': {t:'A versão do formato indicado em formatName.', src:'dd'},
   'formatRegistry': {t:'Referência a um registro externo de formatos (ex.: PRONOM), por nome e chave.', src:'dd'},
+  'formatDesignation': {t:'Identificação do formato por designação: nome (formatName) e, opcionalmente, versão (formatVersion). Pode coexistir com formatRegistry.', src:'dd'},
   'creatingApplication': {t:'Informação sobre a aplicação que criou o objeto, incluindo nome, versão e data de criação.', src:'dd'},
   'inhibitors': {t:'Recurso de segurança embutido no objeto que restringe acesso, cópia ou migração — por exemplo, criptografia ou proteção por senha. Conhecer o inibidor é necessário para a preservação a longo prazo.', src:'inhib'},
   /* originalName, storage */
@@ -1216,13 +1217,12 @@ function renderObjectForm(){
     h += `<div class="subblock"><div class="sh"><span>format <span class="req">*</span> [1..n]${helpIcon('format')}</span></div>`;
     c.formats.forEach((fmt,mi)=>{
       h += `<div class="rep-item"><div class="rh"><span>format ${mi+1}</span>${c.formats.length>1?`<button class="rm-x" onclick="rmSub(${ci},'formats',${mi})">×</button>`:''}</div>
-        <div class="chk"><input type="checkbox" id="fmt_reg_${ci}_${mi}" ${fmt.useRegistry?'checked':''} onchange="syncObj();renderForm()"><label style="font-weight:400;margin:0">usar formatRegistry em vez de formatDesignation</label></div>`;
-      if(fmt.useRegistry){
-        h += `${fld('formatRegistryName','xsd',`fmt_rn_${ci}_${mi}`,fmt.regName,'ex.: PRONOM','',true)}${fld('formatRegistryKey','xsd',`fmt_rk_${ci}_${mi}`,fmt.regKey,'ex.: fmt/134','',true)}${fld('formatRegistryRole','dd',`fmt_rr_${ci}_${mi}`,fmt.regRole,'opcional')}`;
-      } else {
-        h += `<div class="field-row">${fld('formatName','xsd',`fmt_n_${ci}_${mi}`,fmt.name,'ex.: MP3','',true,'syncObj','formatName')}${fld('formatVersion','dd',`fmt_v_${ci}_${mi}`,fmt.version,'opcional')}</div>`;
-      }
-      h += `${fld('formatNote','dd',`fmt_note_${ci}_${mi}`,fmt.note,'opcional')}</div>`;
+        <div class="subblock"><div class="sh"><span>formatDesignation [0..1]${helpIcon('formatDesignation')}</span></div><div class="field-row">${fld('formatName','xsd',`fmt_n_${ci}_${mi}`,fmt.name,'ex.: MP3','',false,'syncObj','formatName')}${fld('formatVersion','dd',`fmt_v_${ci}_${mi}`,fmt.version,'opcional')}</div></div>
+        <div class="subblock"><div class="sh"><span>formatRegistry [0..1]${helpIcon('formatRegistry')}</span></div>${fld('formatRegistryName','xsd',`fmt_rn_${ci}_${mi}`,fmt.regName,'ex.: PRONOM','')}${fld('formatRegistryKey','xsd',`fmt_rk_${ci}_${mi}`,fmt.regKey,'ex.: fmt/134','')}${fld('formatRegistryRole','dd',`fmt_rr_${ci}_${mi}`,fmt.regRole,'opcional')}</div>
+        <label style="font-size:11px;font-weight:600">formatNote [0..n]${helpIcon('formatNote')}</label>
+        ${(fmt.notes||[]).map((n,ni)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><input id="fmt_note_${ci}_${mi}_${ni}" value="${esc(n)}" placeholder="nota sobre o formato" oninput="syncObj()" style="flex:1;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)"><button class="rm-x" onclick="rmFmtNote(${ci},${mi},${ni})" title="remover nota">×</button></div>`).join('')}
+        <button class="add-btn" onclick="addFmtNote(${ci},${mi})">+ formatNote</button>
+        <div class="card-min">Um format precisa de <b>formatName</b> ou <b>formatRegistry</b> (Name+Key) — pode ter os dois.</div></div>`;
     });
     h += `<button class="add-btn" onclick="addSub(${ci},'formats')">+ format</button></div>`;
     h += `<div class="subblock"><div class="sh"><span>creatingApplication [0..n]${helpIcon('creatingApplication')}</span></div>`;
@@ -1346,7 +1346,7 @@ function syncObj(){
   o.characteristics.forEach((c,ci)=>{
     set(c,'compositionLevel',`c_comp_${ci}`);set(c,'size',`c_size_${ci}`);
     c.fixities.forEach((f,fi)=>{set(f,'algo',`f_a_${ci}_${fi}`);set(f,'digest',`f_d_${ci}_${fi}`);set(f,'originator',`f_o_${ci}_${fi}`);});
-    c.formats.forEach((fmt,mi)=>{const ck=gc(`fmt_reg_${ci}_${mi}`);if(ck!==null)fmt.useRegistry=ck;set(fmt,'name',`fmt_n_${ci}_${mi}`);set(fmt,'version',`fmt_v_${ci}_${mi}`);set(fmt,'regName',`fmt_rn_${ci}_${mi}`);set(fmt,'regKey',`fmt_rk_${ci}_${mi}`);set(fmt,'regRole',`fmt_rr_${ci}_${mi}`);set(fmt,'note',`fmt_note_${ci}_${mi}`);});
+    c.formats.forEach((fmt,mi)=>{set(fmt,'name',`fmt_n_${ci}_${mi}`);set(fmt,'version',`fmt_v_${ci}_${mi}`);set(fmt,'regName',`fmt_rn_${ci}_${mi}`);set(fmt,'regKey',`fmt_rk_${ci}_${mi}`);set(fmt,'regRole',`fmt_rr_${ci}_${mi}`);fmt.notes=(fmt.notes||[]).map((n,ni)=>{const el=document.getElementById(`fmt_note_${ci}_${mi}_${ni}`);return el?el.value:n;}).filter(x=>x!=null);});
     c.creatingApps.forEach((a,ai)=>{set(a,'name',`ca_n_${ci}_${ai}`);set(a,'version',`ca_v_${ci}_${ai}`);set(a,'date',`ca_d_${ci}_${ai}`);});
     c.inhibitors.forEach((inh,ii)=>{set(inh,'type',`in_t_${ci}_${ii}`);set(inh,'target',`in_g_${ci}_${ii}`);set(inh,'key',`in_k_${ci}_${ii}`);});
   });
@@ -1379,6 +1379,8 @@ function addEnvNote(i){ syncObj(); if(!objDraft.envDesignations[i].notes)objDraf
 function rmEnvNote(i,ni){ syncObj(); objDraft.envDesignations[i].notes.splice(ni,1); renderForm(); }
 function rmRep(coll,i){ syncObj(); objDraft[coll].splice(i,1); renderForm(); }
 function addSub(ci,coll){ syncObj(); const f={fixities:mk.fixity,formats:mk.format,creatingApps:mk.creatingApplication,inhibitors:mk.inhibitor}[coll]; objDraft.characteristics[ci][coll].push(f()); renderForm(); }
+function addFmtNote(ci,mi){ syncObj(); const f=objDraft.characteristics[ci].formats[mi]; if(!f.notes)f.notes=[]; f.notes.push(''); renderForm(); }
+function rmFmtNote(ci,mi,ni){ syncObj(); objDraft.characteristics[ci].formats[mi].notes.splice(ni,1); renderForm(); }
 function rmSub(ci,coll,i){ syncObj(); objDraft.characteristics[ci][coll].splice(i,1); renderForm(); }
 function commitObject(){ syncObj(); const c=JSON.parse(JSON.stringify(objDraft)); if(editing.object){ const i=model.objects.findIndex(o=>o.lid===editing.object); if(i>=0)model.objects[i]=c; else model.objects.push(c); editing.object=null; } else model.objects.push(c); objDraft = mk.object(); renderForm(); renderModel(); renderOutput(); }
 
@@ -1821,8 +1823,7 @@ function parsePremisXML(xmlString){
       cc.formats=xCh(ce,'format').map(fe=>{ const f=mk.format(); const reg=xC1(fe,'formatRegistry'),des=xC1(fe,'formatDesignation');
         if(des){ f.name=xT(des,'formatName'); f.version=xT(des,'formatVersion'); }
         if(reg){ f.regName=xT(reg,'formatRegistryName'); f.regKey=xT(reg,'formatRegistryKey'); f.regRole=xT(reg,'formatRegistryRole'); }
-        f.useRegistry=(reg&&!des)?true:false;
-        f.note=xT(fe,'formatNote'); return f; });
+        f.notes=xCh(fe,'formatNote').map(n=>(n.textContent||'').trim()).filter(Boolean); return f; });
       if(!cc.formats.length) cc.formats=[mk.format()];
       cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication')}));
       cc.inhibitors=xCh(ce,'inhibitors').map(ie=>({type:xT(ie,'inhibitorType'),target:xT(ie,'inhibitorTarget'),key:xT(ie,'inhibitorKey')}));
