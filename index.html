@@ -1531,10 +1531,29 @@ function renderOutput(){
 
 /* ---- import ---- */
 function renderImport(){
-  document.getElementById('importHost').innerHTML=`<div class="import-zone"><p style="margin:0 0 8px;font-size:12.5px">Importe <strong>CSV</strong> ou <strong>JSON</strong> do sistema produtor.</p><button class="btn ghost" id="pickFile">escolher arquivo</button><input type="file" id="impFile" accept=".csv,.json,.txt" style="display:none"></div><div id="mapHost"></div>
-  <p class="hint">A importação cria entidades com os campos básicos. A estrutura completa (sub-blocos repetíveis, assinatura) é montada pelo formulário.</p>`;
+  document.getElementById('importHost').innerHTML=`
+  <div class="import-zone">
+    <p style="margin:0 0 8px;font-size:12.5px"><strong>Importar premis.xml</strong> (PREMIS 3.0) — carrega o documento inteiro no modelo para edição.</p>
+    <button class="btn" id="pickXml">escolher premis.xml</button>
+    <input type="file" id="xmlFile" accept=".xml,text/xml,application/xml" style="display:none">
+    <div id="xmlImpMsg" style="margin-top:8px"></div>
+  </div>
+  <div class="import-zone">
+    <p style="margin:0 0 8px;font-size:12.5px">Ou importe <strong>CSV</strong>/<strong>JSON</strong> do sistema produtor (cria entidades <em>${currentEnt}</em> com campos básicos).</p>
+    <div class="btn-row" style="margin-bottom:6px">
+      <button class="btn ghost" id="pickFile">escolher CSV/JSON</button>
+      ${currentEnt!=='rights'?`<button class="btn ghost" id="dlCsv">baixar template CSV</button><button class="btn ghost" id="dlJson">baixar template JSON</button>`:''}
+    </div>
+    <input type="file" id="impFile" accept=".csv,.json,.txt" style="display:none">
+  </div>
+  <div id="mapHost"></div>
+  <p class="hint">Tutorial: <a href="https://github.com/tatycs/oficina-premis/blob/main/docs/IMPORTACAO.md" target="_blank" rel="noopener">como importar (docs/IMPORTACAO.md)</a>. CSV/JSON cria entidades com campos básicos; a estrutura completa é montada/editada no formulário.</p>`;
+  document.getElementById('pickXml').onclick=()=>document.getElementById('xmlFile').click();
+  document.getElementById('xmlFile').onchange=handlePremisXMLFile;
   document.getElementById('pickFile').onclick=()=>document.getElementById('impFile').click();
   document.getElementById('impFile').onchange=handleImport;
+  const dc=document.getElementById('dlCsv'); if(dc) dc.onclick=()=>downloadTemplate('csv');
+  const dj=document.getElementById('dlJson'); if(dj) dj.onclick=()=>downloadTemplate('json');
 }
 function flattenJSON(obj,prefix,out){out=out||{};prefix=prefix||'';if(Array.isArray(obj)){if(obj.length)flattenJSON(obj[0],prefix,out);}else if(obj&&typeof obj==='object'){Object.keys(obj).forEach(k=>flattenJSON(obj[k],prefix?prefix+'.'+k:k,out));}else{out[prefix]=obj;}return out;}
 let importedRows=[],importedKeys=[];
@@ -1546,6 +1565,179 @@ function guessMap(key,unit){if(unit==='—')return false;const k=key.toLowerCase
 function applyMapping(){const mapping={};importedKeys.forEach((k,i)=>{const v=document.getElementById('map_'+i).value;if(v!=='—')mapping[k]=v;});importedRows.forEach(row=>{const vals={};Object.keys(mapping).forEach(sk=>vals[mapping[sk]]=row[sk]);if(currentEnt==='object'){const o=mk.object();o.identifiers[0]={type:vals.idType||'',value:vals.idValue||''};if(vals.formatName)o.characteristics[0].formats[0].name=vals.formatName;o.originalName=vals.originalName||'';model.objects.push(o);}else if(currentEnt==='event'){const e=mk.event();e.idType=vals.idType||'';e.idValue=vals.idValue||'';e.eventType=vals.eventType||'';e.dateTime=vals.dateTime||'';model.events.push(e);}else{const a=mk.agent();a.identifiers[0]={type:vals.idType||'',value:vals.idValue||''};if(vals.name){a.names.push({value:vals.name});}a.agentType=vals.type||'';model.agents.push(a);}});renderModel();renderOutput();document.getElementById('mapHost').innerHTML=`<div class="val-item ok"><span class="ico">✓</span><span>${importedRows.length} ${currentEnt}(s) adicionado(s).</span></div>`;}
 
 function download(filename,text,mime){const blob=new Blob([text],{type:mime||'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);}
+
+/* =================================================================
+   IMPORTAÇÃO de premis.xml (XML -> modelo, editável) e TEMPLATES.
+   Reconstrói o modelo a partir do XML; os vínculos (que no XML são por
+   identificador Type/Value) são resolvidos para os lid das entidades do
+   próprio documento. Vínculo a entidade fora do documento é omitido (avisado).
+   ================================================================= */
+function xCh(el,ln){ return el?[...el.children].filter(c=>c.localName===ln):[]; }
+function xC1(el,ln){ return xCh(el,ln)[0]||null; }
+function xT(el,ln){ const c=xC1(el,ln); return c?(c.textContent||'').trim():''; }
+function xTV(el,tLn,vLn){ return {type:xT(el,tLn),value:xT(el,vLn)}; }
+
+function parsePremisXML(xmlString){
+  const doc=new DOMParser().parseFromString(xmlString,'application/xml');
+  if(doc.getElementsByTagName('parsererror').length) return {ok:false,error:'XML mal formado.'};
+  const root=doc.documentElement;
+  if(!root||root.localName!=='premis') return {ok:false,error:'a raiz não é <premis>.'};
+  const m={objects:[],events:[],agents:[],rights:[],relationships:[]};
+  let c=1; const nlid=p=>`${p}-${String(c++).padStart(3,'0')}`;
+  const dropped=[];
+  const XSI='http://www.w3.org/2001/XMLSchema-instance';
+
+  xCh(root,'object').forEach(oel=>{
+    const o=mk.object(); o.lid=nlid('obj');
+    let xt=oel.getAttributeNS(XSI,'type')||oel.getAttribute('xsi:type')||'file';
+    o.objType=xt.includes(':')?xt.split(':').pop():xt;
+    o.identifiers=xCh(oel,'objectIdentifier').map(e=>xTV(e,'objectIdentifierType','objectIdentifierValue'));
+    if(!o.identifiers.length) o.identifiers=[mk.objectIdentifier()];
+    o.preservationLevels=xCh(oel,'preservationLevel').map(e=>({plType:xT(e,'preservationLevelType'),value:xT(e,'preservationLevelValue'),role:xT(e,'preservationLevelRole'),rationale:xT(e,'preservationLevelRationale'),dateAssigned:xT(e,'preservationLevelDateAssigned')}));
+    o.significantProperties=xCh(oel,'significantProperties').map(e=>({spType:xT(e,'significantPropertiesType'),value:xT(e,'significantPropertiesValue')}));
+    o.characteristics=xCh(oel,'objectCharacteristics').map(ce=>{
+      const cc=mk.characteristics();
+      const comp=xC1(ce,'compositionLevel'); if(comp){ cc.compositionLevel=(comp.textContent||'').trim(); cc.compositionUnknown=comp.getAttribute('unknown')==='yes'; }
+      cc.size=xT(ce,'size');
+      cc.fixities=xCh(ce,'fixity').map(fe=>({algo:xT(fe,'messageDigestAlgorithm'),digest:xT(fe,'messageDigest'),originator:xT(fe,'messageDigestOriginator')}));
+      cc.formats=xCh(ce,'format').map(fe=>{ const f=mk.format(); const reg=xC1(fe,'formatRegistry'),des=xC1(fe,'formatDesignation');
+        if(reg&&!des){ f.useRegistry=true; f.regName=xT(reg,'formatRegistryName'); f.regKey=xT(reg,'formatRegistryKey'); f.regRole=xT(reg,'formatRegistryRole'); }
+        else if(des){ f.name=xT(des,'formatName'); f.version=xT(des,'formatVersion'); }
+        f.note=xT(fe,'formatNote'); return f; });
+      if(!cc.formats.length) cc.formats=[mk.format()];
+      cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication')}));
+      cc.inhibitors=xCh(ce,'inhibitors').map(ie=>({type:xT(ie,'inhibitorType'),target:xT(ie,'inhibitorTarget'),key:xT(ie,'inhibitorKey')}));
+      return cc;
+    });
+    if(!o.characteristics.length) o.characteristics=[mk.characteristics()];
+    o.originalName=xT(oel,'originalName');
+    o.storages=xCh(oel,'storage').map(se=>{ const cl=xC1(se,'contentLocation'); return {locType:cl?xT(cl,'contentLocationType'):'',locValue:cl?xT(cl,'contentLocationValue'):'',medium:xT(se,'storageMedium')}; });
+    o.signatures=xCh(oel,'signatureInformation').map(se=>{ const sg=xC1(se,'signature')||se; return {encoding:xT(sg,'signatureEncoding'),signer:xT(sg,'signer'),method:xT(sg,'signatureMethod'),value:xT(sg,'signatureValue'),rules:xT(sg,'signatureValidationRules'),properties:xT(sg,'signatureProperties')}; });
+    o.envFunctions=xCh(oel,'environmentFunction').map(e=>({fType:xT(e,'environmentFunctionType'),fLevel:xT(e,'environmentFunctionLevel')}));
+    o.envDesignations=xCh(oel,'environmentDesignation').map(e=>({name:xT(e,'environmentName'),version:xT(e,'environmentVersion'),origin:xT(e,'environmentOrigin'),notes:xCh(e,'environmentDesignationNote').map(n=>({value:(n.textContent||'').trim()}))}));
+    o.envRegistries=xCh(oel,'environmentRegistry').map(e=>({name:xT(e,'environmentRegistryName'),key:xT(e,'environmentRegistryKey'),role:xT(e,'environmentRegistryRole')}));
+    o.relationships=xCh(oel,'relationship').map(re=>({type:xT(re,'relationshipType'),subType:xT(re,'relationshipSubType'),
+      _ro:xCh(re,'relatedObjectIdentifier').map(x=>xTV(x,'relatedObjectIdentifierType','relatedObjectIdentifierValue')),
+      _re:xCh(re,'relatedEventIdentifier').map(x=>xTV(x,'relatedEventIdentifierType','relatedEventIdentifierValue')),
+      relObjects:[],relEvents:[]}));
+    o._le=xCh(oel,'linkingEventIdentifier').map(x=>xTV(x,'linkingEventIdentifierType','linkingEventIdentifierValue'));
+    o._lr=xCh(oel,'linkingRightsStatementIdentifier').map(x=>xTV(x,'linkingRightsStatementIdentifierType','linkingRightsStatementIdentifierValue'));
+    o.linkEvents=[]; o.linkRights=[];
+    m.objects.push(o);
+  });
+
+  xCh(root,'event').forEach(eel=>{
+    const e=mk.event(); e.lid=nlid('evt');
+    const idEl=xC1(eel,'eventIdentifier'); e.idType=idEl?xT(idEl,'eventIdentifierType'):''; e.idValue=idEl?xT(idEl,'eventIdentifierValue'):'';
+    e.eventType=xT(eel,'eventType'); e.dateTime=xT(eel,'eventDateTime');
+    e.details=xCh(eel,'eventDetailInformation').map(d=>({detail:xT(d,'eventDetail')}));
+    e.outcomes=xCh(eel,'eventOutcomeInformation').map(oi=>{ const od=xC1(oi,'eventOutcomeDetail'); return {outcome:xT(oi,'eventOutcome'),detailNote:od?xT(od,'eventOutcomeDetailNote'):''}; });
+    e._la=xCh(eel,'linkingAgentIdentifier').map(x=>({type:xT(x,'linkingAgentIdentifierType'),value:xT(x,'linkingAgentIdentifierValue'),role:xT(x,'linkingAgentRole')}));
+    e._lo=xCh(eel,'linkingObjectIdentifier').map(x=>({type:xT(x,'linkingObjectIdentifierType'),value:xT(x,'linkingObjectIdentifierValue'),role:xT(x,'linkingObjectRole')}));
+    e.linkAgents=[]; e.linkObjects=[];
+    m.events.push(e);
+  });
+
+  xCh(root,'agent').forEach(ael=>{
+    const a=mk.agent(); a.lid=nlid('agt');
+    a.identifiers=xCh(ael,'agentIdentifier').map(x=>xTV(x,'agentIdentifierType','agentIdentifierValue'));
+    if(!a.identifiers.length) a.identifiers=[mk.agentIdentifier()];
+    a.names=xCh(ael,'agentName').map(n=>({value:(n.textContent||'').trim()}));
+    a.agentType=xT(ael,'agentType'); a.agentVersion=xT(ael,'agentVersion');
+    a.notes=xCh(ael,'agentNote').map(n=>({value:(n.textContent||'').trim()}));
+    a._le=xCh(ael,'linkingEventIdentifier').map(x=>xTV(x,'linkingEventIdentifierType','linkingEventIdentifierValue'));
+    a._lr=xCh(ael,'linkingRightsStatementIdentifier').map(x=>xTV(x,'linkingRightsStatementIdentifierType','linkingRightsStatementIdentifierValue'));
+    a.linkEnvironments=xCh(ael,'linkingEnvironmentIdentifier').map(x=>({type:xT(x,'linkingEnvironmentIdentifierType'),value:xT(x,'linkingEnvironmentIdentifierValue'),role:xT(x,'linkingEnvironmentRole')}));
+    a.linkEvents=[]; a.linkRights=[];
+    m.agents.push(a);
+  });
+
+  xCh(root,'rights').forEach(rel=>{
+    const st=xC1(rel,'rightsStatement'); if(!st){ dropped.push('rightsExtension (xs:any, fora de escopo)'); return; }
+    const r=mk.right(); r.lid=nlid('rgt');
+    const idEl=xC1(st,'rightsStatementIdentifier'); r.idType=idEl?xT(idEl,'rightsStatementIdentifierType'):''; r.idValue=idEl?xT(idEl,'rightsStatementIdentifierValue'):'';
+    r.basis=xT(st,'rightsBasis')||'copyright';
+    const cp=xC1(st,'copyrightInformation');
+    if(cp){ r.c_status=xT(cp,'copyrightStatus'); r.c_jurisdiction=xT(cp,'copyrightJurisdiction'); r.c_date=xT(cp,'copyrightStatusDeterminationDate'); r.c_notes=xCh(cp,'copyrightNote').map(n=>({value:(n.textContent||'').trim()})); r.c_docIds=xCh(cp,'copyrightDocumentationIdentifier').map(d=>({type:xT(d,'copyrightDocumentationIdentifierType'),value:xT(d,'copyrightDocumentationIdentifierValue'),role:xT(d,'copyrightDocumentationRole')})); const ad=xC1(cp,'copyrightApplicableDates'); if(ad){ r.c_dStart=xT(ad,'startDate'); r.c_dEnd=xT(ad,'endDate'); } }
+    const li=xC1(st,'licenseInformation');
+    if(li){ r.l_terms=xT(li,'licenseTerms'); r.l_notes=xCh(li,'licenseNote').map(n=>({value:(n.textContent||'').trim()})); r.l_docIds=xCh(li,'licenseDocumentationIdentifier').map(d=>({type:xT(d,'licenseDocumentationIdentifierType'),value:xT(d,'licenseDocumentationIdentifierValue'),role:xT(d,'licenseDocumentationRole')})); const ad=xC1(li,'licenseApplicableDates'); if(ad){ r.l_dStart=xT(ad,'startDate'); r.l_dEnd=xT(ad,'endDate'); } }
+    const stt=xC1(st,'statuteInformation');
+    if(stt){ r.s_jurisdiction=xT(stt,'statuteJurisdiction'); r.s_citation=xT(stt,'statuteCitation'); r.s_date=xT(stt,'statuteInformationDeterminationDate'); r.s_notes=xCh(stt,'statuteNote').map(n=>({value:(n.textContent||'').trim()})); r.s_docIds=xCh(stt,'statuteDocumentationIdentifier').map(d=>({type:xT(d,'statuteDocumentationIdentifierType'),value:xT(d,'statuteDocumentationIdentifierValue'),role:xT(d,'statuteDocumentationRole')})); const ad=xC1(stt,'statuteApplicableDates'); if(ad){ r.s_dStart=xT(ad,'startDate'); r.s_dEnd=xT(ad,'endDate'); } }
+    const ot=xC1(st,'otherRightsInformation');
+    if(ot){ r.o_basis=xT(ot,'otherRightsBasis'); r.o_notes=xCh(ot,'otherRightsNote').map(n=>({value:(n.textContent||'').trim()})); r.o_docIds=xCh(ot,'otherRightsDocumentationIdentifier').map(d=>({type:xT(d,'otherRightsDocumentationIdentifierType'),value:xT(d,'otherRightsDocumentationIdentifierValue'),role:xT(d,'otherRightsDocumentationRole')})); const ad=xC1(ot,'otherRightsApplicableDates'); if(ad){ r.o_dStart=xT(ad,'startDate'); r.o_dEnd=xT(ad,'endDate'); } }
+    r.granted=xCh(st,'rightsGranted').map(ge=>{ const g=mk.granted(); g.act=xT(ge,'act'); g.restrictions=xCh(ge,'restriction').map(x=>({value:(x.textContent||'').trim()})); const tg=xC1(ge,'termOfGrant'); if(tg){ g.gStart=xT(tg,'startDate'); g.gEnd=xT(tg,'endDate'); } const tr=xC1(ge,'termOfRestriction'); if(tr){ g.rStart=xT(tr,'startDate'); g.rEnd=xT(tr,'endDate'); } g.notes=xCh(ge,'rightsGrantedNote').map(n=>({value:(n.textContent||'').trim()})); return g; });
+    r._lo=xCh(st,'linkingObjectIdentifier').map(x=>xTV(x,'linkingObjectIdentifierType','linkingObjectIdentifierValue'));
+    r._la=xCh(st,'linkingAgentIdentifier').map(x=>xTV(x,'linkingAgentIdentifierType','linkingAgentIdentifierValue'));
+    r.linkObjects=[]; r.linkAgents=[];
+    m.rights.push(r);
+  });
+
+  /* resolução de vínculos: (type,value) -> lid */
+  const K=(t,v)=>`${t}${v}`;
+  const oMap=new Map(),eMap=new Map(),aMap=new Map(),rMap=new Map();
+  m.objects.forEach(o=>o.identifiers.forEach(id=>{ if(has(id.type)&&has(id.value)) oMap.set(K(id.type,id.value),o.lid); }));
+  m.events.forEach(e=>{ if(has(e.idType)&&has(e.idValue)) eMap.set(K(e.idType,e.idValue),e.lid); });
+  m.agents.forEach(a=>a.identifiers.forEach(id=>{ if(has(id.type)&&has(id.value)) aMap.set(K(id.type,id.value),a.lid); }));
+  m.rights.forEach(r=>{ if(has(r.idType)&&has(r.idValue)) rMap.set(K(r.idType,r.idValue),r.lid); });
+  const rs=(map,p,label)=>{ const l=map.get(K(p.type,p.value)); if(l) return l; if(has(p.type)||has(p.value)) dropped.push(`${label} (${p.type}, ${p.value})`); return null; };
+  m.objects.forEach(o=>{
+    o.linkEvents=(o._le||[]).map(p=>rs(eMap,p,'object→event')).filter(Boolean);
+    o.linkRights=(o._lr||[]).map(p=>rs(rMap,p,'object→rights')).filter(Boolean);
+    (o.relationships||[]).forEach(rel=>{ rel.relObjects=(rel._ro||[]).map(p=>rs(oMap,p,'relatedObject')).filter(Boolean); rel.relEvents=(rel._re||[]).map(p=>rs(eMap,p,'relatedEvent')).filter(Boolean); delete rel._ro; delete rel._re; });
+    delete o._le; delete o._lr;
+  });
+  m.events.forEach(e=>{
+    e.linkAgents=(e._la||[]).map(p=>{ const l=rs(aMap,p,'event→agent'); return l?{agentLid:l,role:p.role||''}:null; }).filter(Boolean);
+    e.linkObjects=(e._lo||[]).map(p=>{ const l=rs(oMap,p,'event→object'); return l?{objectLid:l,role:p.role||''}:null; }).filter(Boolean);
+    delete e._la; delete e._lo;
+  });
+  m.agents.forEach(a=>{ a.linkEvents=(a._le||[]).map(p=>rs(eMap,p,'agent→event')).filter(Boolean); a.linkRights=(a._lr||[]).map(p=>rs(rMap,p,'agent→rights')).filter(Boolean); delete a._le; delete a._lr; });
+  m.rights.forEach(r=>{ r.linkObjects=(r._lo||[]).map(p=>rs(oMap,p,'rights→object')).filter(Boolean); r.linkAgents=(r._la||[]).map(p=>rs(aMap,p,'rights→agent')).filter(Boolean); delete r._lo; delete r._la; });
+
+  return {ok:true,model:m,counter:c,dropped};
+}
+function importPremisXML(xmlString){
+  const res=parsePremisXML(xmlString);
+  if(!res.ok) return res;
+  if((model.objects.length||model.events.length||model.agents.length||model.rights.length) && !confirm('Importar substitui o conteúdo atual do modelo pelo documento. Continuar?')) return {ok:false,cancelled:true};
+  Object.assign(model,{objects:res.model.objects,events:res.model.events,agents:res.model.agents,rights:res.model.rights,relationships:[]});
+  lidCounter=res.counter;
+  editing.object=editing.event=editing.agent=editing.rights=null;
+  objDraft=mk.object(); evtDraft=mk.event(); agtDraft=mk.agent(); rgtDraft=null;
+  renderForm(); renderModel(); renderOutput();
+  return {ok:true,counts:{o:res.model.objects.length,e:res.model.events.length,a:res.model.agents.length,r:res.model.rights.length},dropped:res.dropped};
+}
+function handlePremisXMLFile(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const res=importPremisXML(e.target.result);
+    const host=document.getElementById('xmlImpMsg');
+    if(host){
+      if(res.ok){
+        let h=`<div class="val-item ok"><span class="ico">✓</span><span>Importado: ${res.counts.o} object(s), ${res.counts.e} event(s), ${res.counts.a} agent(s), ${res.counts.r} rights. Use os cards (botão "editar") ou as abas para alterar.</span></div>`;
+        if(res.dropped&&res.dropped.length) h+=`<div class="val-item warn"><span class="ico">!</span><span>${res.dropped.length} vínculo(s)/bloco(s) não trazidos (apontam para fora do documento ou são xs:any): ${esc(res.dropped.slice(0,6).join('; '))}${res.dropped.length>6?'…':''}</span></div>`;
+        host.innerHTML=h;
+      } else if(res.cancelled){ host.innerHTML=''; }
+      else host.innerHTML=`<div class="val-item bad"><span class="ico">✕</span><span>Não foi possível importar: ${esc(res.error||'erro')}</span></div>`;
+    }
+    ev.target.value='';
+  };
+  reader.readAsText(file);
+}
+function downloadTemplate(fmt){
+  const cols=(SEMUNITS[currentEnt]||[]).filter(u=>u!=='—');
+  const ex={object:{idType:'UUID',idValue:'5b2c8d1e-0000-4aaa-bbbb-1234567890ab',formatName:'MP3',originalName:'objects/bird.mp3'},
+            event:{idType:'UUID',idValue:'evt-0001',eventType:'ingestion',dateTime:'2019-07-04T22:46:07+00:00'},
+            agent:{idType:'repository code',idValue:'NRI',name:'Not a Real Institution',type:'organization'}}[currentEnt]||{};
+  if(fmt==='csv'){
+    const esc2=v=>{v=String(v==null?'':v); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v;};
+    download(`template-${currentEnt}.csv`, cols.join(',')+'\n'+cols.map(c=>esc2(ex[c])).join(',')+'\n', 'text/csv');
+  } else {
+    const row={}; cols.forEach(c=>row[c]=ex[c]||'');
+    download(`template-${currentEnt}.json`, JSON.stringify([row],null,2), 'application/json');
+  }
+}
 
 /* =================================================================
    CAMADA 1 — orquestração no app: chama window.PremisXSD (definido no

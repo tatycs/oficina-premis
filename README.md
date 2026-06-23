@@ -48,8 +48,15 @@ premis-v3-0.xsd                 schema PREMIS 3.0 OFICIAL (Library of Congress)
 REGRAS-VALIDACAO.md             regras de validação, com a fonte de cada uma
 serve.py                        servidor de desenvolvimento (http + MIME correto)
 vendor/xmllint-wasm/            libxml2/WASM (MIT) — index-browser.mjs, worker, .wasm, COPYING
+docs/IMPORTACAO.md              tutorial de importação (premis.xml e CSV/JSON)
 docs/verificacao-xsd/           procedência e verificação do XSD (ver abaixo)
 ```
+
+## Importação
+
+A aba "importar arquivo" abre um `premis.xml` para edição (reconstrói o modelo e
+religa os vínculos por identificador) ou cria entidades em lote a partir de CSV/JSON
+(com templates para baixar). Passo a passo em [docs/IMPORTACAO.md](docs/IMPORTACAO.md).
 
 ## Procedência do XSD
 
