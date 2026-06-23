@@ -114,6 +114,9 @@
   .chk input{width:auto}
   .chk .seq-in{width:56px;font-family:var(--mono);font-size:11px;padding:3px 5px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)}
   .ext-xml{width:100%;font-family:var(--mono);font-size:11px;min-height:54px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink);resize:vertical}
+  .ext-row{display:flex;gap:6px;margin-bottom:6px;align-items:flex-start}
+  .ext-row .ext-xml{flex:1;margin:0}
+  .ext-line{flex:1;font-family:var(--sans);font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)}
   .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:7px 14px;border-radius:3px;cursor:pointer;text-transform:uppercase}
   .btn:hover{background:var(--ink-soft)}
   .btn.ghost{background:transparent;color:var(--ink)}
@@ -326,18 +329,18 @@ const newLid = (p)=> `${p}-${String(lidCounter++).padStart(3,'0')}`;
 const mk = {
   objectIdentifier: ()=>({type:'',value:''}),
   preservationLevel: ()=>({plType:'',value:'',role:'',rationale:'',dateAssigned:''}),
-  significantProperties: ()=>({spType:'',value:'',ext:''}),
+  significantProperties: ()=>({spType:'',value:'',exts:[]}),
   fixity: ()=>({algo:'',digest:'',originator:''}),
   format: ()=>({name:'',version:'', regName:'',regKey:'',regRole:'', notes:[]}),
-  creatingApplication: ()=>({name:'',version:'',date:'',ext:''}),
+  creatingApplication: ()=>({name:'',version:'',date:'',exts:[]}),
   inhibitor: ()=>({type:'',target:'',key:''}),
   storage: ()=>({locType:'',locValue:'',medium:''}),
-  signature: ()=>({encoding:'',signer:'',method:'',value:'',rules:'',properties:'',keyInfo:'',sigExt:''}),
+  signature: ()=>({encoding:'',signer:'',method:'',value:'',rules:'',properties:'',keyInfos:[],sigExts:[]}),
   envFunction: ()=>({fType:'',fLevel:''}),
-  envDesignation: ()=>({name:'',version:'',origin:'',notes:[],ext:''}),
+  envDesignation: ()=>({name:'',version:'',origin:'',notes:[],exts:[]}),
   envRegistry: ()=>({name:'',key:'',role:''}),
-  characteristics: ()=>({ compositionLevel:'', compositionUnknown:false, size:'', fixities:[], formats:[mk.format()], creatingApps:[], inhibitors:[], ext:'' }),
-  object: ()=>({ lid:newLid('obj'), objType:'file', identifiers:[mk.objectIdentifier()], preservationLevels:[], significantProperties:[], characteristics:[mk.characteristics()], originalName:'', storages:[], signatures:[], envFunctions:[], envDesignations:[], envRegistries:[], relationships:[], linkEvents:[], linkRights:[] }),
+  characteristics: ()=>({ compositionLevel:'', compositionUnknown:false, size:'', fixities:[], formats:[mk.format()], creatingApps:[], inhibitors:[], exts:[] }),
+  object: ()=>({ lid:newLid('obj'), objType:'file', identifiers:[mk.objectIdentifier()], preservationLevels:[], significantProperties:[], characteristics:[mk.characteristics()], originalName:'', storages:[], signatures:[], envFunctions:[], envDesignations:[], envRegistries:[], envExts:[], relationships:[], linkEvents:[], linkRights:[] }),
   // event completo
   eventDetailInfo: ()=>({detail:''}),
   eventOutcomeInfo: ()=>({outcome:'', detailNote:''}),
@@ -366,7 +369,24 @@ const mk = {
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function elv(tag, val, ind){ return `${' '.repeat(ind)}<premis:${tag}>${esc(val)}</premis:${tag}>`; }
 function rawExt(tag, raw, ind){ const p=' '.repeat(ind); return `${p}<premis:${tag}>\n${(raw||'').trim()}\n${p}</premis:${tag}>`; }
-function extBox(label,id,val,hkey){ return `<div class="subblock"><div class="sh"><span>${label} [0..n]${helpIcon(hkey||label)}</span></div><textarea id="${id}" class="ext-xml" placeholder="colar XML de schema externo (opcional)" oninput="syncObj()">${esc(val||'')}</textarea><div class="card-min">ponto de extensão xs:any — cole elemento(s) XML bem-formado(s) de outro schema.</div></div>`; }
+function extId(path,k){ return 'x_'+path.replace(/[^a-zA-Z0-9]/g,'_')+'_'+k; }
+function extList(label, path, arr, hkey, line){
+  arr=arr||[];
+  let h=`<div class="subblock"><div class="sh"><span>${label} [0..n]${helpIcon(hkey||label)}</span></div>`;
+  arr.forEach((v,k)=>{
+    const id=extId(path,k);
+    const inp = line ? `<input id="${id}" class="ext-line" value="${esc(v)}" placeholder="texto livre (xs:string)" oninput="syncObj()">`
+                     : `<textarea id="${id}" class="ext-xml" placeholder="colar XML de schema externo" oninput="syncObj()">${esc(v)}</textarea>`;
+    h+=`<div class="ext-row">${inp}<button class="rm-x" title="remover" onclick="rmExt('${path}',${k})">×</button></div>`;
+  });
+  h+=`<button class="add-btn" onclick="addExt('${path}')">+ ${label}</button>`;
+  if(!line) h+=`<div class="card-min">repetível — cada item é uma extensão; declare o schema externo no próprio XML.</div>`;
+  return h+`</div>`;
+}
+function extPathArr(path){ let o=objDraft; for(const p of path.split('.')){ if(o==null) return null; o=o[/^\d+$/.test(p)?+p:p]; } return o; }
+function addExt(path){ syncObj(); const a=extPathArr(path); if(a){ a.push(''); renderForm(); } }
+function rmExt(path,k){ syncObj(); const a=extPathArr(path); if(a){ a.splice(k,1); renderForm(); } }
+function readExts(path, arr){ arr=arr||[]; return arr.map((v,k)=>{ const el=document.getElementById(extId(path,k)); return el?el.value:v; }); }
 const has = v => v!=null && String(v).trim()!=='';
 
 /* ---- gerador: object ---- */
@@ -402,11 +422,11 @@ function genObject(o, L, profile){
     L.push(`    </premis:preservationLevel>`);
   });
   o.significantProperties.forEach(s=>{
-    if(!has(s.spType)&&!has(s.value)&&!has(s.ext)) return;
+    if(!has(s.spType)&&!has(s.value)&&!(s.exts||[]).some(has)) return;
     L.push(`    <premis:significantProperties>`);
     if(has(s.spType)) L.push(elv('significantPropertiesType', s.spType, 6));
     if(has(s.value)) L.push(elv('significantPropertiesValue', s.value, 6));
-    if(has(s.ext)) L.push(rawExt('significantPropertiesExtension', s.ext, 6));
+    (s.exts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('significantPropertiesExtension', x, 6)); });
     L.push(`    </premis:significantProperties>`);
   });
   if(allow.chars) o.characteristics.forEach(c=>{
@@ -443,12 +463,12 @@ function genObject(o, L, profile){
       L.push(`      </premis:format>`);
     });
     c.creatingApps.forEach(a=>{
-      if(!has(a.name)&&!has(a.version)&&!has(a.date)) return;
+      if(!has(a.name)&&!has(a.version)&&!has(a.date)&&!(a.exts||[]).some(has)) return;
       L.push(`      <premis:creatingApplication>`);
       if(has(a.name)) L.push(elv('creatingApplicationName', a.name, 8));
       if(has(a.version)) L.push(elv('creatingApplicationVersion', a.version, 8));
       if(has(a.date)) L.push(elv('dateCreatedByApplication', a.date, 8));
-      if(has(a.ext)) L.push(rawExt('creatingApplicationExtension', a.ext, 8));
+      (a.exts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('creatingApplicationExtension', x, 8)); });
       L.push(`      </premis:creatingApplication>`);
     });
     c.inhibitors.forEach(inh=>{
@@ -459,7 +479,7 @@ function genObject(o, L, profile){
       if(has(inh.key)) L.push(elv('inhibitorKey', inh.key, 8));
       L.push(`      </premis:inhibitors>`);
     });
-    if(has(c.ext)) L.push(rawExt('objectCharacteristicsExtension', c.ext, 6));
+    (c.exts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('objectCharacteristicsExtension', x, 6)); });
     L.push(`    </premis:objectCharacteristics>`);
   });
   if(allow.oname && has(o.originalName)) L.push(elv('originalName', o.originalName, 4));
@@ -491,7 +511,7 @@ function genObject(o, L, profile){
       if(has(d.version)) L.push(elv('environmentVersion', d.version, 6));
       if(has(d.origin)) L.push(elv('environmentOrigin', d.origin, 6));
       (d.notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('environmentDesignationNote', n.value, 6)); });
-      if(has(d.ext)) L.push(elv('environmentDesignationExtension', d.ext, 6));
+      (d.exts||[]).forEach(x=>{ if(has(x)) L.push(elv('environmentDesignationExtension', x, 6)); });
       L.push(`    </premis:environmentDesignation>`);
     });
     (o.envRegistries||[]).forEach(r=>{
@@ -502,6 +522,7 @@ function genObject(o, L, profile){
       if(has(r.role)) L.push(elv('environmentRegistryRole', r.role, 6));
       L.push(`    </premis:environmentRegistry>`);
     });
+    (o.envExts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('environmentExtension', x, 4)); });
   }
   // signatureInformation — file e bitstream
   if(allow.sig) (o.signatures||[]).forEach(s=>{
@@ -514,9 +535,9 @@ function genObject(o, L, profile){
     L.push(elv('signatureValue', s.value, 8));
     L.push(elv('signatureValidationRules', s.rules, 8));
     if(has(s.properties)) L.push(elv('signatureProperties', s.properties, 8));
-    if(has(s.keyInfo)) L.push(rawExt('keyInformation', s.keyInfo, 8));
+    (s.keyInfos||[]).forEach(x=>{ if(has(x)) L.push(rawExt('keyInformation', x, 8)); });
     L.push(`      </premis:signature>`);
-    if(has(s.sigExt)) L.push(rawExt('signatureInformationExtension', s.sigExt, 6));
+    (s.sigExts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('signatureInformationExtension', x, 6)); });
     L.push(`    </premis:signatureInformation>`);
   });
   /* relationship — na sequência do file vem após signatureInformation */
@@ -1071,6 +1092,7 @@ const HELP = {
   'signatureInformationExtension': {t:'Ponto de extensão (xs:any) da informação de assinatura, em schema externo.', src:'dd'},
   'keyInformation': {t:'Informação sobre a chave usada na assinatura (tipicamente ds:KeyInfo, do XML Signature). Ponto de extensão (xs:any).', src:'dd'},
   'environmentDesignationExtension': {t:'Informação adicional da designação do ambiente, em texto livre (xs:string). Repetível.', src:'dd'},
+  'environmentExtension': {t:'Ponto de extensão (xs:any) para características do ambiente não cobertas pelo PREMIS, em schema externo. Para nome/versão/designação, use environmentDesignationExtension.', src:'dd'},
 };
 const VOC = {
   relType: [['structural','relação de composição/estrutura entre objetos'],['derivation','um objeto deriva de outro (ex.: por migração)'],['dependency','um objeto depende de outro para funcionar'],['logical','relação lógica'],['reference','um objeto referencia outro'],['replacement','um objeto substitui outro']],
@@ -1214,7 +1236,7 @@ function renderObjectForm(){
   o.significantProperties.forEach((s,i)=>{
     h += `<div class="rep-item"><div class="rh"><span>propriedade ${i+1}</span><button class="rm-x" onclick="rmRep('significantProperties',${i})">×</button></div>
       <div class="field-row">${fld('Type','dd',`sp_t_${i}`,s.spType)}${fld('Value','dd',`sp_v_${i}`,s.value)}</div>
-      ${extBox('significantPropertiesExtension',`sp_x_${i}`,s.ext)}</div>`;
+      ${extList('significantPropertiesExtension','significantProperties.'+i+'.exts',s.exts)}</div>`;
   });
   h += `<button class="add-btn" onclick="addRep('significantProperties')">+ significantProperties</button></div></div>`;
 
@@ -1245,7 +1267,7 @@ function renderObjectForm(){
     c.creatingApps.forEach((a,ai)=>{
       h += `<div class="rep-item"><div class="rh"><span>aplicação ${ai+1}</span><button class="rm-x" onclick="rmSub(${ci},'creatingApps',${ai})">×</button></div>
         <div class="field-row">${fld('Name','dd',`ca_n_${ci}_${ai}`,a.name)}${fld('Version','dd',`ca_v_${ci}_${ai}`,a.version)}</div>${fld('dateCreatedByApplication','dd',`ca_d_${ci}_${ai}`,a.date,'data')}
-        ${extBox('creatingApplicationExtension',`ca_x_${ci}_${ai}`,a.ext)}</div>`;
+        ${extList('creatingApplicationExtension','characteristics.'+ci+'.creatingApps.'+ai+'.exts',a.exts)}</div>`;
     });
     h += `<button class="add-btn" onclick="addSub(${ci},'creatingApps')">+ creatingApplication</button></div>`;
     h += `<div class="subblock"><div class="sh"><span>inhibitors [0..n]${helpIcon('inhibitors')}</span></div>`;
@@ -1254,7 +1276,7 @@ function renderObjectForm(){
         ${fld('inhibitorType','xsd',`in_t_${ci}_${ii}`,inh.type,'ex.: encryption','',true)}${fld('inhibitorTarget','dd',`in_g_${ci}_${ii}`,inh.target,'opcional')}${fld('inhibitorKey','dd',`in_k_${ci}_${ii}`,inh.key,'opcional')}</div>`;
     });
     h += `<button class="add-btn" onclick="addSub(${ci},'inhibitors')">+ inhibitor</button></div>`;
-    h += extBox('objectCharacteristicsExtension',`c_x_${ci}`,c.ext);
+    h += extList('objectCharacteristicsExtension','characteristics.'+ci+'.exts',c.exts);
     h += `</div>`;
   });
   h += `<button class="add-btn" onclick="addRep('characteristics')">+ objectCharacteristics</button></div></div>`;
@@ -1287,8 +1309,8 @@ function renderObjectForm(){
       ${ta('signatureValue','xsd',`sg_v_${i}`,s.value,'valor da assinatura','',true)}
       ${fld('signatureValidationRules','xsd',`sg_r_${i}`,s.rules,'regras de validação','',true)}
       ${fld('signatureProperties','dd',`sg_p_${i}`,s.properties,'opcional')}
-      ${extBox('keyInformation',`sg_ki_${i}`,s.keyInfo)}
-      ${extBox('signatureInformationExtension',`sg_x_${i}`,s.sigExt)}</div>`;
+      ${extList('keyInformation','signatures.'+i+'.keyInfos',s.keyInfos)}
+      ${extList('signatureInformationExtension','signatures.'+i+'.sigExts',s.sigExts)}</div>`;
   });
   h += `<button class="add-btn" onclick="addRep('signatures')">+ signatureInformation</button></div></div>`;
   }
@@ -1308,7 +1330,7 @@ function renderObjectForm(){
       ${fld('environmentName','xsd',`ed_n_${i}`,d.name,'ex.: Adobe Acrobat Reader','',true,'syncObj','environmentDesignation')}
       <div class="field-row">${fld('environmentVersion','dd',`ed_v_${i}`,d.version,'opcional')}${fld('environmentOrigin','dd',`ed_o_${i}`,d.origin,'opcional')}</div>`;
     (d.notes||[]).forEach((n,ni)=>{ h+=`<div class="rep-item"><div class="rh"><span>nota ${ni+1}</span><button class="rm-x" onclick="rmEnvNote(${i},${ni})">×</button></div>${fld('environmentDesignationNote','dd',`ed_nt_${i}_${ni}`,n.value,'','',false)}</div>`; });
-    h += `<button class="add-btn" onclick="addEnvNote(${i})">+ nota</button>${fld('environmentDesignationExtension','dd',`ed_x_${i}`,d.ext,'texto livre (xs:string)','0..n')}</div>`;
+    h += `<button class="add-btn" onclick="addEnvNote(${i})">+ nota</button>${extList('environmentDesignationExtension','envDesignations.'+i+'.exts',d.exts,null,true)}</div>`;
   });
   h += `<button class="add-btn" onclick="addRep('envDesignations')">+ environmentDesignation</button></div></div>`;
 
@@ -1318,6 +1340,7 @@ function renderObjectForm(){
       <div class="field-row">${fld('environmentRegistryName','xsd',`er_n_${i}`,r.name,'ex.: WikiData','',true,'syncObj','environmentRegistry')}${fld('environmentRegistryKey','xsd',`er_k_${i}`,r.key,'','',true)}</div>${fld('environmentRegistryRole','dd',`er_r_${i}`,r.role,'opcional')}</div>`;
   });
   h += `<button class="add-btn" onclick="addRep('envRegistries')">+ environmentRegistry</button></div></div>`;
+  h += `<div class="block ${collapsed['o_ee']!==false?'collapsed':''}">${blockHead('o_ee','environmentExtension','0..n',false,'environmentExtension')}<div class="bb">${extList('environmentExtension','envExts',o.envExts,'environmentExtension')}</div></div>`;
   }
 
   // relationship (DD 1.13)
@@ -1362,20 +1385,21 @@ function syncObj(){
   const tSel=document.getElementById('o_type'); if(tSel) o.objType=tSel.value;
   o.identifiers.forEach((id,i)=>{set(id,'type',`id_t_${i}`);set(id,'value',`id_v_${i}`);});
   o.preservationLevels.forEach((p,i)=>{set(p,'value',`pl_v_${i}`);set(p,'plType',`pl_t_${i}`);set(p,'role',`pl_r_${i}`);set(p,'rationale',`pl_ra_${i}`);set(p,'dateAssigned',`pl_d_${i}`);});
-  o.significantProperties.forEach((s,i)=>{set(s,'spType',`sp_t_${i}`);set(s,'value',`sp_v_${i}`);set(s,'ext',`sp_x_${i}`);});
+  o.significantProperties.forEach((s,i)=>{set(s,'spType',`sp_t_${i}`);set(s,'value',`sp_v_${i}`);s.exts=readExts('significantProperties.'+i+'.exts', s.exts);});
   o.characteristics.forEach((c,ci)=>{
-    set(c,'compositionLevel',`c_comp_${ci}`);set(c,'size',`c_size_${ci}`);set(c,'ext',`c_x_${ci}`);
+    set(c,'compositionLevel',`c_comp_${ci}`);set(c,'size',`c_size_${ci}`);c.exts=readExts('characteristics.'+ci+'.exts', c.exts);
     c.fixities.forEach((f,fi)=>{set(f,'algo',`f_a_${ci}_${fi}`);set(f,'digest',`f_d_${ci}_${fi}`);set(f,'originator',`f_o_${ci}_${fi}`);});
     c.formats.forEach((fmt,mi)=>{set(fmt,'name',`fmt_n_${ci}_${mi}`);set(fmt,'version',`fmt_v_${ci}_${mi}`);set(fmt,'regName',`fmt_rn_${ci}_${mi}`);set(fmt,'regKey',`fmt_rk_${ci}_${mi}`);set(fmt,'regRole',`fmt_rr_${ci}_${mi}`);fmt.notes=(fmt.notes||[]).map((n,ni)=>{const el=document.getElementById(`fmt_note_${ci}_${mi}_${ni}`);return el?el.value:n;}).filter(x=>x!=null);});
-    c.creatingApps.forEach((a,ai)=>{set(a,'name',`ca_n_${ci}_${ai}`);set(a,'version',`ca_v_${ci}_${ai}`);set(a,'date',`ca_d_${ci}_${ai}`);set(a,'ext',`ca_x_${ci}_${ai}`);});
+    c.creatingApps.forEach((a,ai)=>{set(a,'name',`ca_n_${ci}_${ai}`);set(a,'version',`ca_v_${ci}_${ai}`);set(a,'date',`ca_d_${ci}_${ai}`);a.exts=readExts('characteristics.'+ci+'.creatingApps.'+ai+'.exts', a.exts);});
     c.inhibitors.forEach((inh,ii)=>{set(inh,'type',`in_t_${ci}_${ii}`);set(inh,'target',`in_g_${ci}_${ii}`);set(inh,'key',`in_k_${ci}_${ii}`);});
   });
   set(o,'originalName','o_name');
   o.storages.forEach((s,i)=>{set(s,'locType',`st_t_${i}`);set(s,'locValue',`st_v_${i}`);set(s,'medium',`st_m_${i}`);});
-  (o.signatures||[]).forEach((s,i)=>{set(s,'encoding',`sg_e_${i}`);set(s,'signer',`sg_s_${i}`);set(s,'method',`sg_m_${i}`);set(s,'value',`sg_v_${i}`);set(s,'rules',`sg_r_${i}`);set(s,'properties',`sg_p_${i}`);set(s,'keyInfo',`sg_ki_${i}`);set(s,'sigExt',`sg_x_${i}`);});
+  (o.signatures||[]).forEach((s,i)=>{set(s,'encoding',`sg_e_${i}`);set(s,'signer',`sg_s_${i}`);set(s,'method',`sg_m_${i}`);set(s,'value',`sg_v_${i}`);set(s,'rules',`sg_r_${i}`);set(s,'properties',`sg_p_${i}`);s.keyInfos=readExts('signatures.'+i+'.keyInfos', s.keyInfos);s.sigExts=readExts('signatures.'+i+'.sigExts', s.sigExts);});
   (o.envFunctions||[]).forEach((f,i)=>{set(f,'fType',`ef_t_${i}`);set(f,'fLevel',`ef_l_${i}`);});
-  (o.envDesignations||[]).forEach((d,i)=>{set(d,'name',`ed_n_${i}`);set(d,'version',`ed_v_${i}`);set(d,'origin',`ed_o_${i}`);set(d,'ext',`ed_x_${i}`);(d.notes||[]).forEach((n,ni)=>set(n,'value',`ed_nt_${i}_${ni}`));});
+  (o.envDesignations||[]).forEach((d,i)=>{set(d,'name',`ed_n_${i}`);set(d,'version',`ed_v_${i}`);set(d,'origin',`ed_o_${i}`);d.exts=readExts('envDesignations.'+i+'.exts', d.exts);(d.notes||[]).forEach((n,ni)=>set(n,'value',`ed_nt_${i}_${ni}`));});
   (o.envRegistries||[]).forEach((r,i)=>{set(r,'name',`er_n_${i}`);set(r,'key',`er_k_${i}`);set(r,'role',`er_r_${i}`);});
+  o.envExts=readExts('envExts', o.envExts);
   (o.relationships||[]).forEach((rel,i)=>{
     set(rel,'type',`rel_t_${i}`); set(rel,'subType',`rel_s_${i}`);
     if(document.getElementById(`rel_t_${i}`)){
@@ -1817,6 +1841,7 @@ function xC1(el,ln){ return xCh(el,ln)[0]||null; }
 function xT(el,ln){ const c=xC1(el,ln); return c?(c.textContent||'').trim():''; }
 function xTV(el,tLn,vLn){ return {type:xT(el,tLn),value:xT(el,vLn)}; }
 function xRaw(el,ln){ const c=xC1(el,ln); if(!c) return ''; try{ return [...c.childNodes].map(n=>n.nodeType===1?new XMLSerializer().serializeToString(n):'').join('').trim(); }catch(e){ return ''; } }
+function xRawInner(el){ if(!el) return ''; try{ return [...el.childNodes].map(n=>n.nodeType===1?new XMLSerializer().serializeToString(n):'').join('').trim(); }catch(e){ return ''; } }
 
 function parsePremisXML(xmlString){
   const doc=new DOMParser().parseFromString(xmlString,'application/xml');
@@ -1835,7 +1860,7 @@ function parsePremisXML(xmlString){
     o.identifiers=xCh(oel,'objectIdentifier').map(e=>xTV(e,'objectIdentifierType','objectIdentifierValue'));
     if(!o.identifiers.length) o.identifiers=[mk.objectIdentifier()];
     o.preservationLevels=xCh(oel,'preservationLevel').map(e=>({plType:xT(e,'preservationLevelType'),value:xT(e,'preservationLevelValue'),role:xT(e,'preservationLevelRole'),rationale:xT(e,'preservationLevelRationale'),dateAssigned:xT(e,'preservationLevelDateAssigned')}));
-    o.significantProperties=xCh(oel,'significantProperties').map(e=>({spType:xT(e,'significantPropertiesType'),value:xT(e,'significantPropertiesValue'),ext:xRaw(e,'significantPropertiesExtension')}));
+    o.significantProperties=xCh(oel,'significantProperties').map(e=>({spType:xT(e,'significantPropertiesType'),value:xT(e,'significantPropertiesValue'),exts:xCh(e,'significantPropertiesExtension').map(xRawInner).filter(Boolean)}));
     o.characteristics=xCh(oel,'objectCharacteristics').map(ce=>{
       const cc=mk.characteristics();
       const comp=xC1(ce,'compositionLevel'); if(comp){ cc.compositionLevel=(comp.textContent||'').trim(); cc.compositionUnknown=comp.getAttribute('unknown')==='yes'; }
@@ -1846,18 +1871,19 @@ function parsePremisXML(xmlString){
         if(reg){ f.regName=xT(reg,'formatRegistryName'); f.regKey=xT(reg,'formatRegistryKey'); f.regRole=xT(reg,'formatRegistryRole'); }
         f.notes=xCh(fe,'formatNote').map(n=>(n.textContent||'').trim()).filter(Boolean); return f; });
       if(!cc.formats.length) cc.formats=[mk.format()];
-      cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication'),ext:xRaw(ae,'creatingApplicationExtension')}));
+      cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication'),exts:xCh(ae,'creatingApplicationExtension').map(xRawInner).filter(Boolean)}));
       cc.inhibitors=xCh(ce,'inhibitors').map(ie=>({type:xT(ie,'inhibitorType'),target:xT(ie,'inhibitorTarget'),key:xT(ie,'inhibitorKey')}));
-      cc.ext=xRaw(ce,'objectCharacteristicsExtension');
+      cc.exts=xCh(ce,'objectCharacteristicsExtension').map(xRawInner).filter(Boolean);
       return cc;
     });
     if(!o.characteristics.length) o.characteristics=[mk.characteristics()];
     o.originalName=xT(oel,'originalName');
     o.storages=xCh(oel,'storage').map(se=>{ const cl=xC1(se,'contentLocation'); return {locType:cl?xT(cl,'contentLocationType'):'',locValue:cl?xT(cl,'contentLocationValue'):'',medium:xT(se,'storageMedium')}; });
-    o.signatures=xCh(oel,'signatureInformation').map(se=>{ const sg=xC1(se,'signature')||se; return {encoding:xT(sg,'signatureEncoding'),signer:xT(sg,'signer'),method:xT(sg,'signatureMethod'),value:xT(sg,'signatureValue'),rules:xT(sg,'signatureValidationRules'),properties:xT(sg,'signatureProperties'),keyInfo:xRaw(sg,'keyInformation'),sigExt:xRaw(se,'signatureInformationExtension')}; });
+    o.signatures=xCh(oel,'signatureInformation').map(se=>{ const sg=xC1(se,'signature')||se; return {encoding:xT(sg,'signatureEncoding'),signer:xT(sg,'signer'),method:xT(sg,'signatureMethod'),value:xT(sg,'signatureValue'),rules:xT(sg,'signatureValidationRules'),properties:xT(sg,'signatureProperties'),keyInfos:xCh(sg,'keyInformation').map(xRawInner).filter(Boolean),sigExts:xCh(se,'signatureInformationExtension').map(xRawInner).filter(Boolean)}; });
     o.envFunctions=xCh(oel,'environmentFunction').map(e=>({fType:xT(e,'environmentFunctionType'),fLevel:xT(e,'environmentFunctionLevel')}));
-    o.envDesignations=xCh(oel,'environmentDesignation').map(e=>({name:xT(e,'environmentName'),version:xT(e,'environmentVersion'),origin:xT(e,'environmentOrigin'),notes:xCh(e,'environmentDesignationNote').map(n=>({value:(n.textContent||'').trim()})),ext:xT(e,'environmentDesignationExtension')}));
+    o.envDesignations=xCh(oel,'environmentDesignation').map(e=>({name:xT(e,'environmentName'),version:xT(e,'environmentVersion'),origin:xT(e,'environmentOrigin'),notes:xCh(e,'environmentDesignationNote').map(n=>({value:(n.textContent||'').trim()})),exts:xCh(e,'environmentDesignationExtension').map(n=>(n.textContent||'').trim()).filter(Boolean)}));
     o.envRegistries=xCh(oel,'environmentRegistry').map(e=>({name:xT(e,'environmentRegistryName'),key:xT(e,'environmentRegistryKey'),role:xT(e,'environmentRegistryRole')}));
+    o.envExts=xCh(oel,'environmentExtension').map(xRawInner).filter(Boolean);
     o.relationships=xCh(oel,'relationship').map(re=>({type:xT(re,'relationshipType'),subType:xT(re,'relationshipSubType'),
       _ro:xCh(re,'relatedObjectIdentifier').map(x=>({...xTV(x,'relatedObjectIdentifierType','relatedObjectIdentifierValue'),seq:xT(x,'relatedObjectSequence')})),
       _re:xCh(re,'relatedEventIdentifier').map(x=>({...xTV(x,'relatedEventIdentifierType','relatedEventIdentifierValue'),seq:xT(x,'relatedEventSequence')})),
