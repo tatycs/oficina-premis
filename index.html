@@ -184,7 +184,7 @@
   .info-i{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--ink-soft);background:transparent;color:var(--ink-soft);font-size:10px;line-height:1;cursor:pointer;margin-left:6px;padding:0;vertical-align:middle;font-family:var(--sans);font-weight:700}
   .info-i:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   /* painel lateral de ajuda */
-  .help-panel{position:fixed;top:0;right:0;width:340px;max-width:88vw;height:100vh;background:var(--paper-2);border-left:2px solid var(--ink);box-shadow:-8px 0 24px rgba(27,42,54,.18);transform:translateX(100%);transition:transform .22s ease;z-index:50;display:flex;flex-direction:column}
+  .help-panel{position:fixed;top:0;right:0;width:420px;max-width:92vw;height:100vh;background:var(--paper-2);border-left:2px solid var(--ink);box-shadow:-8px 0 24px rgba(27,42,54,.18);transform:translateX(100%);transition:transform .22s ease;z-index:50;display:flex;flex-direction:column}
   .help-panel.open{transform:translateX(0)}
   .help-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:2px solid var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:700}
   .help-x{border:none;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
@@ -198,6 +198,14 @@
   .help-voc-note{font-size:11px;font-style:italic;color:var(--ink-soft);margin-bottom:14px}
   .help-src{display:inline-block;font-size:11.5px;font-family:var(--mono);color:var(--amber);text-decoration:none;border:1px solid var(--amber);border-radius:3px;padding:6px 10px;margin-top:4px}
   .help-src:hover{background:var(--amber);color:#fff}
+  .help-lang{display:flex;gap:5px;margin:2px 0 12px}
+  .help-lang .hl{font-family:var(--mono);font-size:10.5px;letter-spacing:0.04em;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:3px 11px;border-radius:3px;cursor:pointer}
+  .help-lang .hl.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .dd-num{font-family:var(--mono);font-size:10px;color:var(--ink-soft);font-weight:400;letter-spacing:0.04em}
+  .dd-f{margin-bottom:10px}
+  .dd-l{font-family:var(--mono);font-size:9.5px;letter-spacing:0.07em;text-transform:uppercase;color:var(--amber);margin-bottom:2px}
+  .dd-v{font-size:12.5px;line-height:1.55;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+  .dd-pend{font-family:var(--mono);font-size:8.5px;text-transform:none;letter-spacing:0;color:var(--warn);background:var(--warn-bg);padding:1px 6px;border-radius:8px;margin-left:5px;font-weight:400;vertical-align:middle}
 </style>
 <script>(function(){try{var t=localStorage.getItem('premis-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
@@ -1048,22 +1056,64 @@ function helpIcon(key){
   if(!HELP[key]) return '';
   return `<button type="button" class="info-i" onclick="toggleHelp(event,'${key}')" title="o que é isto? (clique de novo para fechar)" aria-haspopup="dialog">ⓘ</button>`;
 }
-function openHelp(ev, key){
-  ev.stopPropagation();
-  const e=HELP[key]; if(!e) return;
-  window.__helpKey=key;
-  const src=SRC[e.src];
-  let body=`<div class="help-term">${key}</div><div class="help-def">${esc(e.t)}</div>`;
-  if(e.voc && VOC[e.voc]){
-    body+=`<div class="help-voc-h">valores do vocabulário (exemplos oficiais):</div><ul class="help-voc">`;
-    VOC[e.voc].forEach(([term,desc])=>{ body+=`<li><code>${esc(term)}</code> — ${esc(desc)}</li>`; });
-    body+=`</ul><div class="help-voc-note">Lista não exaustiva. A relação completa está na fonte.</div>`;
+/* idioma da ajuda + carga sob demanda do Data Dictionary (dd.json) */
+window.__lang=(function(){try{return localStorage.getItem('premis-lang')||'pt';}catch(e){return 'pt';}})();
+let __DD=null, __DDp=null;
+function ensureDD(){
+  if(__DD) return Promise.resolve(__DD);
+  if(__DDp) return __DDp;
+  __DDp=fetch('dd.json').then(r=>r.ok?r.json():{}).then(d=>{__DD=d;return d;}).catch(()=>{__DD={};return __DD;});
+  return __DDp;
+}
+const DDLABELS={ definition:['Definição','Definition'], semanticComponents:['Componentes semânticos','Semantic components'], rationale:['Justificativa','Rationale'], dataConstraint:['Restrição de dados','Data constraint'], objectCategory:['Categoria de objeto','Object category'], applicability:['Aplicabilidade','Applicability'], repeatability:['Repetibilidade','Repeatability'], obligation:['Obrigatoriedade','Obligation'], examples:['Exemplos','Examples'], creationMaintenanceNotes:['Notas de criação / manutenção','Creation / Maintenance notes'], usageNotes:['Notas de uso','Usage notes'] };
+const DDORDER=['definition','semanticComponents','rationale','dataConstraint','objectCategory','applicability','repeatability','obligation','examples','creationMaintenanceNotes','usageNotes'];
+const __has=v=>!(v===undefined||v===null||v===''||(Array.isArray(v)&&v.length===0));
+function ddFmt(val, fk, en){
+  if(Array.isArray(val)){
+    if(fk==='objectCategory') return val.map(esc).join(' · ');
+    if(val.every(x=>x===val[0])) return esc(val[0]);
+    const cats=en&&Array.isArray(en.objectCategory)?en.objectCategory:null;
+    if(cats&&cats.length===val.length) return val.map((v,i)=>`${esc(cats[i])}: ${esc(v)}`).join(' · ');
+    return val.map(esc).join(' · ');
   }
-  if(src) body+=`<a class="help-src" href="${src.url}" target="_blank" rel="noopener">fonte: ${esc(src.label)} ↗</a>`;
-  document.getElementById('helpBody').innerHTML=body;
-  window.__helpReturn=document.activeElement;
+  return esc(val||'');
+}
+function setHelpLang(l){ window.__lang=l; try{localStorage.setItem('premis-lang',l);}catch(e){} if(window.__helpKey){ const b=document.getElementById('helpBody'); if(b) b.innerHTML=renderHelpBody(window.__helpKey); } }
+function renderHelpBody(key){
+  const e=HELP[key]; const src=e?SRC[e.src]:null; const lang=window.__lang||'pt';
+  const dd=__DD?__DD[key]:null;
+  let body=`<div class="help-term">${esc(key)}${dd?` <span class="dd-num">DD ${esc(dd.num)}</span>`:''}</div>`;
+  body+=`<div class="help-lang" role="group" aria-label="idioma"><button type="button" class="hl ${lang==='pt'?'on':''}" aria-pressed="${lang==='pt'}" onclick="setHelpLang('pt')">PT</button><button type="button" class="hl ${lang==='en'?'on':''}" aria-pressed="${lang==='en'}" onclick="setHelpLang('en')">EN</button></div>`;
+  if(e && lang==='pt') body+=`<div class="help-def">${esc(e.t)}</div>`;
+  if(dd){
+    DDORDER.forEach(fk=>{
+      const enV=dd.en?dd.en[fk]:undefined; if(!__has(enV)) return;
+      const ptV=dd.pt?dd.pt[fk]:undefined;
+      let val=enV, fallback=false;
+      if(lang==='pt'){ if(__has(ptV)) val=ptV; else fallback=true; }
+      const lbl=DDLABELS[fk]?DDLABELS[fk][lang==='pt'?0:1]:fk;
+      body+=`<div class="dd-f"><div class="dd-l">${esc(lbl)}${fallback?' <span class="dd-pend">tradução pendente · em inglês</span>':''}</div><div class="dd-v">${ddFmt(val,fk,dd.en)}</div></div>`;
+    });
+    body+=`<div class="help-voc-note">${lang==='pt'?'Fonte: PREMIS Data Dictionary v3.0 (Library of Congress). Tradução PT não oficial.':'Source: PREMIS Data Dictionary v3.0 (Library of Congress).'}</div>`;
+  } else if(e && lang==='en'){
+    body+=`<div class="help-def" style="opacity:.85">${esc(e.t)} <span class="dd-pend">resumo em PT — sem verbete completo do DD</span></div>`;
+  }
+  if(e && e.voc && VOC[e.voc]){
+    body+=`<div class="help-voc-h">${lang==='pt'?'valores do vocabulário (exemplos oficiais):':'controlled vocabulary (official examples):'}</div><ul class="help-voc">`;
+    VOC[e.voc].forEach(([term,desc])=>{ body+=`<li><code>${esc(term)}</code> — ${esc(desc)}</li>`; });
+    body+=`</ul><div class="help-voc-note">${lang==='pt'?'Lista não exaustiva. A relação completa está na fonte.':'Not exhaustive — see the source for the full list.'}</div>`;
+  }
+  if(src) body+=`<a class="help-src" href="${src.url}" target="_blank" rel="noopener">${lang==='pt'?'fonte':'source'}: ${esc(src.label)} ↗</a>`;
+  return body;
+}
+function openHelp(ev, key){
+  if(ev && ev.stopPropagation) ev.stopPropagation();
+  if(!HELP[key] && !(__DD && __DD[key])) return;
+  window.__helpKey=key; window.__helpReturn=document.activeElement;
+  document.getElementById('helpBody').innerHTML=renderHelpBody(key);
   const p=document.getElementById('helpPanel'); p.classList.add('open'); p.setAttribute('aria-hidden','false');
   const hx=p.querySelector('.help-x'); if(hx) hx.focus();
+  ensureDD().then(()=>{ if(window.__helpKey===key && p.classList.contains('open')){ const b=document.getElementById('helpBody'); if(b) b.innerHTML=renderHelpBody(key); } });
 }
 function closeHelp(){ const p=document.getElementById('helpPanel'); p.classList.remove('open'); p.setAttribute('aria-hidden','true'); window.__helpKey=null; if(window.__helpReturn&&window.__helpReturn.focus){ try{window.__helpReturn.focus();}catch(e){} } }
 function toggleHelp(ev,key){ const p=document.getElementById('helpPanel'); if(p&&p.classList.contains('open')&&window.__helpKey===key){ closeHelp(); } else { openHelp(ev,key); } }
