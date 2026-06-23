@@ -84,6 +84,12 @@
   .btn:disabled{opacity:.4;cursor:not-allowed}
   .model-group{margin-bottom:16px}
   .model-group .gh{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);border-bottom:1px solid var(--line);padding-bottom:3px;margin-bottom:7px;display:flex;justify-content:space-between}
+  .tree{font-size:12px;line-height:1.5}
+  .tnode{margin:2px 0}
+  .tnode .tchildren{margin-left:10px;border-left:1px solid var(--line);padding-left:10px}
+  .tlabel .cid{font-family:var(--mono);font-size:10.5px;color:var(--amber)}
+  .tedge{font-family:var(--mono);font-size:9px;letter-spacing:0.04em;color:var(--ink-soft);border:1px solid var(--line);border-radius:8px;padding:0 5px;margin-left:4px}
+  .tedge.bad{color:var(--bad);border-color:var(--bad)}
   .card{border:1px solid var(--line);border-left:3px solid var(--ink);background:var(--paper-2);border-radius:0 4px 4px 0;padding:8px 10px;margin-bottom:7px;font-size:12.5px}
   .card .cid{font-family:var(--mono);font-size:10.5px;color:var(--amber)}
   .card .ctitle{font-weight:600}
@@ -1456,6 +1462,36 @@ function renderForm(){
 }
 
 /* ---- modelo ---- */
+/* hierarquia das relações structural entre objetos (has part / is part of, includes / is included in) */
+function buildStructuralEdges(){
+  const childrenOf=new Map(); const isChild=new Set();
+  const exists=lid=>model.objects.some(o=>o.lid===lid);
+  const add=(p,c,sub)=>{ if(p===c||!exists(p)||!exists(c)) return; if(!childrenOf.has(p))childrenOf.set(p,[]); if(!childrenOf.get(p).some(e=>e.lid===c)) childrenOf.get(p).push({lid:c,subType:sub}); isChild.add(c); };
+  model.objects.forEach(o=>{
+    (o.relationships||[]).forEach(rel=>{
+      if(!/structural/i.test(rel.type||'')) return;
+      const sub=(rel.subType||'').toLowerCase();
+      (rel.relObjects||[]).forEach(t=>{
+        if(/is part of|is included in|is root of/.test(sub)) add(t, o.lid, rel.subType||'');   /* o é parte de t → t é pai */
+        else add(o.lid, t, rel.subType||'');                                                    /* o contém t (has part / includes / etc.) */
+      });
+    });
+  });
+  return {childrenOf, isChild};
+}
+function renderTree(roots, childrenOf){
+  const find=lid=>model.objects.find(o=>o.lid===lid);
+  const node=(lid, sub, anc)=>{
+    const o=find(lid); if(!o) return '';
+    const id=o.identifiers[0]||{}; const t=o.objType||'file';
+    const title=esc(o.originalName||id.value||'(sem id)');
+    const cyc=anc.includes(lid);
+    let h=`<div class="tnode"><div class="tlabel"><span class="cid">${lid}</span> <span class="src xsd" style="margin:0 3px">${t}</span> ${title}${sub?` <span class="tedge">${esc(sub)}</span>`:''}${cyc?` <span class="tedge bad">ciclo</span>`:''}</div>`;
+    if(!cyc){ const kids=childrenOf.get(lid)||[]; if(kids.length){ h+=`<div class="tchildren">`+kids.map(k=>node(k.lid,k.subType,anc.concat(lid))).join('')+`</div>`; } }
+    return h+`</div>`;
+  };
+  return roots.map(r=>node(r,'',[])).join('') || '<div class="empty">sem hierarquia</div>';
+}
 function renderModel(){
   const host=document.getElementById('modelHost');
   let html='';
@@ -1477,6 +1513,14 @@ function renderModel(){
       <div class="cmeta">${bits.join(' · ')}</div>
       ${o.linkEvents.length?`<div class="clink">→ eventos: ${o.linkEvents.join(', ')}</div>`:''}</div>`;
   });
+  /* árvore da hierarquia structural entre objetos */
+  { const ed=buildStructuralEdges();
+    if(ed.childrenOf.size){
+      const nodes=new Set([...ed.childrenOf.keys(), ...ed.isChild]);
+      const roots=[...nodes].filter(l=>!ed.isChild.has(l));
+      html+=`<div class="model-group"><div class="gh"><span>hierarquia estrutural</span><span>${roots.length} raiz(es)</span></div><div class="tree">${renderTree(roots, ed.childrenOf)}</div></div>`;
+    }
+  }
   grp('events',model.events,e=>`<div class="card"><button class="x" onclick="removeEnt('events','${e.lid}')">×</button><button class="ed" onclick="editEnt('events','${e.lid}')">editar</button>
     <span class="cid">${e.lid}</span> <span class="ctitle">${esc(e.eventType||'(sem tipo)')}</span>
     <div class="cmeta">${esc(e.dateTime||'sem data')} · ${esc(e.idValue)}</div>
