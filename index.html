@@ -956,6 +956,55 @@ const HELP = {
   'otherRightsInformation': {t:'Informação quando a base é "other": a base específica (otherRightsBasis) e documentação associada.', src:'dd'},
   'rightsGranted': {t:'Ato concedido ou restrição associada ao direito (act), com termos opcionais de concessão e de restrição.', src:'dd'},
   'act': {t:'A ação que o agente detentor do direito autorizou (ex.: replicate, migrate, modify, use, disseminate, delete).', src:'dd'},
+  /* complementos: subcampos com rótulo próprio */
+  'messageDigestOriginator': {t:'Agente (software ou organização) que gerou o message digest (o hash).', src:'dd'},
+  'formatNote': {t:'Informação adicional sobre o formato do objeto, em texto livre.', src:'dd'},
+  'formatRegistryName': {t:'Nome do registro externo de formatos referenciado (ex.: PRONOM).', src:'dd'},
+  'formatRegistryKey': {t:'Chave/identificador do formato dentro do registro (ex.: o PUID fmt/134, no PRONOM).', src:'dd'},
+  'formatRegistryRole': {t:'Papel do registro em relação ao formato (ex.: specification).', src:'dd'},
+  'dateCreatedByApplication': {t:'Data de criação do objeto pela aplicação criadora.', src:'dd'},
+  'inhibitorType': {t:'Tipo de inibidor presente no objeto (ex.: encryption, password protection). Valor recomendado de vocabulário.', src:'inhib'},
+  'inhibitorTarget': {t:'O conteúdo do objeto ao qual o inibidor se aplica.', src:'dd'},
+  'inhibitorKey': {t:'A chave/senha necessária para remover o inibidor, quando aplicável.', src:'dd'},
+  'storageMedium': {t:'Meio físico em que o conteúdo está armazenado (ex.: disco rígido, fita LTO).', src:'dd'},
+  'contentLocationType': {t:'Tipo/esquema da localização do conteúdo (ex.: URI, caminho de arquivo).', src:'dd'},
+  'contentLocationValue': {t:'O valor da localização do conteúdo (ex.: a URL ou o caminho).', src:'dd'},
+  'signer': {t:'A entidade signatária da assinatura digital.', src:'dd'},
+  'signatureProperties': {t:'Informação adicional sobre a assinatura, em texto livre.', src:'dd'},
+  'environmentName': {t:'Nome de um ambiente (software/hardware) necessário para usar o objeto.', src:'dd'},
+  'environmentVersion': {t:'Versão do ambiente indicado em environmentName.', src:'dd'},
+  'environmentOrigin': {t:'Origem/procedência do ambiente (ex.: fornecedor).', src:'dd'},
+  'environmentDesignationNote': {t:'Informação adicional sobre a designação do ambiente, em texto livre.', src:'dd'},
+  'environmentFunctionType': {t:'Tipo de função do ambiente em relação ao objeto (ex.: software, hardware).', src:'dd'},
+  'environmentFunctionLevel': {t:'Nível em que a função do ambiente opera (ex.: aplicação, sistema operacional).', src:'dd'},
+  'environmentRegistryName': {t:'Nome do registro externo que descreve o ambiente.', src:'dd'},
+  'environmentRegistryKey': {t:'Chave do ambiente dentro do registro.', src:'dd'},
+  'environmentRegistryRole': {t:'Papel do registro em relação ao ambiente.', src:'dd'},
+  'preservationLevelType': {t:'Domínio/contexto a que o nível de preservação se aplica.', src:'dd'},
+  'preservationLevelRole': {t:'Papel do valor do nível de preservação (ex.: requisito, capacidade).', src:'dd'},
+  'preservationLevelRationale': {t:'Justificativa para o nível de preservação atribuído.', src:'dd'},
+  'preservationLevelDateAssigned': {t:'Data em que o nível de preservação foi atribuído.', src:'dd'},
+  'significantPropertiesType': {t:'Tipo/categoria da propriedade significativa (ex.: conteúdo, comportamento, aparência).', src:'dd'},
+  'significantPropertiesValue': {t:'O valor da propriedade significativa a preservar.', src:'dd'},
+  'copyrightStatusDeterminationDate': {t:'Data em que o status de copyright foi determinado.', src:'dd'},
+  'copyrightNote': {t:'Observação adicional sobre o copyright, em texto livre.', src:'dd'},
+  'licenseTerms': {t:'Os termos da licença que regem o uso/preservação do objeto.', src:'dd'},
+  'licenseNote': {t:'Observação adicional sobre a licença, em texto livre.', src:'dd'},
+  'statuteJurisdiction': {t:'Jurisdição sob cuja lei o dispositivo legal se aplica. Recomenda-se código de país (ISO 3166).', src:'dd'},
+  'statuteCitation': {t:'Citação/identificação do dispositivo legal (lei, decreto) que embasa o direito.', src:'dd'},
+  'statuteNote': {t:'Observação adicional sobre o dispositivo legal, em texto livre.', src:'dd'},
+  'otherRightsBasis': {t:'A base específica do direito quando rightsBasis = other (ex.: termo de doação, política institucional).', src:'dd'},
+  'otherRightsNote': {t:'Observação adicional sobre a base "other", em texto livre.', src:'dd'},
+  'restriction': {t:'Restrição associada ao ato concedido (condições ou limites de uso).', src:'dd'},
+  'rightsGrantedNote': {t:'Observação adicional sobre o ato concedido, em texto livre.', src:'dd'},
+  'eventDetail': {t:'Informação adicional sobre o evento, em texto livre.', src:'dd'},
+  'eventOutcome': {t:'Resultado do evento (ex.: success, failure). Valor recomendado de vocabulário.', src:'dd'},
+  'eventOutcomeDetailNote': {t:'Detalhamento do resultado do evento, em texto livre.', src:'dd'},
+  'linkingAgentRole': {t:'Papel do agente em relação ao evento (ex.: executing program, authorizer).', src:'dd'},
+  'linkingObjectRole': {t:'Papel do objeto em relação ao evento ou direito.', src:'dd'},
+  'linkingEnvironmentIdentifier': {t:'Vínculo a um ambiente (na v3, um intellectualEntity de tipo environment), por type e value, com papel opcional.', src:'dd'},
+  'startDate': {t:'Data inicial do período (datas aplicáveis, termo de concessão ou de restrição).', src:'dd'},
+  'endDate': {t:'Data final do período. Deixe vazio se ainda em aberto.', src:'dd'},
 };
 const VOC = {
   relType: [['structural','relação de composição/estrutura entre objetos'],['derivation','um objeto deriva de outro (ex.: por migração)'],['dependency','um objeto depende de outro para funcionar'],['logical','relação lógica'],['reference','um objeto referencia outro'],['replacement','um objeto substitui outro']],
@@ -991,7 +1040,8 @@ function fld(label,src,id,val,ph,hint,req,sync,hkey){
   const srcL = src==='xsd'?'XSD':src==='am'?'ARCHIVEMATICA':src==='dd'?'DICIONÁRIO':'';
   const srcSpan = src?`<span class="src ${src}">${srcL}</span>`:'';
   const ast = req?'<span class="req">*</span>':'';
-  return `<div class="field"><label>${label}${ast}${srcSpan}${helpIcon(hkey)}</label>
+  const hk = hkey || (label||'').replace(/\s*\([^)]*\)/g,'').replace(/^.*:\s*/,'').trim();
+  return `<div class="field"><label>${label}${ast}${srcSpan}${helpIcon(hk)}</label>
     <input id="${id}" value="${esc(val||'')}" placeholder="${ph||''}" oninput="${sync||'syncObj'}()">
     ${hint?`<div class="hint">${hint}</div>`:''}</div>`;
 }
@@ -999,7 +1049,8 @@ function ta(label,src,id,val,ph,hint,req,sync){
   const ast=req?'<span class="req">*</span>':'';
   const srcL = src==='xsd'?'XSD':src==='am'?'ARCHIVEMATICA':src==='dd'?'DICIONÁRIO':'';
   const srcSpan = src?`<span class="src ${src}">${srcL}</span>`:'';
-  return `<div class="field"><label>${label}${ast}${srcSpan}</label>
+  const hk = (label||'').replace(/\s*\([^)]*\)/g,'').replace(/^.*:\s*/,'').trim();
+  return `<div class="field"><label>${label}${ast}${srcSpan}${helpIcon(hk)}</label>
     <textarea id="${id}" placeholder="${ph||''}" oninput="${sync||'syncObj'}()">${esc(val||'')}</textarea>
     ${hint?`<div class="hint">${hint}</div>`:''}</div>`;
 }
@@ -1995,10 +2046,19 @@ function renderVerdict(){
 }
 async function verifyIntegrity(){
   if(!xsdHasContent()) return {ok:false};
-  await runXsd();         /* camada 1 (as camadas 2-3 sao sincronas e ja estao no painel) */
-  renderOutput();         /* recomputa o veredito consolidado com o XSD recem-validado */
-  const S=integrityState(currentProfile);
-  return {ok:S.overall==='ok', state:S};
+  const vb=document.getElementById('btnVerify'), eb=document.getElementById('btnExport');
+  const vt=vb?vb.textContent:'', et=eb?eb.textContent:'';
+  if(vb){vb.disabled=true;vb.textContent='validando…';}
+  if(eb){eb.disabled=true;eb.textContent='validando…';}
+  try{
+    await runXsd();         /* camada 1 (as camadas 2-3 sao sincronas e ja estao no painel) */
+    renderOutput();         /* recomputa o veredito consolidado com o XSD recem-validado (e reajusta o estado do baixar) */
+    const S=integrityState(currentProfile);
+    return {ok:S.overall==='ok', state:S};
+  } finally {
+    if(vb){vb.disabled=false;vb.textContent=vt;}
+    if(eb){eb.textContent=et;}   /* o disabled do baixar foi recomputado por renderOutput */
+  }
 }
 
 /* etapas guiadas (stepper) + barra de status sempre visível */
