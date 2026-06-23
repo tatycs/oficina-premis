@@ -64,9 +64,11 @@
   .statusbar .sv.ok{background:var(--ok);color:#fff}
   .statusbar .sv.bad{background:var(--bad);color:#fff}
   .statusbar .sv.warn{background:var(--warn-bg);color:var(--warn)}
-  main{display:block;min-height:calc(100vh - 150px)}
-  .panel{display:none;padding:22px 26px;max-width:1000px;margin:0 auto}
+  main{display:flex;align-items:stretch;min-height:calc(100vh - 104px)}
+  .panel{display:none;flex:1 1 0;min-width:0;padding:22px 26px;border-right:1px solid var(--line);overflow:auto;max-height:calc(100vh - 104px)}
   .panel.active{display:block}
+  .empty-stage{display:none;flex:1 1 100%;align-items:center;justify-content:center;text-align:center;color:var(--ink-soft);font-size:13px;line-height:1.6;padding:54px 22px}
+  main.none .empty-stage{display:flex}
   .stepnav{display:flex;justify-content:space-between;gap:8px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
   .onboard{border:1px dashed var(--amber);background:var(--amber-soft);border-radius:6px;padding:14px;font-size:13px;color:var(--ink);margin-bottom:12px}
   :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
@@ -177,7 +179,7 @@
   .legend span{display:inline-flex;align-items:center;gap:4px}
   .legend .sw{width:9px;height:9px;border-radius:2px;display:inline-block}
   .legend .ast{color:var(--bad);font-weight:800}
-  @media (max-width:1000px){.workbar{padding:8px 14px}.panel{padding:16px 14px}}
+  @media (max-width:1000px){main{flex-direction:column}.workbar{padding:8px 14px}.panel{padding:16px 14px;border-right:none;border-bottom:1px solid var(--line);max-height:none}}
   /* ícone de ajuda */
   .info-i{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--ink-soft);background:transparent;color:var(--ink-soft);font-size:10px;line-height:1;cursor:pointer;margin-left:6px;padding:0;vertical-align:middle;font-family:var(--sans);font-weight:700}
   .info-i:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -213,16 +215,16 @@
 </header>
 
 <div class="workbar">
-  <nav class="stepper" id="stepper" role="tablist" aria-label="etapas do fluxo">
-    <button class="stepbtn on" id="step-origem" role="tab" aria-selected="true" aria-controls="panel-origem" tabindex="0"><span class="sn">1</span> <span class="sl">Origem</span> <span class="ss" id="ss-origem"></span></button>
-    <button class="stepbtn" id="step-modelo" role="tab" aria-selected="false" aria-controls="panel-modelo" tabindex="-1"><span class="sn">2</span> <span class="sl">Modelo</span> <span class="ss" id="ss-modelo"></span></button>
-    <button class="stepbtn" id="step-saida" role="tab" aria-selected="false" aria-controls="panel-saida" tabindex="-1"><span class="sn">3</span> <span class="sl">Saída</span> <span class="ss" id="ss-saida"></span></button>
+  <nav class="stepper" id="stepper" role="toolbar" aria-label="painéis — clique para mostrar ou ocultar; pode abrir os três ao mesmo tempo">
+    <button class="stepbtn on" id="step-origem" type="button" aria-pressed="true" aria-controls="panel-origem"><span class="sn">1</span> <span class="sl">Origem</span> <span class="ss" id="ss-origem"></span></button>
+    <button class="stepbtn" id="step-modelo" type="button" aria-pressed="false" aria-controls="panel-modelo"><span class="sn">2</span> <span class="sl">Modelo</span> <span class="ss" id="ss-modelo"></span></button>
+    <button class="stepbtn" id="step-saida" type="button" aria-pressed="false" aria-controls="panel-saida"><span class="sn">3</span> <span class="sl">Saída</span> <span class="ss" id="ss-saida"></span></button>
   </nav>
   <div class="statusbar" id="statusHost" aria-live="polite" aria-atomic="true"></div>
 </div>
 
 <main>
-  <section class="panel active" id="panel-origem" role="tabpanel" aria-labelledby="step-origem" tabindex="-1">
+  <section class="panel active" id="panel-origem" role="region" aria-labelledby="step-origem" tabindex="-1">
     <h2><span class="idx">01</span> Origem</h2>
     <p class="lede">Blocos repetíveis (cardinalidade do XSD) têm botão para adicionar mais de um. <span style="color:var(--bad);font-weight:700">*</span> marca o que é obrigatório pelo XSD. Blocos opcionais começam recolhidos.</p>
 
@@ -249,17 +251,17 @@
       <span><span class="sw" style="background:var(--warn)"></span> Archivematica</span>
       <span><span class="sw" style="background:var(--line)"></span> recomendado</span>
     </div>
-    <div class="stepnav"><span></span><button class="btn" onclick="setStep('modelo')">ir para Modelo <span aria-hidden="true">→</span></button></div>
+    <div class="stepnav"><span></span><button class="btn" onclick="showStep('modelo')">abrir Modelo</button></div>
   </section>
 
-  <section class="panel" id="panel-modelo" role="tabpanel" aria-labelledby="step-modelo" tabindex="-1">
+  <section class="panel" id="panel-modelo" role="region" aria-labelledby="step-modelo" tabindex="-1">
     <h2><span class="idx">02</span> Modelo interno</h2>
     <p class="lede">Representação neutra das entidades. Fonte única de onde os dois perfis derivam. Vínculos por identificador local.</p>
     <div id="modelHost"></div>
-    <div class="stepnav"><button class="btn ghost" onclick="setStep('origem')"><span aria-hidden="true">←</span> Origem</button><button class="btn" onclick="setStep('saida')">ir para Saída <span aria-hidden="true">→</span></button></div>
+    <div class="stepnav"><button class="btn ghost" onclick="showStep('origem')">abrir Origem</button><button class="btn" onclick="showStep('saida')">abrir Saída</button></div>
   </section>
 
-  <section class="panel" id="panel-saida" role="tabpanel" aria-labelledby="step-saida" tabindex="-1">
+  <section class="panel" id="panel-saida" role="region" aria-labelledby="step-saida" tabindex="-1">
     <h2><span class="idx">03</span> Saída + validação</h2>
     <p class="lede">O premis.xml gerado a partir do modelo, em dois perfis. A validação roda antes da exportação, com a fonte de cada regra.</p>
 
@@ -292,8 +294,9 @@
         opcional: <code>messageDigest</code> só é exigido se você criar um <code>fixity</code>.
       </div>
     </details>
-    <div class="stepnav"><button class="btn ghost" onclick="setStep('modelo')"><span aria-hidden="true">←</span> Modelo</button><span></span></div>
+    <div class="stepnav"><button class="btn ghost" onclick="showStep('modelo')">abrir Modelo</button><span></span></div>
   </section>
+  <div class="empty-stage" id="emptyStage">Nenhum painel aberto. Use os botões <strong>Origem</strong>, <strong>Modelo</strong> e <strong>Saída</strong> acima para abrir um, dois ou os três ao mesmo tempo.</div>
 </main>
 
 <div id="helpPanel" class="help-panel" role="dialog" aria-modal="true" aria-label="ajuda PREMIS" aria-hidden="true">
@@ -2098,19 +2101,26 @@ function applyTheme(t){
 }
 function toggleTheme(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
 
-/* etapas guiadas (stepper) + barra de status sempre visível */
-let currentStep='origem';
-function setStep(step){
-  if(!document.getElementById('panel-'+step)) return;
-  currentStep=step;
-  ['origem','modelo','saida'].forEach(s=>{
-    const panel=document.getElementById('panel-'+s), btn=document.getElementById('step-'+s), on=(s===step);
+/* painéis alternáveis: cada botão mostra/oculta seu painel; vários podem ficar abertos lado a lado */
+const STEPS=['origem','modelo','saida'];
+let visibleSteps=new Set(['origem']);
+try{ const saved=JSON.parse(localStorage.getItem('premis-panels')||'null'); if(Array.isArray(saved)) visibleSteps=new Set(saved.filter(s=>STEPS.includes(s))); }catch(e){}
+function renderSteps(){
+  STEPS.forEach(s=>{
+    const panel=document.getElementById('panel-'+s), btn=document.getElementById('step-'+s), on=visibleSteps.has(s);
     if(panel) panel.classList.toggle('active', on);
-    if(btn){ btn.classList.toggle('on', on); btn.setAttribute('aria-selected', on?'true':'false'); btn.tabIndex=on?0:-1; }
+    if(btn){ btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', on?'true':'false'); }
   });
-  const sb=document.getElementById('step-'+step); if(sb){ try{sb.focus({preventScroll:true});}catch(e){sb.focus();} }
-  window.scrollTo(0,0);
+  const m=document.querySelector('main'); if(m) m.classList.toggle('none', visibleSteps.size===0);
+  try{ localStorage.setItem('premis-panels', JSON.stringify([...visibleSteps])); }catch(e){}
   renderStatus();
+}
+function toggleStep(step){ if(!document.getElementById('panel-'+step)) return; if(visibleSteps.has(step)) visibleSteps.delete(step); else visibleSteps.add(step); renderSteps(); }
+function showStep(step){
+  if(!document.getElementById('panel-'+step)) return;
+  if(!visibleSteps.has(step)){ visibleSteps.add(step); renderSteps(); }
+  const p=document.getElementById('panel-'+step);
+  if(p){ try{ p.scrollIntoView({behavior:'smooth',inline:'nearest',block:'nearest'}); }catch(e){} try{ p.focus({preventScroll:true}); }catch(e){} }
 }
 function renderStatus(){
   const o=model.objects.length,e=model.events.length,a=model.agents.length,r=model.rights.length, total=o+e+a+r;
@@ -2132,14 +2142,17 @@ function bind(){
   document.getElementById('modeForm').onclick=()=>setMode('form');
   document.getElementById('modeImport').onclick=()=>setMode('import');
   document.getElementById('modeExtract').onclick=()=>setMode('extract');
-  ['origem','modelo','saida'].forEach(s=>{ const b=document.getElementById('step-'+s); if(b) b.onclick=()=>setStep(s); });
+  STEPS.forEach(s=>{ const b=document.getElementById('step-'+s); if(b) b.onclick=()=>toggleStep(s); });
   const stepperEl=document.getElementById('stepper');
   if(stepperEl) stepperEl.addEventListener('keydown', ev=>{
-    const order=['origem','modelo','saida'], i=order.indexOf(currentStep);
-    if(ev.key==='ArrowRight'||ev.key==='ArrowDown'){ ev.preventDefault(); setStep(order[Math.min(2,i+1)]); }
-    else if(ev.key==='ArrowLeft'||ev.key==='ArrowUp'){ ev.preventDefault(); setStep(order[Math.max(0,i-1)]); }
-    else if(ev.key==='Home'){ ev.preventDefault(); setStep('origem'); }
-    else if(ev.key==='End'){ ev.preventDefault(); setStep('saida'); }
+    const order=STEPS.map(s=>document.getElementById('step-'+s)), i=order.indexOf(document.activeElement);
+    if(i<0) return; let j=i;
+    if(ev.key==='ArrowRight'||ev.key==='ArrowDown') j=Math.min(order.length-1,i+1);
+    else if(ev.key==='ArrowLeft'||ev.key==='ArrowUp') j=Math.max(0,i-1);
+    else if(ev.key==='Home') j=0;
+    else if(ev.key==='End') j=order.length-1;
+    else return;
+    ev.preventDefault(); if(order[j]) order[j].focus();
   });
   document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=document.getElementById('helpPanel'); if(p&&p.classList.contains('open')) closeHelp(); } });
   const tt=document.getElementById('themeToggle'); if(tt) tt.onclick=toggleTheme;
@@ -2161,7 +2174,7 @@ function bind(){
   document.getElementById('stateFile').onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);Object.assign(model,{objects:[],events:[],agents:[],rights:[],relationships:[]},data.model);lidCounter=data.lidCounter||1;objDraft=mk.object();evtDraft=mk.event();agtDraft=mk.agent();rgtDraft=null;renderForm();renderModel();renderOutput();}catch(err){alert('Arquivo inválido: '+err.message);}};r.readAsText(f);};
 }
 
-bind(); applyTheme(document.documentElement.getAttribute('data-theme')||'light'); renderForm(); renderModel(); renderOutput();
+bind(); applyTheme(document.documentElement.getAttribute('data-theme')||'light'); renderSteps(); renderForm(); renderModel(); renderOutput();
 </script>
 <script type="module">
 /* =================================================================
