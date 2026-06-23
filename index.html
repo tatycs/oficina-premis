@@ -13,12 +13,36 @@
 <style>
   :root{
     --paper:#eceae3; --paper-2:#f5f3ec; --ink:#1b2a36; --ink-soft:#3d5163;
-    --line:#c9c4b6; --amber:#b06a14; --amber-soft:#e9d4af;
+    --line:#c9c4b6; --amber:#b06a14; --amber-soft:#e9d4af; --surface:#fff;
     --ok:#2f6b3f; --ok-bg:#dce9dd; --warn:#8a5a00; --warn-bg:#f0e3c4;
     --bad:#9c2f2a; --bad-bg:#eed7d4;
     --mono:'SFMono-Regular',ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,monospace;
     --sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
   }
+  /* ---- modo escuro: sépia escuro; inverte os tons e corrige a barra/textos tingidos ---- */
+  html[data-theme="dark"]{
+    --paper:#211c15; --paper-2:#2a241b; --surface:#332c22;
+    --ink:#ece5d7; --ink-soft:#b3a892; --line:#473d2e;
+    --amber:#d98a2b; --amber-soft:#43341c;
+    --ok:#2f6b3f; --ok-bg:#1e2c20; --warn:#caa24a; --warn-bg:#352b16;
+    --bad:#bf4f49; --bad-bg:#3a2420;
+  }
+  html[data-theme="dark"] .workbar{background:#15110b;border-bottom-color:#3a3122}
+  html[data-theme="dark"] .stepbtn{color:#ece5d7}
+  html[data-theme="dark"] .stepbtn:hover{background:#2a2218}
+  html[data-theme="dark"] .stepbtn.on{background:#ece5d7;color:#15110b}
+  html[data-theme="dark"] .stepbtn.on .sn{background:#15110b;color:#ece5d7}
+  html[data-theme="dark"] .statusbar .sc{background:#2a2218;color:#d8cfbd}
+  html[data-theme="dark"] .val-item.ok,html[data-theme="dark"] .vchip.ok{color:#7fc98f}
+  html[data-theme="dark"] .val-item.bad,html[data-theme="dark"] .vchip.bad{color:#ec8c86}
+  html[data-theme="dark"] .val-item.warn,html[data-theme="dark"] .vchip.warn{color:#e2c06e}
+  html[data-theme="dark"] .src.xsd{color:#ec8c86}
+  html[data-theme="dark"] .src.am{color:#e2c06e}
+  html[data-theme="dark"] pre.xml{border-color:#3a3122}
+  html[data-theme="dark"] .field input::placeholder,html[data-theme="dark"] .field textarea::placeholder{color:#8a7f6b}
+  .bench-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .theme-toggle{font-family:var(--mono);font-size:10.5px;letter-spacing:0.06em;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);padding:5px 9px;border-radius:3px;cursor:pointer;white-space:nowrap}
+  .theme-toggle:hover{border-color:var(--amber);color:var(--amber)}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -54,33 +78,33 @@
   .ent-tabs button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .ent-tabs button.phase2{opacity:.5;cursor:not-allowed}
   .ent-tabs button.phase2::after{content:' · fase 2';font-size:9px;opacity:.7}
-  .block{border:1px solid var(--line);border-radius:5px;margin-bottom:12px;background:var(--paper-2)}
-  .block > .bh{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--line);background:#fff;border-radius:5px 5px 0 0;cursor:pointer}
+  .block{border:1px solid var(--line);border-radius:5px;margin-bottom:14px;background:var(--paper-2)}
+  .block > .bh{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--line);background:var(--surface);border-radius:5px 5px 0 0;cursor:pointer}
   .block > .bh .bt{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;font-weight:700;color:var(--ink)}
   .block > .bh .req{color:var(--bad);font-weight:800;margin-left:3px}
   .block > .bh .card-c{font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:10px;border:1px solid var(--line);color:var(--ink-soft);margin-left:6px}
   .block > .bh .caret{font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
-  .block > .bb{padding:10px}
+  .block > .bb{padding:12px}
   .block.collapsed > .bb{display:none}
-  .rep-item{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:0 4px 4px 0;padding:9px 10px;margin-bottom:8px;background:#fff;position:relative}
+  .rep-item{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:0 4px 4px 0;padding:10px 12px;margin-bottom:10px;background:var(--surface);position:relative}
   .rep-item .rh{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:0.08em;margin-bottom:6px;display:flex;justify-content:space-between}
   .rep-item .rm-x{cursor:pointer;border:none;background:none;color:var(--bad);font-weight:700;font-size:13px;line-height:1}
   .subblock{border:1px dashed var(--line);border-radius:4px;padding:8px;margin-bottom:7px;background:var(--paper-2)}
   .subblock > .sh{font-family:var(--mono);font-size:9.5px;color:var(--ink-soft);letter-spacing:0.06em;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
   .subblock > .sh .req{color:var(--bad);font-weight:800}
-  .field{margin-bottom:10px}
+  .field{margin-bottom:12px}
   .field:last-child{margin-bottom:0}
-  .field label{display:block;font-size:12px;font-weight:600;margin-bottom:3px}
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px}
   .field label .req{color:var(--bad);font-weight:800;margin-left:2px}
   .field .src{font-family:var(--mono);font-size:9px;letter-spacing:0.04em;padding:1px 5px;border-radius:2px;margin-left:6px;vertical-align:middle;font-weight:600}
   .src.xsd{background:var(--bad-bg);color:var(--bad)}
   .src.am{background:var(--warn-bg);color:var(--warn)}
   .src.dd{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
-  .field input,.field select,.field textarea{width:100%;font-family:var(--sans);font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+  .field input,.field select,.field textarea{width:100%;font-family:var(--sans);font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)}
   .field textarea{font-family:var(--mono);font-size:11px;min-height:48px;resize:vertical}
   .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--amber);outline-offset:0;border-color:var(--amber)}
   .field .hint{font-size:10.5px;color:var(--ink-soft);margin-top:2px}
-  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .add-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.05em;border:1px dashed var(--amber);background:transparent;color:var(--amber);padding:5px 10px;border-radius:3px;cursor:pointer;text-transform:lowercase}
   .add-btn:hover{background:var(--amber-soft)}
   .card-min{font-family:var(--mono);font-size:9px;color:var(--ink-soft);margin-bottom:6px}
@@ -141,9 +165,9 @@
   .vchip.pend,.vchip.info{background:var(--paper-2);color:var(--ink-soft)}
   .import-zone{border:1px dashed var(--ink-soft);border-radius:5px;padding:14px;text-align:center;background:var(--paper-2);margin-bottom:12px}
   .map-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:6px;font-size:12px}
-  .map-row .from{font-family:var(--mono);font-size:11px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:5px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .map-row .from{font-family:var(--mono);font-size:11px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:5px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .map-row .ar{color:var(--amber);font-family:var(--mono)}
-  .map-row select{font-size:11.5px;padding:5px;border:1px solid var(--line);border-radius:3px;background:#fff}
+  .map-row select{font-size:11.5px;padding:5px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
   details.note{margin-top:14px;border:1px solid var(--line);border-radius:4px;background:var(--paper-2)}
   details.note summary{cursor:pointer;padding:8px 10px;font-size:12px;font-weight:600;font-family:var(--mono);letter-spacing:0.04em}
   details.note .body{padding:0 12px 12px;font-size:12px;color:var(--ink-soft)}
@@ -173,6 +197,7 @@
   .help-src{display:inline-block;font-size:11.5px;font-family:var(--mono);color:var(--amber);text-decoration:none;border:1px solid var(--amber);border-radius:3px;padding:6px 10px;margin-top:4px}
   .help-src:hover{background:var(--amber);color:#fff}
 </style>
+<script>(function(){try{var t=localStorage.getItem('premis-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 <body>
 <header class="bench">
@@ -181,7 +206,10 @@
     <span class="tag">v0 · fase 2</span>
     <span class="sub">object · event · agent · rights</span>
   </div>
-  <div class="sub">metadados de origem → premis.xml — tudo no navegador, nada sai da máquina</div>
+  <div class="bench-right">
+    <span class="sub">metadados de origem → premis.xml — tudo no navegador, nada sai da máquina</span>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" title="alternar tema claro/escuro">☾ tema escuro</button>
+  </div>
 </header>
 
 <div class="workbar">
@@ -1559,7 +1587,7 @@ function renderTree(roots, childrenOf){
     if(!cyc){ const kids=childrenOf.get(lid)||[]; if(kids.length){ h+=`<div class="tchildren">`+kids.map(k=>node(k.lid,k.subType,anc.concat(lid))).join('')+`</div>`; } }
     return h+`</div>`;
   };
-  return roots.map(r=>node(r,'',[])).join('') || '<div class="empty">sem hierarquia</div>';
+  return roots.map(r=>node(r,'',[])).join('') || '<div class="empty">Não foi possível montar a árvore — verifique se há ciclo nas relações structural (todo objeto é filho de algum outro).</div>';
 }
 function renderModel(){
   const host=document.getElementById('modelHost');
@@ -1635,7 +1663,7 @@ function renderOutput(){
   const result=validate(currentProfile);
   const hasContent=model.objects.length||model.events.length||model.agents.length||model.rights.length;
   const vhost=document.getElementById('valHost');
-  if(!hasContent){vhost.innerHTML='<div class="empty">Adicione entidades para ver a validação.</div>';}
+  if(!hasContent){vhost.innerHTML='<div class="empty">Nada para validar ainda. Adicione entidades na etapa <strong>Origem</strong> — a verificação aparece aqui.</div>';}
   else{
     let html='<div class="val-head">verificações — camadas 2–3 (dicionário + Archivematica)</div>';
     result.items.forEach(it=>{const ico=it.level==='ok'?'✓':it.level==='bad'?'✕':it.level==='info'?'i':'!';html+=`<div class="val-item ${it.level}"><span class="ico">${ico}</span><span>${it.msg}<span class="vsrc">fonte: ${it.source}</span></span></div>`;});
@@ -2061,6 +2089,15 @@ async function verifyIntegrity(){
   }
 }
 
+/* tema claro/escuro (persistido; inicial respeita prefers-color-scheme via script no <head>) */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const b=document.getElementById('themeToggle');
+  if(b){ b.setAttribute('aria-pressed', t==='dark'?'true':'false'); b.textContent = t==='dark'?'☼ tema claro':'☾ tema escuro'; }
+  try{ localStorage.setItem('premis-theme', t); }catch(e){}
+}
+function toggleTheme(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
+
 /* etapas guiadas (stepper) + barra de status sempre visível */
 let currentStep='origem';
 function setStep(step){
@@ -2105,6 +2142,7 @@ function bind(){
     else if(ev.key==='End'){ ev.preventDefault(); setStep('saida'); }
   });
   document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=document.getElementById('helpPanel'); if(p&&p.classList.contains('open')) closeHelp(); } });
+  const tt=document.getElementById('themeToggle'); if(tt) tt.onclick=toggleTheme;
   document.querySelectorAll('.profile-switch button[data-profile]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.profile-switch button[data-profile]').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentProfile=b.dataset.profile;renderOutput();};});
   document.getElementById('btnExport').onclick=async ()=>{
     const profile=currentProfile;
@@ -2123,7 +2161,7 @@ function bind(){
   document.getElementById('stateFile').onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);Object.assign(model,{objects:[],events:[],agents:[],rights:[],relationships:[]},data.model);lidCounter=data.lidCounter||1;objDraft=mk.object();evtDraft=mk.event();agtDraft=mk.agent();rgtDraft=null;renderForm();renderModel();renderOutput();}catch(err){alert('Arquivo inválido: '+err.message);}};r.readAsText(f);};
 }
 
-bind(); renderForm(); renderModel(); renderOutput();
+bind(); applyTheme(document.documentElement.getAttribute('data-theme')||'light'); renderForm(); renderModel(); renderOutput();
 </script>
 <script type="module">
 /* =================================================================
