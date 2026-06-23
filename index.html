@@ -280,7 +280,8 @@ const mk = {
   agentIdentifier: ()=>({type:'',value:''}),
   agentName: ()=>({value:''}),
   agentNote: ()=>({value:''}),
-  agent: ()=>({ lid:newLid('agt'), identifiers:[mk.agentIdentifier()], names:[], agentType:'', agentVersion:'', notes:[], linkEvents:[] }),
+  agentLinkEnv: ()=>({type:'',value:'',role:''}),
+  agent: ()=>({ lid:newLid('agt'), identifiers:[mk.agentIdentifier()], names:[], agentType:'', agentVersion:'', notes:[], linkEvents:[], linkRights:[], linkEnvironments:[] }),
   /* fase 2 */
   relationship: ()=>({type:'',subType:'',relObjects:[],relEvents:[]}),
   docId: ()=>({type:'',value:'',role:''}),
@@ -532,7 +533,7 @@ function genEvent(e, L){
 }
 
 /* ---- gerador: agent ---- */
-function genAgent(a, L){
+function genAgent(a, L, profile){
   L.push(`  <premis:agent>`);
   a.identifiers.forEach(id=>{
     L.push(`    <premis:agentIdentifier>`);
@@ -550,6 +551,22 @@ function genAgent(a, L){
     L.push(elv('linkingEventIdentifierType', ev.idType, 6));
     L.push(elv('linkingEventIdentifierValue', ev.idValue, 6));
     L.push(`    </premis:linkingEventIdentifier>`);
+  });
+  /* linkingRightsStatementIdentifier — omitido no perfil Archivematica (rights não vão no premis.xml) */
+  if(profile!=='archivematica') (a.linkRights||[]).forEach(rLid=>{
+    const r=model.rights.find(x=>x.lid===rLid); if(!r) return;
+    L.push(`    <premis:linkingRightsStatementIdentifier>`);
+    L.push(elv('linkingRightsStatementIdentifierType', r.idType, 6));
+    L.push(elv('linkingRightsStatementIdentifierValue', r.idValue, 6));
+    L.push(`    </premis:linkingRightsStatementIdentifier>`);
+  });
+  (a.linkEnvironments||[]).forEach(le=>{
+    if(!has(le.type)&&!has(le.value)) return;
+    L.push(`    <premis:linkingEnvironmentIdentifier>`);
+    L.push(elv('linkingEnvironmentIdentifierType', le.type, 6));
+    L.push(elv('linkingEnvironmentIdentifierValue', le.value, 6));
+    if(has(le.role)) L.push(elv('linkingEnvironmentRole', le.role, 6));
+    L.push(`    </premis:linkingEnvironmentIdentifier>`);
   });
   L.push(`  </premis:agent>`);
 }
@@ -639,7 +656,7 @@ function buildXML(profile){
   L.push(`<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/v3/premis.xsd" version="3.0">`);
   model.objects.forEach(o=>genObject(o,L,profile));
   model.events.forEach(e=>genEvent(e,L));
-  model.agents.forEach(a=>genAgent(a,L));
+  model.agents.forEach(a=>genAgent(a,L,profile));
   if(profile!=='archivematica') model.rights.forEach(r=>genRights(r,L));
   L.push(`</premis:premis>`);
   return L.join('\n');
@@ -700,7 +717,10 @@ function validate(profile){
     else if(profile==='archivematica' && !ISO8601.test(e.dateTime.trim())) add('warn','Archivematica',`${ref}: eventDateTime fora de ISO 8601. XSD aceita (xs:string); Archivematica exige.`);
     if(profile==='archivematica' && (e.linkAgents||[]).length===0) add('warn','Archivematica',`${ref}: sem agente vinculado (XSD opcional; Archivematica espera).`);
   });
-  model.agents.forEach(a=>{ if(a.identifiers.length===0 || a.identifiers.some(id=>!has(id.type)||!has(id.value))) add('bad','XSD',`agent ${a.lid}: agentIdentifier exige Type e Value (1..n).`); });
+  model.agents.forEach(a=>{
+    if(a.identifiers.length===0 || a.identifiers.some(id=>!has(id.type)||!has(id.value))) add('bad','XSD',`agent ${a.lid}: agentIdentifier exige Type e Value (1..n).`);
+    (a.linkEnvironments||[]).forEach((le,i)=>{ if((has(le.type)||has(le.value))&&(!has(le.type)||!has(le.value))) add('bad','XSD',`agent ${a.lid}/linkingEnvironmentIdentifier[${i+1}]: Type e Value são exigidos juntos.`); });
+  });
   /* rights */
   model.rights.forEach(r=>{
     const ref=`rights ${r.lid}`;
@@ -766,6 +786,7 @@ function validate(profile){
   });
   model.agents.forEach(a=>{
     (a.linkEvents||[]).forEach(id=>{ if(!exists.event(id)) orphan(`agent ${a.lid}/linkingEventIdentifier`,'event',id); });
+    (a.linkRights||[]).forEach(id=>{ if(!exists.rights(id)) orphan(`agent ${a.lid}/linkingRightsStatementIdentifier`,'rights',id); });
   });
   model.rights.forEach(r=>{
     (r.linkObjects||[]).forEach(id=>{ if(!exists.object(id)) orphan(`rights ${r.lid}/linkingObjectIdentifier`,'object',id); });
@@ -797,7 +818,7 @@ function validate(profile){
   /* R2.5 — entidade sem nenhum vínculo é CONFORME (linking* é opcional no PREMIS);
      apenas aviso informativo. Aplicado ao agente desconectado (exemplo da norma). */
   model.agents.forEach(a=>{
-    const out = (a.linkEvents||[]).some(id=>exists.event(id));
+    const out = (a.linkEvents||[]).some(id=>exists.event(id)) || (a.linkRights||[]).some(id=>exists.rights(id));
     const incoming = model.events.some(e=>(e.linkAgents||[]).some(la=>la.agentLid===a.lid))
                   || model.rights.some(r=>(r.linkAgents||[]).includes(a.lid));
     if(!out && !incoming) add('info','dd',`agent ${a.lid}: sem vínculo a evento ou direito. É conforme (linking* é opcional); apenas aviso (R2.5).`);
@@ -1266,8 +1287,22 @@ function renderAgentForm(){
   h += model.events.length ? model.events.map(e=>`<div class="chk"><input type="checkbox" id="ag_le_${e.lid}" ${a.linkEvents.includes(e.lid)?'checked':''} onchange="syncAgt()"><label style="font-weight:400;margin:0" for="ag_le_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum evento no modelo.</div>';
   h += `</div></div>`;
 
+  // linkingRightsStatementIdentifier (DD 3.8, seleção)
+  h += `<div class="block ${collapsed['a_lr']!==false?'collapsed':''}">${blockHead('a_lr','linkingRightsStatementIdentifier','0..n')}<div class="bb">`;
+  h += model.rights.length ? model.rights.map(r=>`<div class="chk"><input type="checkbox" id="ag_lr_${r.lid}" ${(a.linkRights||[]).includes(r.lid)?'checked':''} onchange="syncAgt()"><label style="font-weight:400;margin:0" for="ag_lr_${r.lid}">${r.lid} · ${esc(r.basis)} · ${esc(r.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum rights no modelo. Crie na aba rights.</div>';
+  h += `<div class="hint" style="margin-top:6px">Omitido no perfil Archivematica (rights não entram no premis.xml desse fluxo).</div></div></div>`;
+
+  // linkingEnvironmentIdentifier (DD 3.9) — referência a um ambiente (IE de tipo environment); Type/Value/Role livres
+  h += `<div class="block ${collapsed['a_lenv']!==false?'collapsed':''}">${blockHead('a_lenv','linkingEnvironmentIdentifier','0..n')}<div class="bb">`;
+  (a.linkEnvironments||[]).forEach((le,i)=>{
+    h += `<div class="rep-item"><div class="rh"><span>ambiente ${i+1}</span><button class="rm-x" onclick="rmAgt('linkEnvironments',${i})">×</button></div>
+      <div class="field-row">${fld('linkingEnvironmentIdentifierType','xsd',`ag_lenv_t_${i}`,le.type,'ex.: local','',true,'syncAgt')}${fld('linkingEnvironmentIdentifierValue','xsd',`ag_lenv_v_${i}`,le.value,'id do ambiente','',true,'syncAgt')}</div>${fld('linkingEnvironmentRole','dd',`ag_lenv_r_${i}`,le.role,'opcional','',false,'syncAgt')}</div>`;
+  });
+  h += `<button class="add-btn" onclick="addAgt('linkEnvironments')">+ linkingEnvironmentIdentifier</button>
+    <div class="hint" style="margin-top:6px">Referência a um ambiente (na v3, um intellectualEntity de tipo environment). Entrada livre, pois o app não modela ambientes como entidades.</div></div></div>`;
+
   h += `<div class="btn-row"><button class="btn" id="btnAddAgt">adicionar agent ao modelo</button><button class="btn ghost" id="btnResetAgt">limpar</button></div>`;
-  h += `<div class="omit">Fora por escopo: <code>agentExtension</code> e <code>linkingEnvironmentIdentifier</code> / <code>linkingRightsStatementIdentifier</code>.</div>`;
+  h += `<div class="omit">Fora por escopo: <code>agentExtension</code> (xs:any — ponto de extensão para XML de schema externo).</div>`;
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddAgt').onclick = commitAgent;
   document.getElementById('btnResetAgt').onclick = ()=>{ agtDraft=mk.agent(); renderForm(); };
@@ -1281,8 +1316,10 @@ function syncAgt(){
   a.agentType=g('ag_type');a.agentVersion=g('ag_ver');
   a.notes.forEach((n,i)=>n.value=g(`ag_nt_${i}`));
   a.linkEvents=model.events.filter(e=>gc(`ag_le_${e.lid}`)).map(e=>e.lid);
+  a.linkRights=model.rights.filter(r=>gc(`ag_lr_${r.lid}`)).map(r=>r.lid);
+  (a.linkEnvironments||[]).forEach((le,i)=>{le.type=g(`ag_lenv_t_${i}`);le.value=g(`ag_lenv_v_${i}`);le.role=g(`ag_lenv_r_${i}`);});
 }
-function addAgt(coll){ syncAgt(); const f={identifiers:mk.agentIdentifier,names:mk.agentName,notes:mk.agentNote}[coll]; agtDraft[coll].push(f()); if(coll==='names')collapsed['a_nm']=false; if(coll==='notes')collapsed['a_nt']=false; renderForm(); }
+function addAgt(coll){ syncAgt(); const f={identifiers:mk.agentIdentifier,names:mk.agentName,notes:mk.agentNote,linkEnvironments:mk.agentLinkEnv}[coll]; agtDraft[coll].push(f()); if(coll==='names')collapsed['a_nm']=false; if(coll==='notes')collapsed['a_nt']=false; if(coll==='linkEnvironments')collapsed['a_lenv']=false; renderForm(); }
 function rmAgt(coll,i){ syncAgt(); agtDraft[coll].splice(i,1); renderForm(); }
 function commitAgent(){ syncAgt(); model.agents.push(JSON.parse(JSON.stringify(agtDraft))); agtDraft=mk.agent(); renderForm(); renderModel(); renderOutput(); }
 
@@ -1292,7 +1329,7 @@ function ensureRgt(){ if(!rgtDraft) rgtDraft = mk.right(); return rgtDraft; }
 
 function renderRightsForm(){
   const r = ensureRgt();
-  let h = `<div class="card-min">rightsStatementComplexType — um statement por base de direito (prática do data dictionary; mais estrito que o XSD, que permite combinar) · * = obrigatório XSD</div>`;
+  let h = `<div class="card-min">A entidade <code>rights</code> é uma escolha entre <strong>rightsStatement</strong> (4.1) e <strong>rightsExtension</strong> (4.2 — xs:any, fora de escopo). Este formulário monta um <strong>rightsStatement</strong>, um por base de direito · * = obrigatório XSD</div>`;
 
   h += `<div class="block"><div class="bh"><span class="bt">rightsStatementIdentifier<span class="req">*</span> <span class="card-c">1..1</span>${helpIcon('rightsStatementIdentifier')}</span></div><div class="bb">
     <div class="field-row">${fld('Type','xsd','rg_idt',r.idType,'ex.: UUID','',true,'syncRgt')}${fld('Value','xsd','rg_idv',r.idValue,'ex.: RS-001','',true,'syncRgt')}</div></div></div>`;
