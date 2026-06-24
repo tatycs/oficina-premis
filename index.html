@@ -339,8 +339,8 @@ const mk = {
   characteristics: ()=>({ compositionLevel:'', compositionUnknown:false, size:'', fixities:[], formats:[mk.format()], creatingApps:[], inhibitors:[], exts:[] }),
   object: ()=>({ lid:newLid('obj'), objType:'file', identifiers:[mk.objectIdentifier()], preservationLevels:[], significantProperties:[], characteristics:[mk.characteristics()], originalName:'', storages:[], signatures:[], envFunctions:[], envDesignations:[], envRegistries:[], envExts:[], relationships:[], linkEvents:[], linkRights:[] }),
   // event completo
-  eventDetailInfo: ()=>({detail:''}),
-  eventOutcomeInfo: ()=>({outcome:'', detailNote:''}),
+  eventDetailInfo: ()=>({detail:'',exts:[]}),
+  eventOutcomeInfo: ()=>({outcome:'', detailNote:'',exts:[]}),
   linkingAgent: ()=>({agentLid:'', role:''}),    // vínculo por seleção + papel
   linkingObject: ()=>({objectLid:'', role:''}),
   event: ()=>({ lid:newLid('evt'), idType:'', idValue:'', eventType:'', dateTime:'', details:[], outcomes:[], linkAgents:[], linkObjects:[] }),
@@ -349,7 +349,7 @@ const mk = {
   agentName: ()=>({value:''}),
   agentNote: ()=>({value:''}),
   agentLinkEnv: ()=>({type:'',value:'',role:''}),
-  agent: ()=>({ lid:newLid('agt'), identifiers:[mk.agentIdentifier()], names:[], agentType:'', agentVersion:'', notes:[], linkEvents:[], linkRights:[], linkEnvironments:[] }),
+  agent: ()=>({ lid:newLid('agt'), identifiers:[mk.agentIdentifier()], names:[], agentType:'', agentVersion:'', notes:[], exts:[], linkEvents:[], linkRights:[], linkEnvironments:[] }),
   /* fase 2 */
   relationship: ()=>({type:'',subType:'',relObjects:[],relEvents:[],relObjSeq:{},relEvtSeq:{},relEnvPurpose:[],relEnvChar:''}),
   docId: ()=>({type:'',value:'',role:''}),
@@ -360,7 +360,7 @@ const mk = {
     l_terms:'',l_notes:[],l_docIds:[],l_dStart:'',l_dEnd:'',
     s_jurisdiction:'',s_citation:'',s_date:'',s_notes:[],s_docIds:[],s_dStart:'',s_dEnd:'',
     o_basis:'',o_notes:[],o_docIds:[],o_dStart:'',o_dEnd:'',
-    granted:[], linkObjects:[], linkAgents:[] }),
+    granted:[], linkObjects:[], linkAgents:[], exts:[] }),
 };
 
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -373,8 +373,8 @@ function extList(label, path, arr, hkey, line){
   arr.forEach((it,k)=>{
     const x=(typeof it==='string')?it:((it&&it.x)||''); const a=(it&&it.a)||'';
     const id=extId(path,k);
-    const inp = line ? `<input id="${id}" class="ext-line" value="${esc(x)}" placeholder="texto livre (xs:string)" oninput="syncObj()">`
-                     : `<textarea id="${id}" class="ext-xml" placeholder="colar XML de schema externo" oninput="syncObj()">${esc(x)}</textarea>`;
+    const inp = line ? `<input id="${id}" class="ext-line" value="${esc(x)}" placeholder="texto livre (xs:string)" oninput="curSync()">`
+                     : `<textarea id="${id}" class="ext-xml" placeholder="colar XML de schema externo" oninput="curSync()">${esc(x)}</textarea>`;
     h+=`<div class="ext-row">${inp}<button class="rm-x" title="remover" onclick="rmExt('${path}',${k})">×</button></div>`;
     if(a) h+=`<div class="card-min" style="margin-top:-2px">atributos preservados do XML:${esc(a)}</div>`;
   });
@@ -382,9 +382,11 @@ function extList(label, path, arr, hkey, line){
   if(!line) h+=`<div class="card-min">repetível — cada item é uma extensão; declare o schema externo no próprio XML. Atributos vindos do XML são preservados.</div>`;
   return h+`</div>`;
 }
-function extPathArr(path){ let o=objDraft; for(const p of path.split('.')){ if(o==null) return null; o=o[/^\d+$/.test(p)?+p:p]; } return o; }
-function addExt(path){ syncObj(); const a=extPathArr(path); if(a){ a.push({a:'',x:''}); renderForm(); } }
-function rmExt(path,k){ syncObj(); const a=extPathArr(path); if(a){ a.splice(k,1); renderForm(); } }
+function curDraft(){ return currentEnt==='event'?evtDraft:currentEnt==='agent'?agtDraft:currentEnt==='rights'?ensureRgt():objDraft; }
+function curSync(){ if(currentEnt==='event')syncEvt(); else if(currentEnt==='agent')syncAgt(); else if(currentEnt==='rights')syncRgt(); else syncObj(); }
+function extPathArr(path){ let o=curDraft(); for(const p of path.split('.')){ if(o==null) return null; o=o[/^\d+$/.test(p)?+p:p]; } return o; }
+function addExt(path){ curSync(); const a=extPathArr(path); if(a){ a.push({a:'',x:''}); renderForm(); } }
+function rmExt(path,k){ curSync(); const a=extPathArr(path); if(a){ a.splice(k,1); renderForm(); } }
 function readExts(path, arr){ arr=arr||[]; return arr.map((it,k)=>{ const el=document.getElementById(extId(path,k)); const a=(it&&it.a)||''; const x=el?el.value:((typeof it==='string')?it:((it&&it.x)||'')); return {a, x}; }); }
 const has = v => v!=null && String(v).trim()!=='';
 
@@ -598,18 +600,20 @@ function genEvent(e, L){
   L.push(elv('eventType', e.eventType, 4));
   L.push(elv('eventDateTime', e.dateTime, 4));
   (e.details||[]).forEach(d=>{
-    if(!has(d.detail)) return;
+    if(!has(d.detail)&&!(d.exts||[]).some(extHas)) return;
     L.push(`    <premis:eventDetailInformation>`);
-    L.push(elv('eventDetail', d.detail, 6));
+    if(has(d.detail)) L.push(elv('eventDetail', d.detail, 6));
+    (d.exts||[]).forEach(it=>{ const e2=rawExt('eventDetailExtension', it, 6); if(e2) L.push(e2); });
     L.push(`    </premis:eventDetailInformation>`);
   });
   (e.outcomes||[]).forEach(o=>{
-    if(!has(o.outcome)&&!has(o.detailNote)) return;
+    if(!has(o.outcome)&&!has(o.detailNote)&&!(o.exts||[]).some(extHas)) return;
     L.push(`    <premis:eventOutcomeInformation>`);
     if(has(o.outcome)) L.push(elv('eventOutcome', o.outcome, 6));
-    if(has(o.detailNote)){
+    if(has(o.detailNote)||(o.exts||[]).some(extHas)){
       L.push(`      <premis:eventOutcomeDetail>`);
-      L.push(elv('eventOutcomeDetailNote', o.detailNote, 8));
+      if(has(o.detailNote)) L.push(elv('eventOutcomeDetailNote', o.detailNote, 8));
+      (o.exts||[]).forEach(it=>{ const e2=rawExt('eventOutcomeDetailExtension', it, 8); if(e2) L.push(e2); });
       L.push(`      </premis:eventOutcomeDetail>`);
     }
     L.push(`    </premis:eventOutcomeInformation>`);
@@ -648,6 +652,7 @@ function genAgent(a, L, profile){
   if(has(a.agentType)) L.push(elv('agentType', a.agentType, 4));
   if(has(a.agentVersion)) L.push(elv('agentVersion', a.agentVersion, 4));
   (a.notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('agentNote', n.value, 4)); });
+  (a.exts||[]).forEach(it=>{ const e2=rawExt('agentExtension', it, 4); if(e2) L.push(e2); });
   (a.linkEvents||[]).forEach(evLid=>{
     const ev=model.events.find(e=>e.lid===evLid); if(!ev) return;
     L.push(`    <premis:linkingEventIdentifier>`);
@@ -750,6 +755,7 @@ function genRights(r, L){
     L.push(`      </premis:linkingAgentIdentifier>`);
   });
   L.push(`    </premis:rightsStatement>`);
+  (r.exts||[]).forEach(it=>{ const e2=rawExt('rightsExtension', it, 4); if(e2) L.push(e2); });
   L.push(`  </premis:rights>`);
 }
 
@@ -1092,6 +1098,10 @@ const HELP = {
   'keyInformation': {t:'Informação sobre a chave usada na assinatura (tipicamente ds:KeyInfo, do XML Signature). Ponto de extensão (xs:any).', src:'dd'},
   'environmentDesignationExtension': {t:'Informação adicional da designação do ambiente, em texto livre (xs:string). Repetível.', src:'dd'},
   'environmentExtension': {t:'Ponto de extensão (xs:any) para características do ambiente não cobertas pelo PREMIS, em schema externo. Para nome/versão/designação, use environmentDesignationExtension.', src:'dd'},
+  'eventDetailExtension': {t:'Ponto de extensão (xs:any) do detalhe do evento, em schema externo.', src:'dd'},
+  'eventOutcomeDetailExtension': {t:'Ponto de extensão (xs:any) do detalhamento do resultado do evento, em schema externo.', src:'dd'},
+  'agentExtension': {t:'Ponto de extensão (xs:any) do agente, em schema externo (ex.: vCard para pessoas/organizações).', src:'dd'},
+  'rightsExtension': {t:'Ponto de extensão (xs:any) da declaração de direitos, em schema externo (ex.: METSRights, schema de direitos local).', src:'dd'},
 };
 const VOC = {
   relType: [['structural','relação de composição/estrutura entre objetos'],['derivation','um objeto deriva de outro (ex.: por migração)'],['dependency','um objeto depende de outro para funcionar'],['logical','relação lógica'],['reference','um objeto referencia outro'],['replacement','um objeto substitui outro']],
@@ -1439,11 +1449,11 @@ function renderEventForm(){
     ${fld('eventDateTime','am','ev_dt',e.dateTime,'2019-07-04T22:46:07+00:00','XSD=xs:string; Archivematica exige ISO 8601.',true,'syncEvt','eventDateTime')}</div></div>`;
 
   h += `<div class="block ${collapsed['e_det']!==false?'collapsed':''}">${blockHead('e_det','eventDetailInformation','0..n',false,'eventDetailInformation')}<div class="bb">`;
-  e.details.forEach((d,i)=>{ h += `<div class="rep-item"><div class="rh"><span>detalhe ${i+1}</span><button class="rm-x" onclick="rmEvt('details',${i})">×</button></div>${fld('eventDetail','dd',`ev_det_${i}`,d.detail,'descrição','',false,'syncEvt')}</div>`; });
+  e.details.forEach((d,i)=>{ h += `<div class="rep-item"><div class="rh"><span>detalhe ${i+1}</span><button class="rm-x" onclick="rmEvt('details',${i})">×</button></div>${fld('eventDetail','dd',`ev_det_${i}`,d.detail,'descrição','',false,'syncEvt')}${extList('eventDetailExtension','details.'+i+'.exts',d.exts)}</div>`; });
   h += `<button class="add-btn" onclick="addEvt('details')">+ eventDetailInformation</button></div></div>`;
 
   h += `<div class="block ${collapsed['e_out']!==false?'collapsed':''}">${blockHead('e_out','eventOutcomeInformation','0..n',false,'eventOutcomeInformation')}<div class="bb">`;
-  e.outcomes.forEach((o,i)=>{ h += `<div class="rep-item"><div class="rh"><span>resultado ${i+1}</span><button class="rm-x" onclick="rmEvt('outcomes',${i})">×</button></div>${fld('eventOutcome','dd',`ev_out_${i}`,o.outcome,'ex.: Pass','',false,'syncEvt')}${fld('eventOutcomeDetailNote','dd',`ev_outn_${i}`,o.detailNote,'nota','',false,'syncEvt')}</div>`; });
+  e.outcomes.forEach((o,i)=>{ h += `<div class="rep-item"><div class="rh"><span>resultado ${i+1}</span><button class="rm-x" onclick="rmEvt('outcomes',${i})">×</button></div>${fld('eventOutcome','dd',`ev_out_${i}`,o.outcome,'ex.: Pass','',false,'syncEvt')}${fld('eventOutcomeDetailNote','dd',`ev_outn_${i}`,o.detailNote,'nota','',false,'syncEvt')}${extList('eventOutcomeDetailExtension','outcomes.'+i+'.exts',o.exts)}</div>`; });
   h += `<button class="add-btn" onclick="addEvt('outcomes')">+ eventOutcomeInformation</button></div></div>`;
 
   h += `<div class="block ${collapsed['e_la']!==false?'collapsed':''}">${blockHead('e_la','linkingAgentIdentifier','0..n',false,'linkingAgentIdentifier')}<div class="bb">`;
@@ -1477,8 +1487,8 @@ function syncEvt(){
   const e=evtDraft;
   const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
   e.idType=g('ev_idt');e.idValue=g('ev_idv');e.eventType=g('ev_type');e.dateTime=g('ev_dt');
-  e.details.forEach((d,i)=>d.detail=g(`ev_det_${i}`));
-  e.outcomes.forEach((o,i)=>{o.outcome=g(`ev_out_${i}`);o.detailNote=g(`ev_outn_${i}`);});
+  e.details.forEach((d,i)=>{d.detail=g(`ev_det_${i}`);d.exts=readExts('details.'+i+'.exts', d.exts);});
+  e.outcomes.forEach((o,i)=>{o.outcome=g(`ev_out_${i}`);o.detailNote=g(`ev_outn_${i}`);o.exts=readExts('outcomes.'+i+'.exts', o.exts);});
   e.linkAgents.forEach((la,i)=>{la.agentLid=g(`ev_la_${i}`)||(model.agents[0]&&model.agents[0].lid)||'';la.role=g(`ev_lar_${i}`);});
   e.linkObjects.forEach((lo,i)=>{lo.objectLid=g(`ev_lo_${i}`)||(model.objects[0]&&model.objects[0].lid)||'';lo.role=g(`ev_lor_${i}`);});
 }
@@ -1508,6 +1518,7 @@ function renderAgentForm(){
   h += `<div class="block ${collapsed['a_nt']!==false?'collapsed':''}">${blockHead('a_nt','agentNote','0..n',false,'agentNote')}<div class="bb">`;
   a.notes.forEach((n,i)=>{ h += `<div class="rep-item"><div class="rh"><span>nota ${i+1}</span><button class="rm-x" onclick="rmAgt('notes',${i})">×</button></div>${fld('agentNote','dd',`ag_nt_${i}`,n.value,'observação','',false,'syncAgt')}</div>`; });
   h += `<button class="add-btn" onclick="addAgt('notes')">+ agentNote</button></div></div>`;
+  h += `<div class="block ${collapsed['a_ext']!==false?'collapsed':''}">${blockHead('a_ext','agentExtension','0..n',false,'agentExtension')}<div class="bb">${extList('agentExtension','exts',a.exts,'agentExtension')}</div></div>`;
 
   h += `<div class="block ${collapsed['a_le']!==false?'collapsed':''}">${blockHead('a_le','linkingEventIdentifier','0..n')}<div class="bb">`;
   h += model.events.length ? model.events.map(e=>`<div class="chk"><input type="checkbox" id="ag_le_${e.lid}" ${a.linkEvents.includes(e.lid)?'checked':''} onchange="syncAgt()"><label style="font-weight:400;margin:0" for="ag_le_${e.lid}">${e.lid} · ${esc(e.eventType||e.idValue)}</label></div>`).join('') : '<div class="empty">Nenhum evento no modelo.</div>';
@@ -1528,7 +1539,6 @@ function renderAgentForm(){
     <div class="hint" style="margin-top:6px">Referência a um ambiente (na v3, um intellectualEntity de tipo environment). Entrada livre, pois o app não modela ambientes como entidades.</div></div></div>`;
 
   h += `<div class="btn-row"><button class="btn" id="btnAddAgt">${editing.agent?'salvar alterações':'adicionar agent ao modelo'}</button><button class="btn ghost" id="btnResetAgt">${editing.agent?'cancelar edição':'limpar'}</button></div>`;
-  h += `<div class="omit">Fora por escopo: <code>agentExtension</code> (xs:any — ponto de extensão para XML de schema externo).</div>`;
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddAgt').onclick = commitAgent;
   document.getElementById('btnResetAgt').onclick = ()=>{ agtDraft=mk.agent(); editing.agent=null; renderForm(); };
@@ -1541,6 +1551,7 @@ function syncAgt(){
   a.names.forEach((n,i)=>n.value=g(`ag_nm_${i}`));
   a.agentType=g('ag_type');a.agentVersion=g('ag_ver');
   a.notes.forEach((n,i)=>n.value=g(`ag_nt_${i}`));
+  a.exts=readExts('exts', a.exts);
   a.linkEvents=model.events.filter(e=>gc(`ag_le_${e.lid}`)).map(e=>e.lid);
   a.linkRights=model.rights.filter(r=>gc(`ag_lr_${r.lid}`)).map(r=>r.lid);
   (a.linkEnvironments||[]).forEach((le,i)=>{le.type=g(`ag_lenv_t_${i}`);le.value=g(`ag_lenv_v_${i}`);le.role=g(`ag_lenv_r_${i}`);});
@@ -1632,8 +1643,9 @@ function renderRightsForm(){
   h += model.agents.length ? model.agents.map(a=>{const id=a.identifiers[0]||{};const nm=a.names&&a.names[0];return `<div class="chk"><input type="checkbox" id="rg_la_${a.lid}" ${(r.linkAgents||[]).includes(a.lid)?'checked':''} onchange="syncRgt()"><label style="font-weight:400;margin:0" for="rg_la_${a.lid}">${a.lid} · ${esc((nm&&nm.value)||id.value)}</label></div>`;}).join('') : '<div class="empty">Nenhum agente no modelo.</div>';
   h += `</div></div>`;
 
+  h += `<div class="block ${collapsed['r_ext']!==false?'collapsed':''}">${blockHead('r_ext','rightsExtension','0..n',false,'rightsExtension')}<div class="bb">${extList('rightsExtension','exts',r.exts,'rightsExtension')}</div></div>`;
   h += `<div class="btn-row"><button class="btn" id="btnAddRgt">${editing.rights?'salvar alterações':'adicionar rights ao modelo'}</button><button class="btn ghost" id="btnResetRgt">${editing.rights?'cancelar edição':'limpar'}</button></div>`;
-  h += `<div class="omit">No perfil Archivematica, rights são omitidos do premis.xml (entram por rights.csv ou pela interface do sistema). <code>rightsExtension</code> fora por escopo (xs:any).</div>`;
+  h += `<div class="omit">No perfil Archivematica, rights são omitidos do premis.xml (entram por rights.csv ou pela interface do sistema).</div>`;
   document.getElementById('formHost').innerHTML = h;
   document.getElementById('btnAddRgt').onclick = commitRights;
   document.getElementById('btnResetRgt').onclick = ()=>{ rgtDraft=mk.right(); editing.rights=null; renderForm(); };
@@ -1643,6 +1655,7 @@ function syncRgt(){
   const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
   const gc=id=>{const el=document.getElementById(id);return el?el.checked:false;};
   r.idType=g('rg_idt'); r.idValue=g('rg_idv'); r.basis=g('rg_basis')||r.basis;
+  r.exts=readExts('exts', r.exts);
   r.c_status=g('rg_c_status'); r.c_jurisdiction=g('rg_c_jur'); r.c_date=g('rg_c_date'); r.c_dStart=g('rg_c_ds'); r.c_dEnd=g('rg_c_de');
   (r.c_notes||[]).forEach((n,i)=>n.value=g(`rg_c_notes_${i}`));
   (r.c_docIds||[]).forEach((d,i)=>{d.type=g(`rg_c_docIds_t_${i}`);d.value=g(`rg_c_docIds_v_${i}`);d.role=g(`rg_c_docIds_r_${i}`);});
@@ -1900,8 +1913,8 @@ function parsePremisXML(xmlString){
     const e=mk.event(); e.lid=nlid('evt');
     const idEl=xC1(eel,'eventIdentifier'); e.idType=idEl?xT(idEl,'eventIdentifierType'):''; e.idValue=idEl?xT(idEl,'eventIdentifierValue'):'';
     e.eventType=xT(eel,'eventType'); e.dateTime=xT(eel,'eventDateTime');
-    e.details=xCh(eel,'eventDetailInformation').map(d=>({detail:xT(d,'eventDetail')}));
-    e.outcomes=xCh(eel,'eventOutcomeInformation').map(oi=>{ const od=xC1(oi,'eventOutcomeDetail'); return {outcome:xT(oi,'eventOutcome'),detailNote:od?xT(od,'eventOutcomeDetailNote'):''}; });
+    e.details=xCh(eel,'eventDetailInformation').map(d=>({detail:xT(d,'eventDetail'),exts:xCh(d,'eventDetailExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a)}));
+    e.outcomes=xCh(eel,'eventOutcomeInformation').map(oi=>{ const od=xC1(oi,'eventOutcomeDetail'); return {outcome:xT(oi,'eventOutcome'),detailNote:od?xT(od,'eventOutcomeDetailNote'):'',exts:od?xCh(od,'eventOutcomeDetailExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a):[]}; });
     e._la=xCh(eel,'linkingAgentIdentifier').map(x=>({type:xT(x,'linkingAgentIdentifierType'),value:xT(x,'linkingAgentIdentifierValue'),role:xT(x,'linkingAgentRole')}));
     e._lo=xCh(eel,'linkingObjectIdentifier').map(x=>({type:xT(x,'linkingObjectIdentifierType'),value:xT(x,'linkingObjectIdentifierValue'),role:xT(x,'linkingObjectRole')}));
     e.linkAgents=[]; e.linkObjects=[];
@@ -1915,6 +1928,7 @@ function parsePremisXML(xmlString){
     a.names=xCh(ael,'agentName').map(n=>({value:(n.textContent||'').trim()}));
     a.agentType=xT(ael,'agentType'); a.agentVersion=xT(ael,'agentVersion');
     a.notes=xCh(ael,'agentNote').map(n=>({value:(n.textContent||'').trim()}));
+    a.exts=xCh(ael,'agentExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a);
     a._le=xCh(ael,'linkingEventIdentifier').map(x=>xTV(x,'linkingEventIdentifierType','linkingEventIdentifierValue'));
     a._lr=xCh(ael,'linkingRightsStatementIdentifier').map(x=>xTV(x,'linkingRightsStatementIdentifierType','linkingRightsStatementIdentifierValue'));
     a.linkEnvironments=xCh(ael,'linkingEnvironmentIdentifier').map(x=>({type:xT(x,'linkingEnvironmentIdentifierType'),value:xT(x,'linkingEnvironmentIdentifierValue'),role:xT(x,'linkingEnvironmentRole')}));
@@ -1923,8 +1937,10 @@ function parsePremisXML(xmlString){
   });
 
   xCh(root,'rights').forEach(rel=>{
-    const st=xC1(rel,'rightsStatement'); if(!st){ dropped.push('rightsExtension (xs:any, fora de escopo)'); return; }
-    const r=mk.right(); r.lid=nlid('rgt');
+    const st=xC1(rel,'rightsStatement');
+    const rexts=xCh(rel,'rightsExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a);
+    if(!st && !rexts.length) return;
+    const r=mk.right(); r.lid=nlid('rgt'); r.exts=rexts;
     const idEl=xC1(st,'rightsStatementIdentifier'); r.idType=idEl?xT(idEl,'rightsStatementIdentifierType'):''; r.idValue=idEl?xT(idEl,'rightsStatementIdentifierValue'):'';
     r.basis=xT(st,'rightsBasis')||'copyright';
     const cp=xC1(st,'copyrightInformation');
