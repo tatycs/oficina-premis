@@ -368,25 +368,27 @@ const mk = {
 
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function elv(tag, val, ind){ return `${' '.repeat(ind)}<premis:${tag}>${esc(val)}</premis:${tag}>`; }
-function rawExt(tag, raw, ind){ const p=' '.repeat(ind); return `${p}<premis:${tag}>\n${(raw||'').trim()}\n${p}</premis:${tag}>`; }
+function rawExt(tag, it, ind){ const a=(it&&it.a)||''; const x=(typeof it==='string')?it:((it&&it.x)||''); if(!has(x)&&!has(a)) return ''; const p=' '.repeat(ind); return `${p}<premis:${tag}${a}>\n${(x||'').trim()}\n${p}</premis:${tag}>`; }
 function extId(path,k){ return 'x_'+path.replace(/[^a-zA-Z0-9]/g,'_')+'_'+k; }
 function extList(label, path, arr, hkey, line){
   arr=arr||[];
   let h=`<div class="subblock"><div class="sh"><span>${label} [0..n]${helpIcon(hkey||label)}</span></div>`;
-  arr.forEach((v,k)=>{
+  arr.forEach((it,k)=>{
+    const x=(typeof it==='string')?it:((it&&it.x)||''); const a=(it&&it.a)||'';
     const id=extId(path,k);
-    const inp = line ? `<input id="${id}" class="ext-line" value="${esc(v)}" placeholder="texto livre (xs:string)" oninput="syncObj()">`
-                     : `<textarea id="${id}" class="ext-xml" placeholder="colar XML de schema externo" oninput="syncObj()">${esc(v)}</textarea>`;
+    const inp = line ? `<input id="${id}" class="ext-line" value="${esc(x)}" placeholder="texto livre (xs:string)" oninput="syncObj()">`
+                     : `<textarea id="${id}" class="ext-xml" placeholder="colar XML de schema externo" oninput="syncObj()">${esc(x)}</textarea>`;
     h+=`<div class="ext-row">${inp}<button class="rm-x" title="remover" onclick="rmExt('${path}',${k})">×</button></div>`;
+    if(a) h+=`<div class="card-min" style="margin-top:-2px">atributos preservados do XML:${esc(a)}</div>`;
   });
   h+=`<button class="add-btn" onclick="addExt('${path}')">+ ${label}</button>`;
-  if(!line) h+=`<div class="card-min">repetível — cada item é uma extensão; declare o schema externo no próprio XML.</div>`;
+  if(!line) h+=`<div class="card-min">repetível — cada item é uma extensão; declare o schema externo no próprio XML. Atributos vindos do XML são preservados.</div>`;
   return h+`</div>`;
 }
 function extPathArr(path){ let o=objDraft; for(const p of path.split('.')){ if(o==null) return null; o=o[/^\d+$/.test(p)?+p:p]; } return o; }
-function addExt(path){ syncObj(); const a=extPathArr(path); if(a){ a.push(''); renderForm(); } }
+function addExt(path){ syncObj(); const a=extPathArr(path); if(a){ a.push({a:'',x:''}); renderForm(); } }
 function rmExt(path,k){ syncObj(); const a=extPathArr(path); if(a){ a.splice(k,1); renderForm(); } }
-function readExts(path, arr){ arr=arr||[]; return arr.map((v,k)=>{ const el=document.getElementById(extId(path,k)); return el?el.value:v; }); }
+function readExts(path, arr){ arr=arr||[]; return arr.map((it,k)=>{ const el=document.getElementById(extId(path,k)); const a=(it&&it.a)||''; const x=el?el.value:((typeof it==='string')?it:((it&&it.x)||'')); return {a, x}; }); }
 const has = v => v!=null && String(v).trim()!=='';
 
 /* ---- gerador: object ---- */
@@ -422,11 +424,11 @@ function genObject(o, L, profile){
     L.push(`    </premis:preservationLevel>`);
   });
   o.significantProperties.forEach(s=>{
-    if(!has(s.spType)&&!has(s.value)&&!(s.exts||[]).some(has)) return;
+    if(!has(s.spType)&&!has(s.value)&&!(s.exts||[]).some(extHas)) return;
     L.push(`    <premis:significantProperties>`);
     if(has(s.spType)) L.push(elv('significantPropertiesType', s.spType, 6));
     if(has(s.value)) L.push(elv('significantPropertiesValue', s.value, 6));
-    (s.exts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('significantPropertiesExtension', x, 6)); });
+    (s.exts||[]).forEach(it=>{ const e=rawExt('significantPropertiesExtension', it, 6); if(e) L.push(e); });
     L.push(`    </premis:significantProperties>`);
   });
   if(allow.chars) o.characteristics.forEach(c=>{
@@ -463,12 +465,12 @@ function genObject(o, L, profile){
       L.push(`      </premis:format>`);
     });
     c.creatingApps.forEach(a=>{
-      if(!has(a.name)&&!has(a.version)&&!has(a.date)&&!(a.exts||[]).some(has)) return;
+      if(!has(a.name)&&!has(a.version)&&!has(a.date)&&!(a.exts||[]).some(extHas)) return;
       L.push(`      <premis:creatingApplication>`);
       if(has(a.name)) L.push(elv('creatingApplicationName', a.name, 8));
       if(has(a.version)) L.push(elv('creatingApplicationVersion', a.version, 8));
       if(has(a.date)) L.push(elv('dateCreatedByApplication', a.date, 8));
-      (a.exts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('creatingApplicationExtension', x, 8)); });
+      (a.exts||[]).forEach(it=>{ const e=rawExt('creatingApplicationExtension', it, 8); if(e) L.push(e); });
       L.push(`      </premis:creatingApplication>`);
     });
     c.inhibitors.forEach(inh=>{
@@ -479,7 +481,7 @@ function genObject(o, L, profile){
       if(has(inh.key)) L.push(elv('inhibitorKey', inh.key, 8));
       L.push(`      </premis:inhibitors>`);
     });
-    (c.exts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('objectCharacteristicsExtension', x, 6)); });
+    (c.exts||[]).forEach(it=>{ const e=rawExt('objectCharacteristicsExtension', it, 6); if(e) L.push(e); });
     L.push(`    </premis:objectCharacteristics>`);
   });
   if(allow.oname && has(o.originalName)) L.push(elv('originalName', o.originalName, 4));
@@ -511,7 +513,7 @@ function genObject(o, L, profile){
       if(has(d.version)) L.push(elv('environmentVersion', d.version, 6));
       if(has(d.origin)) L.push(elv('environmentOrigin', d.origin, 6));
       (d.notes||[]).forEach(n=>{ if(has(n.value)) L.push(elv('environmentDesignationNote', n.value, 6)); });
-      (d.exts||[]).forEach(x=>{ if(has(x)) L.push(elv('environmentDesignationExtension', x, 6)); });
+      (d.exts||[]).forEach(it=>{ const v=(typeof it==='string')?it:((it&&it.x)||''); if(has(v)) L.push(elv('environmentDesignationExtension', v, 6)); });
       L.push(`    </premis:environmentDesignation>`);
     });
     (o.envRegistries||[]).forEach(r=>{
@@ -522,7 +524,7 @@ function genObject(o, L, profile){
       if(has(r.role)) L.push(elv('environmentRegistryRole', r.role, 6));
       L.push(`    </premis:environmentRegistry>`);
     });
-    (o.envExts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('environmentExtension', x, 4)); });
+    (o.envExts||[]).forEach(it=>{ const e=rawExt('environmentExtension', it, 4); if(e) L.push(e); });
   }
   // signatureInformation — file e bitstream
   if(allow.sig) (o.signatures||[]).forEach(s=>{
@@ -535,9 +537,9 @@ function genObject(o, L, profile){
     L.push(elv('signatureValue', s.value, 8));
     L.push(elv('signatureValidationRules', s.rules, 8));
     if(has(s.properties)) L.push(elv('signatureProperties', s.properties, 8));
-    (s.keyInfos||[]).forEach(x=>{ if(has(x)) L.push(rawExt('keyInformation', x, 8)); });
+    (s.keyInfos||[]).forEach(it=>{ const e=rawExt('keyInformation', it, 8); if(e) L.push(e); });
     L.push(`      </premis:signature>`);
-    (s.sigExts||[]).forEach(x=>{ if(has(x)) L.push(rawExt('signatureInformationExtension', x, 6)); });
+    (s.sigExts||[]).forEach(it=>{ const e=rawExt('signatureInformationExtension', it, 6); if(e) L.push(e); });
     L.push(`    </premis:signatureInformation>`);
   });
   /* relationship — na sequência do file vem após signatureInformation */
@@ -1842,6 +1844,8 @@ function xT(el,ln){ const c=xC1(el,ln); return c?(c.textContent||'').trim():''; 
 function xTV(el,tLn,vLn){ return {type:xT(el,tLn),value:xT(el,vLn)}; }
 function xRaw(el,ln){ const c=xC1(el,ln); if(!c) return ''; try{ return [...c.childNodes].map(n=>n.nodeType===1?new XMLSerializer().serializeToString(n):'').join('').trim(); }catch(e){ return ''; } }
 function xRawInner(el){ if(!el) return ''; try{ return [...el.childNodes].map(n=>n.nodeType===1?new XMLSerializer().serializeToString(n):'').join('').trim(); }catch(e){ return ''; } }
+function xAttrs(el){ if(!el||!el.attributes) return ''; let s=''; for(const at of el.attributes){ const n=at.name||at.nodeName||''; if(n==='xmlns'||n.indexOf('xmlns:')===0) continue; s+=` ${n}="${esc(at.value)}"`; } return s; }
+function extHas(it){ const a=(it&&it.a)||''; const x=(typeof it==='string')?it:((it&&it.x)||''); return has(x)||has(a); }
 
 function parsePremisXML(xmlString){
   const doc=new DOMParser().parseFromString(xmlString,'application/xml');
@@ -1860,7 +1864,7 @@ function parsePremisXML(xmlString){
     o.identifiers=xCh(oel,'objectIdentifier').map(e=>xTV(e,'objectIdentifierType','objectIdentifierValue'));
     if(!o.identifiers.length) o.identifiers=[mk.objectIdentifier()];
     o.preservationLevels=xCh(oel,'preservationLevel').map(e=>({plType:xT(e,'preservationLevelType'),value:xT(e,'preservationLevelValue'),role:xT(e,'preservationLevelRole'),rationale:xT(e,'preservationLevelRationale'),dateAssigned:xT(e,'preservationLevelDateAssigned')}));
-    o.significantProperties=xCh(oel,'significantProperties').map(e=>({spType:xT(e,'significantPropertiesType'),value:xT(e,'significantPropertiesValue'),exts:xCh(e,'significantPropertiesExtension').map(xRawInner).filter(Boolean)}));
+    o.significantProperties=xCh(oel,'significantProperties').map(e=>({spType:xT(e,'significantPropertiesType'),value:xT(e,'significantPropertiesValue'),exts:xCh(e,'significantPropertiesExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a)}));
     o.characteristics=xCh(oel,'objectCharacteristics').map(ce=>{
       const cc=mk.characteristics();
       const comp=xC1(ce,'compositionLevel'); if(comp){ cc.compositionLevel=(comp.textContent||'').trim(); cc.compositionUnknown=comp.getAttribute('unknown')==='yes'; }
@@ -1871,19 +1875,19 @@ function parsePremisXML(xmlString){
         if(reg){ f.regName=xT(reg,'formatRegistryName'); f.regKey=xT(reg,'formatRegistryKey'); f.regRole=xT(reg,'formatRegistryRole'); }
         f.notes=xCh(fe,'formatNote').map(n=>(n.textContent||'').trim()).filter(Boolean); return f; });
       if(!cc.formats.length) cc.formats=[mk.format()];
-      cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication'),exts:xCh(ae,'creatingApplicationExtension').map(xRawInner).filter(Boolean)}));
+      cc.creatingApps=xCh(ce,'creatingApplication').map(ae=>({name:xT(ae,'creatingApplicationName'),version:xT(ae,'creatingApplicationVersion'),date:xT(ae,'dateCreatedByApplication'),exts:xCh(ae,'creatingApplicationExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a)}));
       cc.inhibitors=xCh(ce,'inhibitors').map(ie=>({type:xT(ie,'inhibitorType'),target:xT(ie,'inhibitorTarget'),key:xT(ie,'inhibitorKey')}));
-      cc.exts=xCh(ce,'objectCharacteristicsExtension').map(xRawInner).filter(Boolean);
+      cc.exts=xCh(ce,'objectCharacteristicsExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a);
       return cc;
     });
     if(!o.characteristics.length) o.characteristics=[mk.characteristics()];
     o.originalName=xT(oel,'originalName');
     o.storages=xCh(oel,'storage').map(se=>{ const cl=xC1(se,'contentLocation'); return {locType:cl?xT(cl,'contentLocationType'):'',locValue:cl?xT(cl,'contentLocationValue'):'',medium:xT(se,'storageMedium')}; });
-    o.signatures=xCh(oel,'signatureInformation').map(se=>{ const sg=xC1(se,'signature')||se; return {encoding:xT(sg,'signatureEncoding'),signer:xT(sg,'signer'),method:xT(sg,'signatureMethod'),value:xT(sg,'signatureValue'),rules:xT(sg,'signatureValidationRules'),properties:xT(sg,'signatureProperties'),keyInfos:xCh(sg,'keyInformation').map(xRawInner).filter(Boolean),sigExts:xCh(se,'signatureInformationExtension').map(xRawInner).filter(Boolean)}; });
+    o.signatures=xCh(oel,'signatureInformation').map(se=>{ const sg=xC1(se,'signature')||se; return {encoding:xT(sg,'signatureEncoding'),signer:xT(sg,'signer'),method:xT(sg,'signatureMethod'),value:xT(sg,'signatureValue'),rules:xT(sg,'signatureValidationRules'),properties:xT(sg,'signatureProperties'),keyInfos:xCh(sg,'keyInformation').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a),sigExts:xCh(se,'signatureInformationExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a)}; });
     o.envFunctions=xCh(oel,'environmentFunction').map(e=>({fType:xT(e,'environmentFunctionType'),fLevel:xT(e,'environmentFunctionLevel')}));
-    o.envDesignations=xCh(oel,'environmentDesignation').map(e=>({name:xT(e,'environmentName'),version:xT(e,'environmentVersion'),origin:xT(e,'environmentOrigin'),notes:xCh(e,'environmentDesignationNote').map(n=>({value:(n.textContent||'').trim()})),exts:xCh(e,'environmentDesignationExtension').map(n=>(n.textContent||'').trim()).filter(Boolean)}));
+    o.envDesignations=xCh(oel,'environmentDesignation').map(e=>({name:xT(e,'environmentName'),version:xT(e,'environmentVersion'),origin:xT(e,'environmentOrigin'),notes:xCh(e,'environmentDesignationNote').map(n=>({value:(n.textContent||'').trim()})),exts:xCh(e,'environmentDesignationExtension').map(n=>({a:'',x:(n.textContent||'').trim()})).filter(it=>it.x)}));
     o.envRegistries=xCh(oel,'environmentRegistry').map(e=>({name:xT(e,'environmentRegistryName'),key:xT(e,'environmentRegistryKey'),role:xT(e,'environmentRegistryRole')}));
-    o.envExts=xCh(oel,'environmentExtension').map(xRawInner).filter(Boolean);
+    o.envExts=xCh(oel,'environmentExtension').map(el=>({a:xAttrs(el),x:xRawInner(el)})).filter(it=>it.x||it.a);
     o.relationships=xCh(oel,'relationship').map(re=>({type:xT(re,'relationshipType'),subType:xT(re,'relationshipSubType'),
       _ro:xCh(re,'relatedObjectIdentifier').map(x=>({...xTV(x,'relatedObjectIdentifierType','relatedObjectIdentifierValue'),seq:xT(x,'relatedObjectSequence')})),
       _re:xCh(re,'relatedEventIdentifier').map(x=>({...xTV(x,'relatedEventIdentifierType','relatedEventIdentifierValue'),seq:xT(x,'relatedEventSequence')})),
