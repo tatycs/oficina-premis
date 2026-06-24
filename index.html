@@ -933,7 +933,46 @@ function validate(profile){
     if(!out && !incoming) add('info','dd',`agent ${a.lid}: sem vínculo a evento ou direito. É conforme (linking* é opcional); apenas aviso (R2.5).`);
   });
 
-  const blocked = items.some(x=>x.level==='bad') || (profile==='archivematica' && items.some(x=>x.level==='warn'));
+  /* ---- Camada DD — recomendações do dicionário (nível "should": avisam, não bloqueiam) ---- */
+  const NORM=s=>(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const DDVOC={
+    eventType:["capture","compression","creation","deaccession","decompression","decryption","deletion","digitalsignaturevalidation","dispatch","display","dissemination","encryption","execution","exportation","extraction","fixitycheck","forensicfeatureanalysis","formatidentification","imaging","ingestion","ingestionend","ingestionstart","messagedigestcalculation","migration","modification","normalization","packing","policyassignment","quarantine","recovery","redaction","refreshment","rendering","replication","transfer","unpacking","unquarantine","validation","viruscheck"],
+    agentType:["person","organization","software","hardware"],
+    relationshipType:["structural","derivation","dependency","logical","reference","replacement"],
+    copyrightStatus:["copyrighted","publicdomain","unknown"],
+    act:["replicate","migrate","modify","use","disseminate","delete"],
+    messageDigestAlgorithm:["adler32","crc32","haval","md5","mdc2","mnp","ripemd160","sha1","sha256","sha384","sha512","tiger","whirlpool"]
+  };
+  const vchk=(field,val,ref)=>{ if(!has(val)) return; const set=DDVOC[field]; if(set && set.indexOf(NORM(val))<0) add('warn','dd',`${ref}: ${field}="${val}" fora do vocabulário controlado do PREMIS (recomendado; não bloqueia). Ex.: ${set.slice(0,4).join(', ')}…`); };
+  const ISODATE=/^(\d{4})(-\d{2}(-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:\d{2}|Z)?)?)?)?$/;
+  const dchk=(val,ref,unit)=>{ if(!has(val)) return; const v=String(val).trim(); if(/^(open|unknown)$/i.test(v)) return; if(!ISODATE.test(v)) add('warn','dd',`${ref}: ${unit}="${val}" fora de ISO 8601 (recomendado: AAAA, AAAA-MM, AAAA-MM-DD ou data e hora).`); };
+  const intchk=(val,ref,unit)=>{ if(!has(val)) return; if(!/^\d+$/.test(String(val).trim())) add('warn','dd',`${ref}: ${unit}="${val}" deveria ser um inteiro não negativo.`); };
+  model.objects.forEach(o=>{
+    const t=o.objType||'file'; const allow=allowFor(t); const ref=`object ${o.lid}`;
+    if(allow.chars) (o.characteristics||[]).forEach((c,ci)=>{
+      intchk(c.compositionUnknown?'':c.compositionLevel, `${ref}/characteristics[${ci+1}]`, 'compositionLevel');
+      intchk(c.size, `${ref}/characteristics[${ci+1}]`, 'size');
+      (c.fixities||[]).forEach((f,fi)=>vchk('messageDigestAlgorithm', f.algo, `${ref}/fixity[${fi+1}]`));
+      (c.creatingApps||[]).forEach((a,ai)=>dchk(a.date,`${ref}/characteristics[${ci+1}]/creatingApplication[${ai+1}]`,'dateCreatedByApplication'));
+    });
+    (o.significantProperties||[]).forEach((s,i)=>{ if(has(s.spType)&&!has(s.value)&&!(s.exts||[]).some(extHas)) add('warn','dd',`${ref}/significantProperties[${i+1}]: deveria ter Value ou Extension além do Type (DD).`); });
+    if(allow.env) (o.envFunctions||[]).forEach((f,fi)=>intchk(f.fLevel,`${ref}/environmentFunction[${fi+1}]`,'environmentFunctionLevel'));
+    if(allow.pl){ const byType={}; (o.preservationLevels||[]).forEach(p=>{ if(has(p.plType)) (byType[p.plType]=byType[p.plType]||[]).push(p); }); Object.keys(byType).forEach(tp=>{ if(byType[tp].length>1 && byType[tp].some(p=>!has(p.role))) add('warn','dd',`${ref}: mais de um preservationLevel com preservationLevelType="${tp}"; preservationLevelRole deveria ser informado em cada (DD).`); });
+      (o.preservationLevels||[]).forEach((p,i)=>dchk(p.dateAssigned,`${ref}/preservationLevel[${i+1}]`,'preservationLevelDateAssigned')); }
+    (o.relationships||[]).forEach((rel,ri)=>{ const rref=`${ref}/relationship[${ri+1}]`; vchk('relationshipType', rel.type, rref); if(rel.relObjSeq && Object.keys(rel.relObjSeq).length && !/structural/i.test(rel.type||'')) add('warn','dd',`${rref}: relatedObjectSequence só se aplica a relação structural (DD).`); });
+  });
+  model.events.forEach(e=>vchk('eventType', e.eventType, `event ${e.lid}`));
+  model.agents.forEach(a=>vchk('agentType', a.agentType, `agent ${a.lid}`));
+  model.rights.forEach(r=>{
+    const ref=`rights ${r.lid}`;
+    if(r.basis==='copyright'){ vchk('copyrightStatus', r.c_status, ref); if(has(r.c_jurisdiction)&&!/^[A-Za-z]{2}$/.test(r.c_jurisdiction.trim())) add('warn','dd',`${ref}: copyrightJurisdiction="${r.c_jurisdiction}" — recomenda-se código de país ISO 3166 (2 letras).`); dchk(r.c_date,ref,'copyrightStatusDeterminationDate'); dchk(r.c_dStart,ref,'copyright startDate'); dchk(r.c_dEnd,ref,'copyright endDate'); }
+    else if(r.basis==='license'){ dchk(r.l_dStart,ref,'license startDate'); dchk(r.l_dEnd,ref,'license endDate'); }
+    else if(r.basis==='statute'){ dchk(r.s_date,ref,'statuteInformationDeterminationDate'); dchk(r.s_dStart,ref,'statute startDate'); dchk(r.s_dEnd,ref,'statute endDate'); }
+    else if(r.basis==='other'){ dchk(r.o_dStart,ref,'other startDate'); dchk(r.o_dEnd,ref,'other endDate'); }
+    (r.granted||[]).forEach((g,gi)=>{ const gref=`${ref}/rightsGranted[${gi+1}]`; vchk('act', g.act, gref); dchk(g.gStart,gref,'termOfGrant startDate'); dchk(g.gEnd,gref,'termOfGrant endDate'); dchk(g.rStart,gref,'termOfRestriction startDate'); dchk(g.rEnd,gref,'termOfRestriction endDate'); });
+  });
+
+  const blocked = items.some(x=>x.level==='bad') || (profile==='archivematica' && items.some(x=>x.level==='warn' && x.source==='Archivematica'));
   return {items, blocked, profile};
 }
 
