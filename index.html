@@ -1124,7 +1124,7 @@ function ensureDD(){
   return __DDp;
 }
 const DDLABELS={ definition:['Definição','Definition'], semanticComponents:['Componentes semânticos','Semantic components'], rationale:['Justificativa','Rationale'], dataConstraint:['Restrição de dados','Data constraint'], objectCategory:['Categoria de objeto','Object category'], applicability:['Aplicabilidade','Applicability'], repeatability:['Repetibilidade','Repeatability'], obligation:['Obrigatoriedade','Obligation'], examples:['Exemplos','Examples'], creationMaintenanceNotes:['Notas de criação / manutenção','Creation / Maintenance notes'], usageNotes:['Notas de uso','Usage notes'] };
-const DDORDER=['definition','semanticComponents','rationale','dataConstraint','objectCategory','applicability','repeatability','obligation','examples','creationMaintenanceNotes','usageNotes'];
+const DDORDER=['definition','semanticComponents','rationale','dataConstraint','objectCategory','repeatability','obligation','examples','creationMaintenanceNotes','usageNotes'];
 const __has=v=>!(v===undefined||v===null||v===''||(Array.isArray(v)&&v.length===0));
 function ddFmt(val, fk, en){
   if(Array.isArray(val)){

@@ -116,7 +116,12 @@
    "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.html.",
    "definition": "Designação do domínio dentro do qual o identificador do objeto é único.",
    "rationale": "Não se pode presumir que valores de identificador sejam únicos entre domínios; a combinação de objectIdentifierType e objectIdentifierValue deve garantir a unicidade.",
-   "usageNotes": "O tipo do identificador pode ser implícito dentro do repositório, desde que possa ser comunicado explicitamente quando o objeto digital for disseminado fora dele."
+   "usageNotes": "O tipo do identificador pode ser implícito dentro do repositório, desde que possa ser comunicado explicitamente quando o objeto digital for disseminado fora dele.",
+   "examples": [
+    "ISBN (Intellectual Entity) DOI (Intellectual Entity) DLC DRS hdl:4263537",
+    "DLC DRS hdl:4263537",
+    "DLC DRS hdl:4263537"
+   ]
   }
  },
  "objectIdentifierValue": {
@@ -173,7 +178,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "0 00 221804-6 0000000312",
+    "IU2440 WAC1943.56 AMNH CD269/CD269/70/10 596.PCD CDS-VDEP- 200211119- 24879.734 1001/dig/pres/2004- 024 http://nrs.harvard.edu /urn- 3:FHCL.Loeb:sa1",
+    "IU2440-1 IU2440-2"
+   ],
+   "definition": "O valor do objectIdentifier."
   }
  },
  "objectCategory": {
@@ -232,7 +243,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/objectCategory.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/objectCategory.html.",
+   "examples": [
+    "intellectual entity representation",
+    "file",
+    "bitstream"
+   ],
+   "definition": "A categoria de objeto à qual os metadados se aplicam."
   }
  },
  "preservationLevel": {
@@ -283,7 +300,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.3.1 preservationLevelType 1.3.2 preservationLevelValue 1.3.3 preservationLevelRole 1.3.4 preservationLevelRationale 1.3.5 preservationLevelDateAssigned",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação que indica a decisão ou política sobre o conjunto de funções de preservação a aplicar a um objeto e o contexto em que a decisão ou política foi tomada."
   }
  },
  "preservationLevelType": {
@@ -338,7 +356,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "Bit preservation Logical/functional preservation",
+    "Bit preservation Logical/functional preservation"
+   ],
+   "definition": "Valor que indica o tipo de funções de preservação que se espera aplicar ao Objeto neste nível de preservação."
   }
  },
  "preservationLevelValue": {
@@ -393,7 +416,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Se preservationLevelType e/ou preservationLevelRole forem usados, o vocabulário controlado disponível deve depender dos valores definidos para cada um desses tipos."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Se preservationLevelType e/ou preservationLevelRole forem usados, o vocabulário controlado disponível deve depender dos valores definidos para cada um desses tipos.",
+   "examples": [
+    "For preservationLevel Type “Logical Preservation”: • Migration • Emulation",
+    "For preservationLevel Type “Bit Preservation”: • Low (e.g. backup) • Medium (e.g. min. 2 copies and integrity check) • High (e.g. min 5 copies, integrity check and high independence)"
+   ],
+   "definition": "Valor que indica o conjunto de funções de preservação que se espera aplicar ao objeto."
   }
  },
  "preservationLevelRole": {
@@ -447,7 +475,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há uma lista de vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/preservationLevelRole.html ."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há uma lista de vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/preservationLevelRole.html .",
+   "examples": [
+    "requirement intention capability",
+    "requirement intention capability"
+   ],
+   "definition": "Valor que indica o contexto em que um conjunto de opções de preservação é aplicável."
   }
  },
  "preservationLevelRationale": {
@@ -501,7 +534,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "user pays legislation",
+    "defective file bit-level preservation only available for this format"
+   ],
+   "definition": "A razão pela qual um determinado preservationLevelValue foi aplicado ao objeto."
   }
  },
  "preservationLevelDateAssigned": {
@@ -554,7 +592,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "2007-11-05 2007-11- 05T08:15:30-05:00 20080315",
+    "2007-11-05 2007-11- 05T08:15:30-05:00 20080315"
+   ],
+   "definition": "A data, ou data e hora, em que um determinado preservationLevelValue foi atribuído ao objeto."
   }
  },
  "significantProperties": {
@@ -609,7 +652,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.4.1 significantPropertiesType 1.4.2 significantPropertiesValue 1.4.3 significantPropertiesExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Características de um objeto específico, determinadas subjetivamente como importantes de manter ao longo das ações de preservação."
   }
  },
  "significantPropertiesType": {
@@ -668,7 +712,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "content structure behavior page count page width typeface hyperlinks image count",
+    "content structure behavior page count page width typeface",
+    "[for an embedded image] color space"
+   ],
+   "definition": "O aspecto, faceta ou atributo de um objeto que está sendo registrado como propriedade significativa."
   }
  },
  "significantPropertiesValue": {
@@ -727,7 +777,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "[for a Web page containing animation that is not considered essential] Content only. [For detail associated with a significantProperties Type of “behavior”] hyperlinks traversable",
+    "[for a word processed document with embedded links that are not considered essential] Content only. [For detail associated with a significantProperties Type of “behavior”] editable [For detail associated with a significantProperties Type of “page width”] 210 mm",
+    "[for a PDF with an embedded graph, where the lines’ color determines the lines’ meaning] Color. [For detail associated with a significantProperties Type of “appearance”] Color."
+   ],
+   "definition": "Descrição de uma característica de um objeto específico determinada subjetivamente como importante de manter ao longo das ações de preservação."
   }
  },
  "significantPropertiesExtension": {
@@ -781,7 +837,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS para propriedades significativas."
   }
  },
  "objectCharacteristics": {
@@ -831,7 +888,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.1 compositionLevel 1.5.2 fixity 1.5.3 size 1.5.4 format 1.5.5 creatingApplication 1.5.6 inhibitors 1.5.7 objectCharacteristicsExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Propriedades técnicas de um arquivo ou bitstream aplicáveis a todos ou à maioria dos formatos."
   }
  },
  "compositionLevel": {
@@ -886,7 +944,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Inteiros não negativos (ou “unknown”)"
+   "dataConstraint": "Inteiros não negativos (ou “unknown”)",
+   "examples": [
+    "0 1 2 Unknown",
+    "0 1 2 Unknown"
+   ],
+   "definition": "Indicação de se o Objeto está sujeito a um ou mais processos de decodificação ou desempacotamento."
   }
  },
  "fixity": {
@@ -936,7 +999,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.2.1 messageDigestAlgorithm 1.5.2.2 messageDigest 1.5.2.3 messageDigestOriginator",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação usada para verificar se um objeto foi alterado de forma não documentada ou não autorizada."
   }
  },
  "messageDigestAlgorithm": {
@@ -988,7 +1052,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há uma lista de vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/cryptographicHashFunction s.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há uma lista de vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/cryptographicHashFunction s.html.",
+   "examples": [
+    "MD5 Adler-32 HAVAL SHA-1 SHA-256 SHA-384 SHA-512 TIGER WHIRLPOOL",
+    "MD5 Adler-32 HAVAL SHA-1 SHA-256 SHA-384 SHA-512 TIGER WHIRLPOOL"
+   ],
+   "definition": "O algoritmo específico usado para construir o message digest do objeto digital."
   }
  },
  "messageDigest": {
@@ -1043,7 +1112,11 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
    "definition": "A saída do algoritmo de message digest.",
-   "rationale": "Deve ser armazenado para que possa ser comparado em futuras verificações de fixidez."
+   "rationale": "Deve ser armazenado para que possa ser comparado em futuras verificações de fixidez.",
+   "examples": [
+    "7c9b35da4f2ebd436f 1cf88e5a39b3a257ed f4a22be3c955ac49da 2e2107b67a1924419 563",
+    "7c9b35da4f2ebd436f 1cf88e5a39b3a257ed f4a22be3c955ac49da 2e2107b67a1924419 563"
+   ]
   }
  },
  "messageDigestOriginator": {
@@ -1098,7 +1171,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "DRS A0000978",
+    "DRS A0000978"
+   ],
+   "definition": "O Agente que criou o message digest original comparado em uma verificação de fixidez."
   }
  },
  "size": {
@@ -1153,7 +1231,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Inteiro"
+   "dataConstraint": "Inteiro",
+   "examples": [
+    "2038937",
+    "2038937"
+   ],
+   "definition": "O tamanho, em bytes, do arquivo ou bitstream armazenado no repositório."
   }
  },
  "format": {
@@ -1204,7 +1287,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.4.1 formatDesignation 1.5.4.2 formatRegistry 1.5.4.3 formatNote",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Identificação do formato de um arquivo ou bitstream, sendo formato definido como a organização da informação digital segundo especificações predefinidas."
   }
  },
  "formatDesignation": {
@@ -1253,7 +1337,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.4.1.1 formatName 1.5.4.1.2 formatVersion",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Uma identificação do formato do objeto."
   }
  },
  "formatName": {
@@ -1306,7 +1391,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "Text/sgml image/tiff/geotiff Adobe PDF DES PGP base64 unknown",
+    "LaTex"
+   ],
+   "definition": "Um nome comumente aceito para o formato do arquivo ou bitstream."
   }
  },
  "formatVersion": {
@@ -1360,7 +1450,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "6.0 2003",
+    "7.1"
+   ],
+   "definition": "A versão do formato indicado em formatName."
   }
  },
  "formatRegistry": {
@@ -1410,7 +1505,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.4.2.1 formatRegistryName 1.5.4.2.2 formatRegistryKey 1.5.4.2.3 formatRegistryRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Identifica e/ou fornece mais informações sobre o formato por referência a uma entrada em um registro de formatos."
   }
  },
  "formatRegistryName": {
@@ -1463,7 +1559,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "PRONOM http://www.nationala rchives.gov.uk/prono m Representation Information Registry Repository",
+    "PRONOM http://www.nationala rchives.gov.uk/prono m"
+   ],
+   "definition": "Designação que identifica o registro de formatos referenciado."
   }
  },
  "formatRegistryKey": {
@@ -1515,7 +1616,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "fmt/155",
+    "fmt/155"
+   ],
+   "definition": "A chave única usada para referenciar a entrada deste formato no registro de formatos especificado."
   }
  },
  "formatRegistryRole": {
@@ -1568,7 +1674,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/formatRegistryRole.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/formatRegistryRole.html.",
+   "examples": [
+    "Specification Validation profile",
+    "Specification Validation profile"
+   ],
+   "definition": "A finalidade ou uso esperado do registro."
   }
  },
  "formatNote": {
@@ -1622,7 +1733,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "tentative identification disjunction multiple format identifications found extension mismatch",
+    "tentative identification disjunction multiple format identifications found"
+   ],
+   "definition": "Informação adicional sobre o formato."
   }
  },
  "creatingApplication": {
@@ -1673,7 +1789,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.5.1 creatingApplicationName 1.5.5.2 creatingApplicationVersion 1.5.5.3 dateCreatedByApplication 1.5.5.4 creatingApplicationExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre a aplicação que criou o objeto."
   }
  },
  "creatingApplicationName": {
@@ -1726,7 +1843,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "MS Word",
+    "MS Excel"
+   ],
+   "definition": "Designação do nome do programa de software que criou o objeto."
   }
  },
  "creatingApplicationVersion": {
@@ -1778,7 +1900,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "2000",
+    "1.4"
+   ],
+   "definition": "A versão do programa de software que criou o objeto."
   }
  },
  "dateCreatedByApplication": {
@@ -1831,7 +1958,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "2000-12-01 20030223T151047",
+    "2000-12-01 20030223T151047"
+   ],
+   "definition": "A data e hora reais ou aproximadas em que o objeto foi criado."
   }
  },
  "creatingApplicationExtension": {
@@ -1881,7 +2013,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação da aplicação criadora usando unidades semânticas definidas externamente ao PREMIS."
   }
  },
  "inhibitors": {
@@ -1932,7 +2065,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.5.6.1 inhibitorType 1.5.6.2 inhibitorTarget 1.5.6.3 inhibitorKey",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Características do objeto que inibem acesso, uso ou migração."
   }
  },
  "inhibitorType": {
@@ -1985,7 +2119,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/inhibitorType.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/inhibitorType.html.",
+   "examples": [
+    "DES PGP Blowfish Password protection",
+    "DES PGP Blowfish Password protection"
+   ],
+   "definition": "O método de inibição empregado."
   }
  },
  "inhibitorTarget": {
@@ -2038,7 +2177,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/inhibitorTarget.html."
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/inhibitorTarget.html.",
+   "examples": [
+    "All content Function: Play Function: Print",
+    "All content Function: Play Function: Print"
+   ],
+   "definition": "O conteúdo ou função protegido pelo inibidor."
   }
  },
  "inhibitorKey": {
@@ -2091,7 +2235,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "[DES decryption key]",
+    "[DES decryption key]"
+   ],
+   "definition": "A chave de decriptação ou senha."
   }
  },
  "objectCharacteristicsExtension": {
@@ -2141,7 +2290,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS."
   }
  },
  "originalName": {
@@ -2196,7 +2346,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "“Animal Antics”",
+    "N419.pdf"
+   ],
+   "definition": "O nome do objeto tal como submetido ou coletado pelo repositório, antes de qualquer renomeação por ele."
   }
  },
  "storage": {
@@ -2254,7 +2409,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.7.1 contentLocation 1.7.2 storageMedium",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre como e onde uma entidade pode ser encontrada. Para bitstreams, é a localização dentro de um arquivo. Para arquivos, é a localização física em um ou mais sistemas de armazenamento. A partir do PREMIS 3.0, storage aplica-se a representações: para representações físicas (como discos de sistema ou versões impressas), é a localização do objeto físico, como uma posição em estante; para representações digitais, é a localização do objeto no sistema de armazenamento, se todos os arquivos da representação estiverem no mesmo local."
   }
  },
  "contentLocation": {
@@ -2312,7 +2468,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.7.1.1 contentLocationType 1.7.1.2 contentLocationValue",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação necessária para recuperar um item físico de seu local de armazenamento, ou um arquivo do sistema de armazenamento, ou para acessar um bitstream dentro de um arquivo."
   }
  },
  "contentLocationType": {
@@ -2374,7 +2531,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/contentLocationType.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/contentLocationType.html.",
+   "examples": [
+    "Physical storage location Shelfmark RFID number",
+    "URI handle NTFS EXT3",
+    "Byte offset"
+   ],
+   "definition": "O meio de referenciar a localização do conteúdo."
   }
  },
  "contentLocationValue": {
@@ -2436,7 +2599,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "Shelf 4, box 3 DA592.B76 [Shelfmark] 3054257BF4C21 B4000001ABF [RFID number] http://wwasearch.l oc.gov/107th/200 212107035/http:// house.gov/langevi n/ hdl:loc.pnp/cph.3 b34188 c:\\apache2\\htdocs \\index.html /home/web/public _html/index.html",
+    "http://wwase arch.loc.gov/ 107th/20021 2107035/http ://house.gov/ langevin/ hdl:loc.pnp/c ph.3b34188 c:\\apache2\\ht docs\\index.ht ml /home/web/p ublic_html/in dex.html",
+    "64 [offset from start of file c:\\apache2\\htdoc s\\image\\logo.gif]"
+   ],
+   "definition": "A referência à localização do conteúdo usada pelo sistema de armazenamento."
   }
  },
  "storageMedium": {
@@ -2499,7 +2668,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Vocabulários controlados de exemplo estão disponíveis em: http://id.loc.gov/vocabulary/preservation/storageMedium.html. e http://metadataregistry.org/concept/list/vocabulary_id/145.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Vocabulários controlados de exemplo estão disponíveis em: http://id.loc.gov/vocabulary/preservation/storageMedium.html. e http://metadataregistry.org/concept/list/vocabulary_id/145.html.",
+   "examples": [
+    "Magnetic tape Hard disk TSM",
+    "Magnetic tape Hard disk TSM",
+    "Magnetic tape Hard disk TSM"
+   ],
+   "definition": "O meio físico em que o objeto está armazenado (ex.: fita magnética, disco rígido, CD-ROM, DVD)."
   }
  },
  "signatureInformation": {
@@ -2549,7 +2724,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.8.1 signature 1.8.2 signatureInformationExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para informações de assinatura digital definidas pelo PREMIS e externamente, usado para autenticar o signatário de um objeto e/ou a informação nele contida."
   }
  },
  "signature": {
@@ -2599,7 +2775,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.8.1.1 signatureEncoding 1.8.1.2 signer 1.8.1.3 signatureMethod 1.8.1.4 signatureValue 1.8.1.5 signatureValidationRules 1.8.1.6 signatureProperties 1.8.1.7 keyInformation",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação necessária para usar uma assinatura digital para autenticar o signatário de um objeto e/ou a informação nele contida."
   }
  },
  "signatureEncoding": {
@@ -2652,7 +2829,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/signatureEncoding.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/signatureEncoding.html.",
+   "examples": [
+    "Base64 Ds:CrytoBinary",
+    "Base64 Ds:CrytoBinary"
+   ],
+   "definition": "A codificação usada para os valores de signatureValue e keyInformation."
   }
  },
  "signer": {
@@ -2702,7 +2884,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "O indivíduo, instituição ou autoridade responsável por gerar a assinatura."
   }
  },
  "signatureMethod": {
@@ -2756,7 +2939,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/signatureMethod.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/signatureMethod.html.",
+   "examples": [
+    "DSA-SHA1 RSA-SHA1",
+    "DSA-SHA1 RSA-SHA1"
+   ],
+   "definition": "Designação dos algoritmos de criptografia e de hash usados na geração da assinatura."
   }
  },
  "signatureValue": {
@@ -2808,7 +2996,12 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "juS5RhJ884qoFR 8flVXd/rbrSDVGn 40CapgB7qeQiT +rr0NekEQ6BHh UA8dT3+BCTBU QI0dBjlml9lwzEN XvS83zRECjzXb MRTUtVZiPZG2p qKPnL2YU3A964 5UCjTXU+jgFum v7k78hieAGDzNc i+PQ9KRmm//icT 7JaYztgt4=",
+    "juS5RhJ884qoFR 8flVXd/rbrSDVGn 40CapgB7qeQiT +rr0NekEQ6BHh UA8dT3+BCTBU QI0dBjlml9lwzEN XvS83zRECjzXb MRTUtVZiPZG2p qKPnL2YU3A964 5UCjTXU+jgFum v7k78hieAGDzNc i+PQ9KRmm//icT 7JaYztgt4="
+   ],
+   "definition": "A assinatura digital; um valor gerado pela aplicação de uma chave privada a um message digest."
   }
  },
  "signatureValidationRules": {
@@ -2858,7 +3051,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "As operações a executar para validar a assinatura digital."
   }
  },
  "signatureProperties": {
@@ -2907,7 +3101,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "Informação adicional sobre a geração da assinatura."
   }
  },
  "keyInformation": {
@@ -2957,7 +3152,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Extensible container",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre a chave pública do signatário, necessária para validar a assinatura digital."
   }
  },
  "signatureInformationExtension": {
@@ -3007,7 +3203,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação de assinatura digital usando unidades semânticas definidas fora do PREMIS."
   }
  },
  "environmentFunction": {
@@ -3057,7 +3254,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.9.1 environmentFunctionType 1.9.2 environmentFunctionLevel",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Descrição hierárquica da função do ambiente usado para renderizar ou executar um objeto."
   }
  },
  "environmentFunctionType": {
@@ -3109,7 +3307,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentFunctionType."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentFunctionType.",
+   "examples": [
+    "Level 1 types: software, hardware. Level 2 types: software application, software library, software driver, operating system, plugin, hardware architecture, hardware peripheral, chip."
+   ],
+   "definition": "Descrição do ambiente em um determinado nível da pilha ambiental."
   }
  },
  "environmentFunctionLevel": {
@@ -3161,7 +3363,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Inteiro positivo"
+   "dataConstraint": "Inteiro positivo",
+   "examples": [
+    "1, 2"
+   ],
+   "definition": "Nível do ambiente dentro de uma pilha ambiental."
   }
  },
  "environmentDesignation": {
@@ -3210,7 +3416,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.10.1 environmentName 1.10.2 environmentVersion 1.10.3 environmentOrigin 1.10.4 environmentDesignationNote 1.10.5 environmentDesignationExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Uma identificação do ambiente usado para renderizar ou executar um objeto."
   }
  },
  "environmentName": {
@@ -3262,7 +3469,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Recomenda-se retirar esta informação de um vocabulário controlado."
+   "dataConstraint": "Recomenda-se retirar esta informação de um vocabulário controlado.",
+   "examples": [
+    "Ubuntu"
+   ],
+   "definition": "Um nome comumente aceito para descrever o ambiente."
   }
  },
  "environmentVersion": {
@@ -3314,7 +3525,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "Version 12.04"
+   ],
+   "definition": "Versão do ambiente."
   }
  },
  "environmentOrigin": {
@@ -3366,7 +3581,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "Microsoft, The Document Foundation, IBM"
+   ],
+   "definition": "A origem do ambiente referenciado em environmentName."
   }
  },
  "environmentDesignationNote": {
@@ -3419,7 +3638,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "32 bit"
+   ],
+   "definition": "Qualquer informação adicional necessária para aprimorar a especificação correta do ambiente."
   }
  },
  "environmentDesignationExtension": {
@@ -3469,7 +3692,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "Contêiner para descrever a designação de um ambiente usando unidades semânticas definidas fora do PREMIS."
   }
  },
  "environmentRegistry": {
@@ -3518,7 +3742,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.11.1 environmentRegistryName 1.11.2 environmentRegistryKey 1.11.3 environmentRegistryRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Identifica detalhes sobre o registro onde mais informações sobre o ambiente podem ser encontradas."
   }
  },
  "environmentRegistryName": {
@@ -3569,7 +3794,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "PRONOM"
+   ],
+   "definition": "Designação que identifica o registro externo referenciado."
   }
  },
  "environmentRegistryKey": {
@@ -3620,7 +3849,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "sfw/2 x-sfw/255"
+   ],
+   "definition": "A chave única usada para referenciar a entrada deste ambiente em um registro externo."
   }
  },
  "environmentRegistryRole": {
@@ -3672,7 +3905,11 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentRegistryRole."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentRegistryRole.",
+   "examples": [
+    "Identification Specification"
+   ],
+   "definition": "A finalidade ou uso esperado do registro externo."
   }
  },
  "environmentExtension": {
@@ -3722,7 +3959,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS."
   }
  },
  "relationship": {
@@ -3776,7 +4014,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.13.1 relationshipType 1.13.2 relationshipSubType 1.13.3 relatedObjectIdentifier 1.13.4 relatedEventIdentifier 1.13.5 relatedEnvironmentPurpose 1.13.6 relatedEnvironmentCharacteristic",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre uma relação entre este Objeto e um ou mais outros Objetos."
   }
  },
  "relationshipType": {
@@ -3834,7 +4073,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/relationshipType.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/relationshipType.html.",
+   "examples": [
+    "derivation structural",
+    "derivation structural",
+    "derivation structural"
+   ],
+   "definition": "Categorização de alto nível da natureza da relação."
   }
  },
  "relationshipSubType": {
@@ -3893,7 +4138,12 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/relationshipSubType.html.",
-   "definition": "Caracterização específica da natureza da relação documentada em relationshipType."
+   "definition": "Caracterização específica da natureza da relação documentada em relationshipType.",
+   "examples": [
+    "Has root",
+    "Is source of Has part",
+    "Has source Is part of"
+   ]
   }
  },
  "relatedObjectIdentifier": {
@@ -3946,7 +4196,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.14.3.1 relatedObjectIdentifierType 1.14.3.2 relatedObjectIdentifierValue 1.14.3.3 relatedObjectSequence",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O identificador e o contexto sequencial do Objeto relacionado."
   }
  },
  "relatedObjectIdentifierType": {
@@ -4004,7 +4255,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "[see examples for objectIdentifierType]",
+    "[see examples for objectIdentifierType]",
+    "[see examples for objectIdentifierType]"
+   ],
+   "definition": "Designação do domínio dentro do qual o identificador é único."
   }
  },
  "relatedObjectIdentifierValue": {
@@ -4062,7 +4319,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "[see examples for objectIdentifierValue]",
+    "[see examples for objectIdentifierValue]",
+    "[see examples for objectIdentifierValue]"
+   ],
+   "definition": "O valor do identificador do Objeto relacionado."
   }
  },
  "relatedObjectSequence": {
@@ -4121,7 +4384,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "1 2 3",
+    "1 2 3",
+    "1 2 3"
+   ],
+   "definition": "A ordem do Objeto relacionado em relação a outros Objetos com o mesmo tipo de relação."
   }
  },
  "relatedEventIdentifier": {
@@ -4175,7 +4444,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.13.4.1 relatedEventIdentifierType 1.13.4.2 relatedEventIdentifierValue 1.13.4.3 relatedEventSequence",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O identificador e a sequência contextual de um Evento associado à relação."
   }
  },
  "relatedEventIdentifierType": {
@@ -4233,7 +4503,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor eventIdentifierType existente."
+   "dataConstraint": "Deve ser um valor eventIdentifierType existente.",
+   "examples": [
+    "[see examples for eventIdentifierType]",
+    "[see examples for eventIdentifierType]",
+    "[see examples for eventIdentifierType]"
+   ],
+   "definition": "O eventIdentifierType do Evento relacionado."
   }
  },
  "relatedEventIdentifierValue": {
@@ -4290,7 +4566,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor eventIdentifierValue existente."
+   "dataConstraint": "Deve ser um valor eventIdentifierValue existente.",
+   "examples": [
+    "[see examples for eventIdentifierValue]",
+    "[see examples for eventIdentifierValue]",
+    "[see examples for eventIdentifierValue]"
+   ],
+   "definition": "O eventIdentifierValue do Evento relacionado."
   }
  },
  "relatedEventSequence": {
@@ -4348,7 +4630,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "1 2 3",
+    "1 2 3",
+    "1 2 3"
+   ],
+   "definition": "A ordem do Evento relacionado."
   }
  },
  "relatedEnvironmentPurpose": {
@@ -4408,7 +4696,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentPurpose."
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentPurpose.",
+   "examples": [
+    "render edit create",
+    "render edit create",
+    "render edit create"
+   ],
+   "definition": "O(s) uso(s) suportado(s) pelo ambiente relacionado."
   }
  },
  "relatedEnvironmentCharacteristic": {
@@ -4468,7 +4762,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentCharacteristic."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/environmentCharacteristic.",
+   "examples": [
+    "unspecified (Representation) minimum (Representation) known to work (Representation) recommended (Representation)",
+    "unspecified minimum known to work recommended",
+    "unspecified minimum known to work recommended"
+   ],
+   "definition": "Uma avaliação de até que ponto o ambiente descrito atende à sua finalidade."
   }
  },
  "linkingEventIdentifier": {
@@ -4521,7 +4821,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.14.1 linkingEventIdentifierType 1.14.2 linkingEventIdentifierValue",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O eventIdentifier de um Evento associado ao Objeto."
   }
  },
  "linkingEventIdentifierType": {
@@ -4578,7 +4879,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor eventIdentifierType existente."
+   "dataConstraint": "Deve ser um valor eventIdentifierType existente.",
+   "examples": [
+    "[see examples for eventIdentifierType]",
+    "[see examples for eventIdentifierType]",
+    "[see examples for eventIdentifierType]"
+   ],
+   "definition": "O valor de eventIdentifierType do Evento relacionado."
   }
  },
  "linkingEventIdentifierValue": {
@@ -4635,7 +4942,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor eventIdentifierValue existente."
+   "dataConstraint": "Deve ser um valor eventIdentifierValue existente.",
+   "examples": [
+    "[see examples for eventIdentifierValue]",
+    "[see examples for eventIdentifierValue]",
+    "[see examples for eventIdentifierValue]"
+   ],
+   "definition": "O valor de eventIdentifierValue do Evento relacionado."
   }
  },
  "linkingRightsStatementIdentifier": {
@@ -4689,7 +5002,8 @@
     "Bitstream"
    ],
    "semanticComponents": "1.15.1 linkingRightsStatementIdentifierType 1.15.2 linkingRightsStatementIdentifierValue",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Um identificador de uma declaração de direitos (Rights) associada ao objeto."
   }
  },
  "linkingRightsStatementIdentifierType": {
@@ -4746,7 +5060,13 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor rightsStatementIdentifierType existente."
+   "dataConstraint": "Deve ser um valor rightsStatementIdentifierType existente.",
+   "examples": [
+    "URI LCCN",
+    "URI LCCN",
+    "URI LCCN"
+   ],
+   "definition": "Designação do domínio dentro do qual o linkingRightsStatementIdentifier é único."
   }
  },
  "linkingRightsStatementIdentifierValue": {
@@ -4798,7 +5118,8 @@
     "Bitstream"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor rightsStatementIdentifierValue existente."
+   "dataConstraint": "Deve ser um valor rightsStatementIdentifierValue existente.",
+   "definition": "O valor do linkingRightsStatementIdentifier."
   }
  },
  "eventIdentifier": {
@@ -4824,7 +5145,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "2.1.1 eventIdentifierType 2.1.2 eventIdentifierValue",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar o Evento de forma única dentro do sistema de repositório de preservação."
   }
  },
  "eventIdentifierType": {
@@ -4852,7 +5174,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "FDA Stanford Repository Event ID UUID local"
+   ],
+   "definition": "Designação do domínio dentro do qual o identificador do Evento é único."
   }
  },
  "eventIdentifierValue": {
@@ -4879,7 +5205,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "[a binary integer] E-2004-11-13-000119 58f202ac-22cf-11d1-b12d-002035b29092"
+   ],
+   "definition": "O valor do eventIdentifier."
   }
  },
  "eventType": {
@@ -4910,7 +5240,10 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventType.",
    "definition": "Categorização da natureza do Evento.",
-   "rationale": "Categorizar Eventos ajuda o repositório de preservação no processamento por máquina das informações de Evento, sobretudo na geração de relatórios."
+   "rationale": "Categorizar Eventos ajuda o repositório de preservação no processamento por máquina das informações de Evento, sobretudo na geração de relatórios.",
+   "examples": [
+    "E77 [a code used within a repository for a particular Event type] ingestion migration validation"
+   ]
   }
  },
  "eventDateTime": {
@@ -4938,7 +5271,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "20050704T071530-0500 [July 4, 2005 at 7:15:30 a.m. EST] 2006-07-16T19:20:30+01:00 20050705T0715-0500/20050705T0720-0500 [from 7:15 a.m. EST to 7:20 a.m. EST on July 4, 2005] 2004-03-17 [March 17, 2004, only the date is known]"
+   ],
+   "definition": "A data e hora única, ou o intervalo de data e hora, em que ou durante o qual o Evento ocorreu."
   }
  },
  "eventDetailInformation": {
@@ -4963,7 +5300,8 @@
     "Opcional"
    ],
    "semanticComponents": "2.4.1 eventDetail 2.4.2 eventDetailExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação adicional sobre o Evento."
   }
  },
  "eventDetail": {
@@ -4991,7 +5329,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "Object permanently withdrawn by request of Caroline Hunt. Program=“MIGJP2JP2K”; version=“2.2”"
+   ],
+   "definition": "Informação adicional sobre o Evento."
   }
  },
  "eventDetailExtension": {
@@ -5017,7 +5359,8 @@
     "Opcional"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS."
   }
  },
  "eventOutcomeInformation": {
@@ -5042,7 +5385,8 @@
     "Opcional"
    ],
    "semanticComponents": "2.5.1 eventOutcome 2.5.2 eventOutcomeDetail",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre o resultado de um Evento."
   }
  },
  "eventOutcome": {
@@ -5071,7 +5415,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "00 [a code meaning “action successfully completed”] CV-01 [a code meaning “checksum validated”]"
+   ],
+   "definition": "Categorização do resultado geral do Evento em termos de sucesso, sucesso parcial ou falha."
   }
  },
  "eventOutcomeDetail": {
@@ -5097,7 +5445,8 @@
     "Opcional"
    ],
    "semanticComponents": "2.5.2.1 eventOutcomeDetailNote 2.5.2.2 eventOutcomeDetailExtension",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Descrição detalhada do resultado ou produto do Evento."
   }
  },
  "eventOutcomeDetailNote": {
@@ -5125,7 +5474,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "LZW compressed file Non-standard tags found in header"
+   ],
+   "definition": "Descrição detalhada do resultado ou produto do Evento, em forma textual."
   }
  },
  "eventOutcomeDetailExtension": {
@@ -5151,7 +5504,8 @@
     "Opcional"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS."
   }
  },
  "linkingAgentIdentifier": {
@@ -5177,7 +5531,8 @@
     "Opcional"
    ],
    "semanticComponents": "2.6.1 linkingAgentIdentifierType 2.6.2 linkingAgentIdentifierValue 2.6.3 linkingAgentRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Identificação de um ou mais Agentes associados ao Evento."
   }
  },
  "linkingAgentIdentifierType": {
@@ -5204,7 +5559,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor agentIdentifierType existente."
+   "dataConstraint": "Deve ser um valor agentIdentifierType existente.",
+   "examples": [
+    "[see examples for agentIdentifierType]"
+   ],
+   "definition": "Designação do domínio em que o identificador do Agente vinculado é único."
   }
  },
  "linkingAgentIdentifierValue": {
@@ -5231,7 +5590,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor agentIdentifierValue existente."
+   "dataConstraint": "Deve ser um valor agentIdentifierValue existente.",
+   "examples": [
+    "[see examples for agentIdentifierValue]"
+   ],
+   "definition": "O valor do identificador do Agente vinculado."
   }
  },
  "linkingAgentRole": {
@@ -5259,7 +5622,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventRelatedAgentRole."
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventRelatedAgentRole.",
+   "examples": [
+    "authorizer implementer validator executing program"
+   ],
+   "definition": "O papel do Agente em relação a este Evento."
   }
  },
  "linkingObjectIdentifier": {
@@ -5285,7 +5652,8 @@
     "Opcional"
    ],
    "semanticComponents": "2.7.1 linkingObjectIdentifierType 2.7.2 linkingObjectIdentifierValue 2.7.3 linkingObjectRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre um Objeto associado a um Evento."
   }
  },
  "linkingObjectIdentifierType": {
@@ -5312,7 +5680,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor objectIdentifierType existente."
+   "dataConstraint": "Deve ser um valor objectIdentifierType existente.",
+   "examples": [
+    "[see examples for objectIdentifierType]"
+   ],
+   "definition": "Designação do domínio em que o identificador do Objeto vinculado é único."
   }
  },
  "linkingObjectIdentifierValue": {
@@ -5339,7 +5711,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor objectIdentifierValue existente."
+   "dataConstraint": "Deve ser um valor objectIdentifierValue existente.",
+   "examples": [
+    "[see examples for objectIdentifierValue]"
+   ],
+   "definition": "O valor do identificador do Objeto vinculado."
   }
  },
  "linkingObjectRole": {
@@ -5367,7 +5743,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole.",
+   "examples": [
+    "source outcome"
+   ],
+   "definition": "O papel do Objeto associado a um Evento."
   }
  },
  "agentIdentifier": {
@@ -5394,7 +5774,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "3.1.1 agentIdentifierType 3.1.2 agentIdentifierValue",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar o Agente de forma única dentro de um sistema de repositório de preservação."
   }
  },
  "agentIdentifierType": {
@@ -5421,7 +5802,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "LCNAF SAN DLC URI local"
+   ],
+   "definition": "Designação do domínio em que o identificador do Agente é único."
   }
  },
  "agentIdentifierValue": {
@@ -5449,7 +5834,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor pode ser retirado de um vocabulário controlado. Se agentType for organization, há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/organizations."
+   "dataConstraint": "O valor pode ser retirado de um vocabulário controlado. Se agentType for organization, há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/organizations.",
+   "examples": [
+    "92-79971 Owens, Erik C. 234-5676 MH-CS info:lccn/n78890351"
+   ],
+   "definition": "O valor do agentIdentifier."
   }
  },
  "agentName": {
@@ -5478,7 +5867,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "Erik Owens Woodyard PC JHOVE"
+   ],
+   "definition": "Cadeia de texto que pode ser usada, além do agentIdentifier, para identificar um Agente."
   }
  },
  "agentType": {
@@ -5506,7 +5899,10 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/agentType.html.",
-   "definition": "Caracterização de alto nível do tipo de Agente."
+   "definition": "Caracterização de alto nível do tipo de Agente.",
+   "examples": [
+    "person organization software hardware"
+   ]
   }
  },
  "agentVersion": {
@@ -5535,7 +5931,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "1.6 2.1.0 20120521"
+   ],
+   "definition": "A versão do Agente referenciado em agentName, se agentType for software ou hardware."
   }
  },
  "agentNote": {
@@ -5564,7 +5964,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "--prefix=/opt/local [configuration options used with a software Agent]"
+   ],
+   "definition": "Informação adicional sobre o Agente."
   }
  },
  "agentExtension": {
@@ -5590,7 +5994,8 @@
     "Opcional"
    ],
    "semanticComponents": "Defined externally.",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS."
   }
  },
  "linkingEnvironmentIdentifier": {
@@ -5619,7 +6024,11 @@
     "Opcional"
    ],
    "semanticComponents": "3.9.1 linkingEnvironmentIdentifierType 3.9.2 linkingEnvironmentIdentifierValue 3.9.3 linkingEnvironmentRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "examples": [
+    "Link from the JHOVE Agent used in a characterization Event to the JHOVE source code captured in the repository as an environment Object."
+   ],
+   "definition": "O objectIdentifier de um Objeto de ambiente associado ao Agente."
   }
  },
  "linkingEnvironmentIdentifierType": {
@@ -5646,7 +6055,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um valor objectIdentifierType existente."
+   "dataConstraint": "Deve ser um valor objectIdentifierType existente.",
+   "examples": [
+    "[see examples for objectIdentifierType]"
+   ],
+   "definition": "Designação do domínio dentro do qual o linkingEnvironmentIdentifier é único."
   }
  },
  "linkingEnvironmentIdentifierValue": {
@@ -5673,7 +6086,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Deve ser um objectIdentifierValue existente."
+   "dataConstraint": "Deve ser um objectIdentifierValue existente.",
+   "examples": [
+    "[see examples for objectIdentifierValue]"
+   ],
+   "definition": "O valor do linkingEnvironmentIdentifier."
   }
  },
  "linkingEnvironmentRole": {
@@ -5702,7 +6119,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/linkingEnvironmentRole.ht ml."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/linkingEnvironmentRole.ht ml.",
+   "examples": [
+    "source code bytecode disk image"
+   ],
+   "definition": "O papel do Objeto de ambiente associado a este Agente."
   }
  },
  "rightsStatement": {
@@ -5727,7 +6148,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.1 rightsStatementIdentifier 4.1.2 rightsBasis 4.1.3 copyrightInformation 4.1.4 licenseInformation 4.1.5 statuteInformation 4.1.6 otherRightsInformation 4.1.7 rightsGranted 4.1.8 linkingObjectIdentifier 4.1.9 linkingAgentIdentifier",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Documentação dos direitos do repositório — ou das restrições — para realizar um ou mais atos."
   }
  },
  "rightsStatementIdentifier": {
@@ -5757,7 +6179,8 @@
     "The rightsStatementIdentifier is likely to be system generated. There is no global scheme or standard for these identifiers. The identifier is therefore not repeatable."
    ],
    "semanticComponents": "4.1.1.1 rightsStatementIdentifierType 4.1.1.2 rightsStatementIdentifierValue",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar a declaração de direitos de forma única dentro de um sistema de repositório de preservação."
   }
  },
  "rightsStatementIdentifierType": {
@@ -5781,7 +6204,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.html."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.html.",
+   "definition": "Designação do domínio dentro do qual o identificador da declaração de direitos é único."
   }
  },
  "rightsStatementIdentifierValue": {
@@ -5805,7 +6229,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "O valor do rightsStatementIdentifier."
   }
  },
  "rightsBasis": {
@@ -5834,7 +6259,10 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/rightsBasis.html.",
-   "definition": "Designação da base do direito ou permissão identificado pelo rightsStatementIdentifier."
+   "definition": "Designação da base do direito ou permissão identificado pelo rightsStatementIdentifier.",
+   "examples": [
+    "copyright license statute other"
+   ]
   }
  },
  "copyrightInformation": {
@@ -5859,7 +6287,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.3.1 copyrightStatus 4.1.3.2 copyrightJurisdiction 4.1.3.3 copyrightStatusDeterminationDate 4.1.3.4 copyrightNote 4.1.3.5 copyrightDocumentationIdentifier 4.1.3.6 copyrightApplicableDates",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre a situação de direito autoral do(s) objeto(s)."
   }
  },
  "copyrightStatus": {
@@ -5886,7 +6315,11 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/copyrightStatus.html."
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/copyrightStatus.html.",
+   "examples": [
+    "copyrighted = Under copyright. publicdomain = In the public domain. unknown = Copyright status of the resource is unknown."
+   ],
+   "definition": "Designação codificada da situação de direito autoral do objeto no momento em que a declaração de direitos foi registrada."
   }
  },
  "copyrightJurisdiction": {
@@ -5911,7 +6344,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados da ISO 3166. Exemplo: us de"
+   "dataConstraint": "Os valores devem ser retirados da ISO 3166. Exemplo: us de",
+   "definition": "O país cujas leis de direito autoral se aplicam."
   }
  },
  "copyrightStatusDeterminationDate": {
@@ -5938,7 +6372,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "20070608"
+   ],
+   "definition": "A data em que a situação de direito autoral registrada em copyrightStatus foi determinada."
   }
  },
  "copyrightNote": {
@@ -5965,7 +6403,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "Copyright expiration expected in 2010 unless renewed. Copyright statement is embedded in file header."
+   ],
+   "definition": "Informação adicional sobre a situação de direito autoral do objeto."
   }
  },
  "copyrightDocumentationIdentifier": {
@@ -5990,7 +6432,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.3.5.1 copyrightDocumentationIdentifierType 4.1.3.5.2 copyrightDocumentationIdentifierValue 4.1.3.5.3 copyrightDocumentationRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos segundo o direito autoral."
   }
  },
  "copyrightDocumentationIdentifierType": {
@@ -6014,7 +6457,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.",
+   "definition": "Designação do domínio dentro do qual o identificador da documentação de direito autoral é único."
   }
  },
  "copyrightDocumentationIdentifierValue": {
@@ -6038,7 +6482,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "O valor do copyrightDocumentationIdentifier."
   }
  },
  "copyrightDocumentationRole": {
@@ -6066,7 +6511,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "accession record copyright statement"
+   ],
+   "definition": "Valor que indica a finalidade ou uso esperado da documentação identificada."
   }
  },
  "copyrightApplicableDates": {
@@ -6092,7 +6541,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.3.6.1 startDate 4.1.3.6.2 endDate",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O intervalo de datas durante o qual o direito autoral em questão se aplica ou é aplicado ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo."
   }
  },
  "startDate": {
@@ -6119,7 +6569,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "2006-01-02 20050723"
+   ],
+   "definition": "A data de início do período (datas aplicáveis, ou termo de concessão/restrição)."
   }
  },
  "endDate": {
@@ -6147,7 +6601,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "2010-01-02 20120723"
+   ],
+   "definition": "A data de fim do período (datas aplicáveis, ou termo de concessão/restrição)."
   }
  },
  "licenseInformation": {
@@ -6172,7 +6630,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.4.1 licenseDocumentationIdentifier 4.1.4.2 licenseTerms 4.1.4.3 licenseNote 4.1.4.4 licenseApplicableDates",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre uma licença ou outro acordo que concede permissões relativas a um objeto."
   }
  },
  "licenseDocumentationIdentifier": {
@@ -6197,7 +6656,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.4.1.1 licenseDocumentationIdentifierType 4.1.4.1.2 licenseDocumentationIdentifierValue 4.1.4.1.3 licenseDocumentationRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos por licença."
   }
  },
  "licenseDocumentationIdentifierType": {
@@ -6221,7 +6681,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers. Exemplo: Digital Object Identifier"
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers. Exemplo: Digital Object Identifier",
+   "definition": "Designação do domínio dentro do qual o identificador da documentação de licença é único."
   }
  },
  "licenseDocumentationIdentifierValue": {
@@ -6245,7 +6706,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma Exemplo: http://nrs.harvard.edu/urn-3:HUL.DRS.OBJECT:6789"
+   "dataConstraint": "Nenhuma Exemplo: http://nrs.harvard.edu/urn-3:HUL.DRS.OBJECT:6789",
+   "definition": "O valor do licenseDocumentationIdentifier."
   }
  },
  "licenseDocumentationRole": {
@@ -6270,7 +6732,8 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Exemplo: donor agreement"
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Exemplo: donor agreement",
+   "definition": "Valor que indica a finalidade ou uso esperado da documentação identificada."
   }
  },
  "licenseTerms": {
@@ -6295,7 +6758,8 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "Texto que descreve a licença ou o acordo pelo qual a permissão foi concedida."
   }
  },
  "licenseNote": {
@@ -6320,7 +6784,8 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma Exemplo: License is embedded in XMP block in file header."
+   "dataConstraint": "Nenhuma Exemplo: License is embedded in XMP block in file header.",
+   "definition": "Informação adicional sobre a licença."
   }
  },
  "licenseApplicableDates": {
@@ -6346,7 +6811,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.4.4.1 startDate 4.1.4.4.2 endDate",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O intervalo de datas durante o qual a licença se aplica ou é aplicada ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo."
   }
  },
  "statuteInformation": {
@@ -6371,7 +6837,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.5.1 statuteJurisdiction 4.1.5.2 statuteCitation 4.1.5.3 statuteInformationDeterminationDate 4.1.5.4 statuteNote 4.1.5.5 statuteDocumentationIdentifier 4.1.5.6 statuteApplicableDates",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre o dispositivo legal (estatuto) que permite o uso do objeto."
   }
  },
  "statuteJurisdiction": {
@@ -6396,7 +6863,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados da ISO 3166, se aplicável. Exemplo: us de"
+   "dataConstraint": "Os valores devem ser retirados da ISO 3166, se aplicável. Exemplo: us de",
+   "definition": "O país ou outro corpo político que promulga o dispositivo legal."
   }
  },
  "statuteCitation": {
@@ -6421,7 +6889,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma Exemplo: Legal Deposit (Jersey) Law 200- National Library of New Zealand (Te Puna Mātauranga o Aotearoa) Act 2003 no 19 part 4 s 34"
+   "dataConstraint": "Nenhuma Exemplo: Legal Deposit (Jersey) Law 200- National Library of New Zealand (Te Puna Mātauranga o Aotearoa) Act 2003 no 19 part 4 s 34",
+   "definition": "Designação identificadora do dispositivo legal."
   }
  },
  "statuteInformationDeterminationDate": {
@@ -6449,7 +6918,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS."
+   "dataConstraint": "Para facilitar o processamento por máquina, o valor deve usar uma forma estruturada. Para facilitar o intercâmbio de metadados em conformidade com o PREMIS, recomenda-se o uso de convenções padronizadas — por exemplo, as usadas nos elementos de data do schema PREMIS.",
+   "examples": [
+    "2007-12-01 20040223151047.0"
+   ],
+   "definition": "A data em que se determinou que o dispositivo legal autorizava a(s) permissão(ões) indicada(s)."
   }
  },
  "statuteNote": {
@@ -6473,7 +6946,8 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma Exemplo: Applicability to web-published content sent for review by general counsel 9/19/2008."
+   "dataConstraint": "Nenhuma Exemplo: Applicability to web-published content sent for review by general counsel 9/19/2008.",
+   "definition": "Informação adicional sobre o dispositivo legal."
   }
  },
  "statuteDocumentationIdentifier": {
@@ -6498,7 +6972,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.5.5.1 statuteDocumentationIdentifierType 4.1.5.5.2 statuteDocumentationIdentifierValue 4.1.5.5.3 statuteDocumentationRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos por dispositivo legal."
   }
  },
  "statuteDocumentationIdentifierType": {
@@ -6522,7 +6997,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.",
+   "definition": "Designação do domínio dentro do qual o identificador da documentação do dispositivo legal é único."
   }
  },
  "statuteDocumentationIdentifierValue": {
@@ -6546,7 +7022,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "O valor do statuteDocumentationIdentifier."
   }
  },
  "statuteDocumentationRole": {
@@ -6575,7 +7052,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "law application decree case law"
+   ],
+   "definition": "Valor que indica a finalidade ou uso esperado da documentação identificada."
   }
  },
  "statuteApplicableDates": {
@@ -6601,7 +7082,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.5.6.1 startDate 4.1.5.6.2 endDate",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O intervalo de datas durante o qual o dispositivo legal se aplica ou é aplicado ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo."
   }
  },
  "otherRightsInformation": {
@@ -6626,7 +7108,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.6.1 otherRightsDocumentationIdentifier 4.1.6.2 otherRightsBasis 4.1.6.3 otherRightsApplicableDates 4.1.6.4 otherRightsNote",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Informação sobre os direitos (que não copyright, licença ou dispositivo legal) que se aplicam ao(s) objeto(s)."
   }
  },
  "otherRightsDocumentationIdentifier": {
@@ -6656,7 +7139,8 @@
     "The semantic unit is repeatable because there may be more than one document that provides information about the Rights."
    ],
    "semanticComponents": "4.1.6.1.1 otherRightsDocumentationIdentifierType 4.1.6.1.2 otherRightsDocumentationIdentifierValue 4.1.6.1.3 otherRightsDocumentationRole",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos, quando a base deles é algo diferente de copyright, licença ou dispositivo legal."
   }
  },
  "otherRightsDocumentationIdentifierType": {
@@ -6680,7 +7164,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/identifiers.",
+   "definition": "Designação do domínio dentro do qual o identificador da documentação da declaração de direitos é único."
   }
  },
  "otherRightsDocumentationIdentifierValue": {
@@ -6704,7 +7189,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "O valor do otherRightsDocumentationIdentifier."
   }
  },
  "otherRightsDocumentationRole": {
@@ -6732,7 +7218,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado."
+   "dataConstraint": "O valor deve ser retirado de um vocabulário controlado.",
+   "examples": [
+    "institutional policy deed of gift"
+   ],
+   "definition": "Valor que indica a finalidade ou uso esperado da documentação identificada."
   }
  },
  "otherRightsBasis": {
@@ -6757,7 +7247,8 @@
     "Obrigatório"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Exemplo: Harvard policy"
+   "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Exemplo: Harvard policy",
+   "definition": "Designação da base do outro direito ou permissão descrito no rightsStatementIdentifier."
   }
  },
  "otherRightsApplicableDates": {
@@ -6783,7 +7274,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.6.3.1 startDate 4.1.6.3.2 endDate",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O intervalo de datas durante o qual o direito em questão se aplica ou se aplicou ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo."
   }
  },
  "otherRightsNote": {
@@ -6810,7 +7302,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "80-year rule"
+   ],
+   "definition": "Informação adicional sobre os direitos do objeto."
   }
  },
  "rightsGranted": {
@@ -6834,7 +7330,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.7.1 act 4.1.7.2 restriction 4.1.7.3 termOfGrant 4.1.7.4 termOfRestriction 4.1.7.5 rightsGrantedNote",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "A(s) ação(ões) que a entidade concedente permitiu ao repositório."
   }
  },
  "act": {
@@ -6863,7 +7360,10 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "O valor deve ser retirado de um vocabulário controlado. Há um vocabulário controlado disponível em: http://id.loc.gov/vocabulary/preservation/actionsGranted.html.",
-   "definition": "A ação que o repositório de preservação está autorizado a executar."
+   "definition": "A ação que o repositório de preservação está autorizado a executar.",
+   "examples": [
+    "replicate modify use disseminate"
+   ]
   }
  },
  "restriction": {
@@ -6890,7 +7390,11 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "examples": [
+    "No more than three Allowed only after one year of archival retention has elapsed Rightsholder must be notified after completion of act"
+   ],
+   "definition": "Uma condição ou limitação sobre o ato."
   }
  },
  "termOfGrant": {
@@ -6915,7 +7419,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.7.3.1 startDate 4.1.7.3.2 endDate",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O período de tempo das permissões concedidas."
   }
  },
  "termOfRestriction": {
@@ -6940,7 +7445,8 @@
     "Opcional"
    ],
    "semanticComponents": "4.1.7.4.1 startDate 4.1.7.4.2 endDate",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "O período de tempo da restrição concedida."
   }
  },
  "rightsGrantedNote": {
@@ -6966,7 +7472,8 @@
     "Opcional"
    ],
    "semanticComponents": "Nenhuma",
-   "dataConstraint": "Nenhuma"
+   "dataConstraint": "Nenhuma",
+   "definition": "Informação adicional sobre os direitos concedidos."
   }
  },
  "rightsExtension": {
@@ -6992,7 +7499,8 @@
     "Opcional"
    ],
    "semanticComponents": "Defined externally",
-   "dataConstraint": "Contêiner"
+   "dataConstraint": "Contêiner",
+   "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS."
   }
  }
 }
