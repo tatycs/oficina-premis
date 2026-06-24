@@ -54,7 +54,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Designação usada para identificar o Objeto de forma inequívoca dentro do sistema de repositório de preservação em que ele está armazenado.",
    "rationale": "Cada Objeto mantido no repositório de preservação precisa ter um identificador único, para que outras entidades possam se referir a ele e relacioná-lo, sem ambiguidade, a metadados descritivos, técnicos e de outros tipos.",
-   "creationMaintenanceNotes": "Um identificador pode ser criado pelo sistema do repositório no momento do ingest, ou pode ser criado/atribuído fora do repositório e enviado junto com o objeto como metadado. Da mesma forma, identificadores podem ser gerados de forma automática ou manual."
+   "creationMaintenanceNotes": "Um identificador pode ser criado pelo sistema do repositório no momento do ingest, ou pode ser criado/atribuído fora do repositório e enviado junto com o objeto como metadado. Da mesma forma, identificadores podem ser gerados de forma automática ou manual.",
+   "usageNotes": "O objectIdentifier é obrigatório para todos os Objetos armazenados. É repetível para permitir registrar tanto identificadores atribuídos pelo repositório quanto atribuídos externamente (ver a nota de Criação/Manutenção acima). Identificadores primários devem ser únicos no repositório; podem ser preexistentes e já em uso em outros sistemas de gestão de objetos digitais. Idealmente, identificadores secundários também deveriam ser únicos, mas nem sempre isso é possível (ex.: se os valores foram herdados de um sistema legado que não impunha unicidade ou só identificava itens em nível mais alto). Os identificadores de cada item devem ser suficientes para identificá-lo de forma única no nível de agregação apropriado. Por exemplo, uma Entidade Intelectual que representa todos os livros de uma mesma edição poderia usar um ISBN, mas isso seria insuficiente para identificar um exemplar específico. Um repositório precisa conhecer tanto o tipo quanto o valor do identificador. Se o próprio valor contém o tipo (ex.: “oai:lib.uchicago.edu:1”), o tipo não precisa ser registrado explicitamente. Da mesma forma, se o repositório usa apenas um tipo de identificador, o tipo pode ser presumido. Recomenda-se usar um identificador persistente, mas o esquema específico é uma decisão de cada implementação."
   }
  },
  "objectIdentifierType": {
@@ -250,7 +251,8 @@
     "bitstream"
    ],
    "definition": "A categoria de objeto à qual os metadados se aplicam.",
-   "rationale": "É provável que repositórios de preservação tratem categorias diferentes de objetos (Entidades Intelectuais, Representações, Arquivos e Bitstreams) de forma distinta quanto a metadados e funções de gestão de dados; por isso é importante diferenciar as categorias."
+   "rationale": "É provável que repositórios de preservação tratem categorias diferentes de objetos (Entidades Intelectuais, Representações, Arquivos e Bitstreams) de forma distinta quanto a metadados e funções de gestão de dados; por isso é importante diferenciar as categorias.",
+   "usageNotes": "Um filestream deve ser considerado um arquivo (file)."
   }
  },
  "preservationLevel": {
@@ -304,7 +306,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Informação que indica a decisão ou política sobre o conjunto de funções de preservação a aplicar a um objeto e o contexto em que a decisão ou política foi tomada.",
    "rationale": "Alguns repositórios oferecem várias opções de preservação dependendo de fatores como o valor ou a unicidade do material, a “preservabilidade” do formato, quanto o cliente está disposto a pagar, etc. Nesses casos, o preservationLevelValue aplicável pode precisar ser associado diretamente a um Objeto. A escolha de uma opção pode exigir explicação, que depende das funções de preservação esperadas (descritas por preservationLevelType) e/ou do contexto em que o conjunto de opções é aplicável (descrito por preservationLevelRole). A distinção entre os dois pode ser ilustrada: um tipo possível é “nível de preservação de bits”, com valores como “Baixo”, “Médio” ou “Alto” (ex.: na tecnologia de 2015, “Baixo” = backup local comum; “Médio” = duas cópias em mídias diferentes a no mínimo 150 km de distância, com checksums verificados anualmente; “Alto” = no mínimo 5 cópias independentes em mídias variadas, distribuídas por organizações em vários continentes, com verificações trimestrais). O preservationLevelRole pode então distinguir, por exemplo, se o nível é uma meta ou foi de fato alcançado. Também é possível registrar a justificativa da escolha com um preservationLevelRationale.",
-   "creationMaintenanceNotes": "O nível de preservação pode ser atribuído pelo repositório ou solicitado pelo depositante e enviado como metadado. O repositório também pode optar por registrar metadados adicionais indicando o contexto da atribuição."
+   "creationMaintenanceNotes": "O nível de preservação pode ser atribuído pelo repositório ou solicitado pelo depositante e enviado como metadado. O repositório também pode optar por registrar metadados adicionais indicando o contexto da atribuição.",
+   "usageNotes": "Se o repositório oferece apenas um único nível de preservação, ou se o nível pode ser calculado externamente (ex.: com base em um registro técnico ou pelo tipo de coleção), este valor não precisa ser registrado explicitamente nos Objetos. A aplicação de um conjunto de unidades de preservationLevel pode cobrir apenas uma única Representação de um objeto: Representações em outras formas técnicas ou com outras funções podem ter um preservationLevel diferente. O contêiner pode ser repetido se for preciso registrar um valor de nível de preservação em contextos adicionais (ver preservationLevelRole) ou como parte de um contexto (ver preservationLevelType)."
   }
  },
  "preservationLevelType": {
@@ -366,7 +369,8 @@
    ],
    "definition": "Valor que indica o tipo de funções de preservação que se espera aplicar ao Objeto neste nível de preservação.",
    "rationale": "A funcionalidade de preservação digital pode ser tipificada para expressar vários aspectos da preservação. Por exemplo, a segurança de bits pode ser um tipo, cujos valores expressam o grau de replicação e a independência entre cópias. Da mesma forma, a preservação lógica pode ser um tipo, cujos valores expressam se a preservação funcional é feita por migração de formato, emulação, etc.",
-   "creationMaintenanceNotes": "O preservationLevelType pode ser atribuído pelo repositório ou solicitado pelo depositante e enviado como metadado."
+   "creationMaintenanceNotes": "O preservationLevelType pode ser atribuído pelo repositório ou solicitado pelo depositante e enviado como metadado.",
+   "usageNotes": "Só um preservationLevelType pode ser registrado por contêiner preservationLevel. Se outro preservationLevelType se aplicar ao Objeto em um contexto diferente, deve-se repetir um contêiner preservationLevel separado."
   }
  },
  "preservationLevelValue": {
@@ -428,7 +432,8 @@
    ],
    "definition": "Valor que indica o conjunto de funções de preservação que se espera aplicar ao objeto.",
    "rationale": "Permite atribuir um valor ao preservationLevel.",
-   "creationMaintenanceNotes": "O nível de preservação pode ser atribuído pelo repositório ou solicitado pelo depositante e enviado como metadado."
+   "creationMaintenanceNotes": "O nível de preservação pode ser atribuído pelo repositório ou solicitado pelo depositante e enviado como metadado.",
+   "usageNotes": "Só um preservationLevelValue pode ser registrado por contêiner preservationLevel. Se outro preservationLevelValue se aplicar ao Objeto em um contexto diferente, deve-se repetir um contêiner preservationLevel separado."
   }
  },
  "preservationLevelRole": {
@@ -488,7 +493,8 @@
     "requirement intention capability"
    ],
    "definition": "Valor que indica o contexto em que um conjunto de opções de preservação é aplicável.",
-   "rationale": "Repositórios podem atribuir preservationLevelValues em contextos diferentes que precisam ser distinguidos, e podem precisar registrar mais de um contexto. Isso permite distinguir, por exemplo, entre o nível de preservação pretendido e o nível atualmente alcançável. Observação: é distinto do preservationLevelType, que distingue a finalidade do preservationLevel."
+   "rationale": "Repositórios podem atribuir preservationLevelValues em contextos diferentes que precisam ser distinguidos, e podem precisar registrar mais de um contexto. Isso permite distinguir, por exemplo, entre o nível de preservação pretendido e o nível atualmente alcançável. Observação: é distinto do preservationLevelType, que distingue a finalidade do preservationLevel.",
+   "usageNotes": "Esta unidade opcional qualifica o sentido ou contexto em que o preservationLevelValue do contêiner atual é aplicado. Por exemplo, um repositório pode ter obrigação legal de “preservar plenamente” o objeto X (de formato F), mas no momento só conseguir preservar objetos de formato F em “nível de bits”. Pode ser necessário registrar tanto o nível exigido/pretendido (ex.: preservationLevelRole=“requirement”) quanto a capacidade atual (ex.: preservationLevelRole=“capability”). Na transferência de custódia entre repositórios, também pode ser importante o repositório receptor saber em que sentido entender o preservationLevelValue: ele pode não precisar conhecer um nível de “capability” do repositório de origem (pouco relevante às suas próprias capacidades), mas precisa conhecer quaisquer “requirements” de preservação do material pelo qual passa a responder. É boa prática especificar preservationLevelRole para clareza, mesmo que o repositório atribua preservationLevelValue em um só sentido. Se houver mais de um preservationLevel com o mesmo preservationLevelType, o preservationLevelRole deve sempre ser informado. Se for preciso expressar mais de um sentido/contexto para o mesmo objeto (ex.: “requirement” e “capability”), use contêineres preservationLevel separados."
   }
  },
  "preservationLevelRationale": {
@@ -548,7 +554,8 @@
     "defective file bit-level preservation only available for this format"
    ],
    "definition": "A razão pela qual um determinado preservationLevelValue foi aplicado ao objeto.",
-   "rationale": "A aplicação de um determinado preservationLevelValue pode exigir justificativa, especialmente se diferir do que normalmente se aplica conforme a política do repositório."
+   "rationale": "A aplicação de um determinado preservationLevelValue pode exigir justificativa, especialmente se diferir do que normalmente se aplica conforme a política do repositório.",
+   "usageNotes": "Esta unidade opcional registra a razão de aplicar o preservationLevelValue. É especialmente importante quando o valor atribuído difere da política usual do repositório. Por exemplo, um repositório pode normalmente atribuir “full preservation” a arquivos JPEG2000, mas detectar que um arquivo específico está defeituoso; como sua estratégia para JPEG2000 pode não ser eficaz nesse caso, pode atribuir “bit-level preservation” a esse arquivo, registrando “defective file” como justificativa. Da mesma forma, exigências legais ou contratuais podem requerer um nível de preservação maior do que o usual para aquela classe de objeto; nesse caso, a justificativa pode ser “legislation” ou “user pays”, por exemplo. preservationLevelRationale pode ser repetido se houver mais de uma razão a registrar."
   }
  },
  "preservationLevelDateAssigned": {
@@ -665,7 +672,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Características de um objeto específico, determinadas subjetivamente como importantes de manter ao longo das ações de preservação.",
    "rationale": "Objetos com as mesmas propriedades técnicas ainda podem diferir quanto às propriedades que devem ser preservadas para apresentação ou uso futuros.",
-   "creationMaintenanceNotes": "Propriedades significativas podem se aplicar a todos os objetos de uma certa classe; por exemplo, o repositório pode decidir que, para todos os PDFs, só o conteúdo precisa ser preservado. Em outros casos — por exemplo, arte em mídia — podem ser únicas a cada objeto. Quando os valores são únicos, devem ser fornecidos pelo submetente ou pela equipe curatorial do repositório."
+   "creationMaintenanceNotes": "Propriedades significativas podem se aplicar a todos os objetos de uma certa classe; por exemplo, o repositório pode decidir que, para todos os PDFs, só o conteúdo precisa ser preservado. Em outros casos — por exemplo, arte em mídia — podem ser únicas a cada objeto. Quando os valores são únicos, devem ser fornecidos pelo submetente ou pela equipe curatorial do repositório.",
+   "usageNotes": "Ao menos uma das subunidades significantPropertiesValue e significantPropertiesExtension deve estar presente se este contêiner for incluído, ou ambas podem ser usadas. A escolha de uma propriedade como significativa é subjetiva. Algumas podem ser medidas diretamente; outras só podem ser determinadas subjetivamente. Por exemplo, um PDF pode conter links considerados não importantes e JavaScript considerado importante; ou futuras migrações de uma imagem TIFF podem exigir otimização para nitidez de linhas ou para cor — a opção escolhida dependeria de um julgamento curatorial das propriedades significativas da imagem. Listar propriedades significativas implica que o repositório planeja preservá-las ao longo do tempo e exige que sobrevivam de forma aceitável às ações de preservação (ex.: serem mantidas durante emulação ou após migração de formato); implica também que o repositório anotaria quando uma ação de preservação resultar em modificação dessas propriedades. Na prática, podem servir de medida de sucesso da preservação, no controle de qualidade dos resultados de uma ação ou na avaliação da eficácia de um método — por exemplo, se as propriedades listadas não forem mantidas após um método, isso pode indicar falha do processo ou inadequação do método ao tipo de material. É preciso mais experiência em preservação digital para determinar as melhores formas de representar propriedades significativas e suas modificações. As unidades do contêiner significantProperties visam oferecer uma estrutura flexível, permitindo declarar tipos gerais de aspectos, facetas ou atributos de um objeto e pareá-los com detalhes específicos relativos a esse aspecto. Por exemplo, alguns repositórios definem propriedades para facetas de conteúdo, aparência, estrutura, comportamento e contexto. Exemplos de pares faceta:detalhe (cada par deve ficar em um contêiner significantProperties separado e repetido): significantPropertiesType=“content”, significantPropertiesValue=“todo o conteúdo textual e imagens”; significantPropertiesType=“behavior”, significantPropertiesValue=“editável”. Outros repositórios descrevem em nível de atributo mais granular; por exemplo: significantPropertiesType=“page count”, significantPropertiesValue=“7”; significantPropertiesType=“page width”, significantPropertiesValue=“210 mm”. Representar a modificação de propriedades significativas em decorrência de ação de preservação também requer mais trabalho. Uma forma possível usa informação de Objeto e Evento: o Objeto A tem as propriedades significativas “volume” e “timing”, registradas em A; na versão migrada B, o “timing” é modificado, o que é anotado no eventOutcome do Evento de migração; só “volume” é listado como propriedade significativa de B."
   }
  },
  "significantPropertiesType": {
@@ -731,7 +739,8 @@
     "[for an embedded image] color space"
    ],
    "definition": "O aspecto, faceta ou atributo de um objeto que está sendo registrado como propriedade significativa.",
-   "rationale": "Repositórios podem optar por descrever propriedades significativas com base em um aspecto ou atributo específico de um objeto."
+   "rationale": "Repositórios podem optar por descrever propriedades significativas com base em um aspecto ou atributo específico de um objeto.",
+   "usageNotes": "Esta unidade é opcional e pode ser usada como parte de um par faceta:detalhe com significantPropertiesValue."
   }
  },
  "significantPropertiesValue": {
@@ -797,7 +806,8 @@
     "[for a PDF with an embedded graph, where the lines’ color determines the lines’ meaning] Color. [For detail associated with a significantProperties Type of “appearance”] Color."
    ],
    "definition": "Descrição de uma característica de um objeto específico determinada subjetivamente como importante de manter ao longo das ações de preservação.",
-   "rationale": "Repositórios podem optar por descrever propriedades significativas com base em um aspecto ou atributo específico de um objeto."
+   "rationale": "Repositórios podem optar por descrever propriedades significativas com base em um aspecto ou atributo específico de um objeto.",
+   "usageNotes": "Se forem usados pares faceta:detalhe, o conteúdo de significantPropertiesValue deve descrever as propriedades significativas relevantes ao aspecto, faceta ou atributo declarado no significantPropertiesType com que é pareado. Se não forem usados pares faceta:detalhe, significantPropertiesValue pode descrever livremente qualquer característica do objeto. Não é repetível; múltiplas propriedades significativas devem ser descritas em contêineres significantProperties separados e repetidos."
   }
  },
  "significantPropertiesExtension": {
@@ -853,7 +863,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS para propriedades significativas.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades semânticas definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, além das unidades definidas pelo PREMIS. Ao usar um esquema de extensão, deve-se fornecer uma referência a ele. Todas as subunidades desta unidade são opcionais. Ao menos uma das subunidades significantPropertiesValue e significantPropertiesExtension deve estar presente se o contêiner significantProperties for incluído. Se o significantPropertiesExtension precisar ser associado explicitamente a alguma subunidade do significantProperties, repita o contêiner significantProperties. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o significantProperties. Recomenda-se informar dados sobre os metadados usados em significantPropertiesExtension: data de criação, status, IDs internos de vínculo, tipo e versão do esquema de metadados, message digest e algoritmo, e tipo de identificador para links de metadados externos."
   }
  },
  "objectCharacteristics": {
@@ -905,7 +916,8 @@
    "semanticComponents": "1.5.1 compositionLevel 1.5.2 fixity 1.5.3 size 1.5.4 format 1.5.5 creatingApplication 1.5.6 inhibitors 1.5.7 objectCharacteristicsExtension",
    "dataConstraint": "Contêiner",
    "definition": "Propriedades técnicas de um arquivo ou bitstream aplicáveis a todos ou à maioria dos formatos.",
-   "rationale": "Há propriedades técnicas importantes que se aplicam a objetos de qualquer formato. A definição detalhada de propriedades específicas de formato está fora do escopo deste Data Dictionary, embora tais propriedades possam ser incluídas em objectCharacteristicsExtension."
+   "rationale": "Há propriedades técnicas importantes que se aplicam a objetos de qualquer formato. A definição detalhada de propriedades específicas de formato está fora do escopo deste Data Dictionary, embora tais propriedades possam ser incluídas em objectCharacteristicsExtension.",
+   "usageNotes": "As unidades de objectCharacteristics devem ser tratadas como um conjunto de informações que se refere a um único objeto em um único compositionLevel. Pode ser repetido quando um objeto foi criado aplicando duas ou mais codificações (ex.: compressão e criptografia); nesse caso, cada repetição teria um compositionLevel incrementalmente maior. Quando há criptografia, o bloco objectCharacteristics deve incluir uma unidade inhibitors. Um bitstream embutido em um arquivo pode ter características diferentes das do arquivo; quando relevantes para a preservação, devem ser registradas."
   }
  },
  "compositionLevel": {
@@ -967,7 +979,8 @@
    ],
    "definition": "Indicação de se o Objeto está sujeito a um ou mais processos de decodificação ou desempacotamento.",
    "rationale": "Um arquivo ou bitstream pode ser codificado com compressão, criptografia, etc., ou empacotado com outros em pacotes maiores. Conhecer a ordem em que essas ações foram aplicadas é importante caso o Objeto ou Objetos originais precisem ser recuperados.",
-   "creationMaintenanceNotes": "O nível de composição em geral será fornecido pelo repositório, que deve tentar fornecê-lo automaticamente. Se o objeto foi criado pelo repositório, a rotina criadora conhece o nível e pode fornecer este metadado. Se o objeto está sendo ingerido, os programas do repositório terão de tentar identificá-lo a partir do próprio objeto ou de metadados fornecidos externamente."
+   "creationMaintenanceNotes": "O nível de composição em geral será fornecido pelo repositório, que deve tentar fornecê-lo automaticamente. Se o objeto foi criado pelo repositório, a rotina criadora conhece o nível e pode fornecer este metadado. Se o objeto está sendo ingerido, os programas do repositório terão de tentar identificá-lo a partir do próprio objeto ou de metadados fornecidos externamente.",
+   "usageNotes": "Um arquivo ou bitstream pode estar sujeito a múltiplas codificações que precisam ser decodificadas na ordem inversa (da mais alta para a mais baixa). Por exemplo, o arquivo A é comprimido gerando B, que é criptografado gerando C; para recriar o arquivo-base A, decripta-se C para obter B e descomprime-se B para obter A. Um compositionLevel zero indica que o objeto é base e não está sujeito a mais decodificação; 1 ou mais indica que uma ou mais decodificações devem ser aplicadas. A numeração vai da mais baixa para a mais alta (primeira codificação = 0): 0 é o objeto-base; 1-n são codificações subsequentes. O compositionLevel deve ser definido sempre que possível, mas pode-se omitir (ou usar “unknown”) quando não for possível calculá-lo. Use 0 se houver apenas um compositionLevel. Quando vários objetos arquivo são reunidos como filestreams dentro de um arquivo-pacote (ex.: um ZIP), os filestreams individuais não são níveis de composição do arquivo-pacote: devem ser considerados objetos separados, cada um com seus próprios níveis. Por exemplo, dois arquivos criptografados compactados juntos e armazenados como um arquivo seriam descritos como três objetos separados, cada um com seus metadados. A localização dos dois objetos internos apontaria para o ZIP, mas o próprio ZIP teria um único nível de composição (zero), cujo formato seria “zip”."
   }
  },
  "fixity": {
@@ -1019,7 +1032,8 @@
    "semanticComponents": "1.5.2.1 messageDigestAlgorithm 1.5.2.2 messageDigest 1.5.2.3 messageDigestOriginator",
    "dataConstraint": "Contêiner",
    "definition": "Informação usada para verificar se um objeto foi alterado de forma não documentada ou não autorizada.",
-   "creationMaintenanceNotes": "Calculado e registrado automaticamente pelo repositório."
+   "creationMaintenanceNotes": "Calculado e registrado automaticamente pelo repositório.",
+   "usageNotes": "Para fazer uma verificação de fixidez, compara-se um message digest calculado em um momento anterior com outro calculado posteriormente. Se forem iguais, o objeto não foi alterado no intervalo. (Note que “message digest” e “checksum” são usados como sinônimos com frequência; porém, “checksum” é mais corretamente o produto de uma verificação de redundância cíclica (CRC), enquanto “message digest” se refere ao resultado de uma função de hash criptográfica, que é o caso aqui.) O ato de realizar a verificação e a data em que ocorreu seriam registrados como um Evento, e o resultado como eventOutcome. Portanto, apenas o messageDigestAlgorithm e o messageDigest precisam ser registrados em objectCharacteristics para comparação futura. Nível de representação: poder-se-ia argumentar que, se uma representação consiste em um único arquivo, ou se todos os seus arquivos forem combinados (ex.: compactados) em um só, então a verificação de fixidez poderia ser feita sobre a representação; mas, em ambos os casos, ela é, na verdade, feita sobre um arquivo, que aqui coincide com uma representação. Nível de bitstream: message digests podem ser calculados para bitstreams, embora menos comuns que para arquivos. Por exemplo, o formato JPX (um formato JPEG2000) permite incluir digests MD5 ou SHA-1 em metadados internos, calculados sobre qualquer intervalo de bytes do arquivo."
   }
  },
  "messageDigestAlgorithm": {
@@ -1197,7 +1211,8 @@
    ],
    "definition": "O Agente que criou o message digest original comparado em uma verificação de fixidez.",
    "rationale": "Um repositório pode ingerir arquivos cujos message digests já foram calculados pelo remetente; verificá-los garante que o arquivo recebido é igual ao enviado. O repositório também pode ingerir arquivos sem message digests, tendo de calcular o valor inicial no ingest. Pode ser útil saber qual Agente calculou esse valor inicial.",
-   "creationMaintenanceNotes": "Se o cálculo do message digest inicial for tratado pelo repositório como um Evento, esta informação pode ser obtida de um registro de Evento."
+   "creationMaintenanceNotes": "Se o cálculo do message digest inicial for tratado pelo repositório como um Evento, esta informação pode ser obtida de um registro de Evento.",
+   "usageNotes": "O originador do message digest pode ser representado por uma cadeia que identifica o Agente (ex.: “DRS”, referindo-se ao próprio arquivo) ou por um ponteiro para uma descrição de Agente (ex.: “A0000978”, aqui tomado como um agentIdentifierValue)."
   }
  },
  "size": {
@@ -1259,7 +1274,8 @@
    ],
    "definition": "O tamanho, em bytes, do arquivo ou bitstream armazenado no repositório.",
    "rationale": "O tamanho é útil para garantir que o número correto de bytes foi recuperado do armazenamento e que uma aplicação tem espaço suficiente para mover ou processar arquivos. Também pode ser usado na cobrança por armazenamento.",
-   "creationMaintenanceNotes": "Obtido automaticamente pelo repositório."
+   "creationMaintenanceNotes": "Obtido automaticamente pelo repositório.",
+   "usageNotes": "Definir esta unidade como tamanho em bytes torna desnecessário registrar a unidade de medida. Contudo, para fins de intercâmbio de dados, a unidade de medida deve ser declarada ou compreendida por ambas as partes."
   }
  },
  "format": {
@@ -1313,7 +1329,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Identificação do formato de um arquivo ou bitstream, sendo formato definido como a organização da informação digital segundo especificações predefinidas.",
    "rationale": "Muitas atividades de preservação dependem de conhecimento detalhado sobre o formato do objeto digital. Uma identificação precisa do formato é essencial. A identificação fornecida — por nome ou por referência a um registro de formatos — deve ser suficiente para associar o objeto a informações de formato mais detalhadas.",
-   "creationMaintenanceNotes": "O formato de um arquivo ou bitstream deve ser determinado pelo repositório no ingest. Mesmo que a informação seja fornecida pelo submetente (em metadados ou pela extensão do nome do arquivo), a prática recomendada é identificar o formato de forma independente, analisando (parsing) o arquivo quando possível. Se não puder ser identificado no ingest, é válido registrar como desconhecido, mas o repositório deve depois se esforçar para identificá-lo, mesmo que exija intervenção manual."
+   "creationMaintenanceNotes": "O formato de um arquivo ou bitstream deve ser determinado pelo repositório no ingest. Mesmo que a informação seja fornecida pelo submetente (em metadados ou pela extensão do nome do arquivo), a prática recomendada é identificar o formato de forma independente, analisando (parsing) o arquivo quando possível. Se não puder ser identificado no ingest, é válido registrar como desconhecido, mas o repositório deve depois se esforçar para identificá-lo, mesmo que exija intervenção manual.",
+   "usageNotes": "Um bitstream embutido em um arquivo pode ter características diferentes do arquivo maior. Por exemplo, um bitstream em formato LaTeX poderia estar embutido em um arquivo SGML, ou várias imagens com espaços de cor diferentes poderiam estar embutidas em um TIFF. O format deve ser registrado para todo objeto. Quando o repositório reconhece o formato do bitstream e deseja tratá-lo de forma diferente do arquivo que o contém para fins de preservação, o format pode ser registrado para bitstreams embutidos. Ao menos uma subunidade (formatDesignation ou formatRegistry) deve estar presente se este contêiner for incluído, ou ambas. Se a subunidade (formatDesignation ou formatRegistry) precisar ser repetida, repete-se o contêiner format inteiro. Isso permite associar uma designação de formato a um conjunto específico de informações de registro. Por exemplo, se o formato preciso não puder ser determinado e duas designações forem registradas, cada uma fica em um contêiner format separado; nesses casos, o formatNote pode distinguir entre (i) saber-se que o arquivo atende a múltiplas definições de formato ou (ii) saber-se que atende a um desses formatos, mas sem conhecimento suficiente para distinguir entre eles. O contêiner format também pode ser repetido para múltiplas entradas de registro. Se um arquivo ou bitstream estiver em formato desconhecido, deve-se adicionar um formatDesignation com formatName igual a “unknown”."
   }
  },
  "formatDesignation": {
@@ -1363,7 +1380,8 @@
    ],
    "semanticComponents": "1.5.4.1.1 formatName 1.5.4.1.2 formatVersion",
    "dataConstraint": "Contêiner",
-   "definition": "Uma identificação do formato do objeto."
+   "definition": "Uma identificação do formato do objeto.",
+   "usageNotes": "É exigido formatDesignation ou ao menos uma instância de formatRegistry; ambos podem ser incluídos. Deve-se registrar o formato (ou perfil de formato) mais específico. Um repositório (ou registro de formatos) pode usar nomes de formato com múltiplas partes (ex.: “TIFF_GeoTIFF” ou “WAVE_MPEG_BWF”) para alcançar essa especificidade. Para cada arquivo ou bitstream, registra-se o formato mais específico identificado pelo repositório. Uma versão restrita ou modificada de um formato é considerada mais específica que o formato; por exemplo, GeoTIFF é mais específico que TIFF, e BWF é mais específico que WAVE. Se um arquivo ou bitstream estiver em conformidade com mais de um formato de igual especificidade, cada um deve ser registrado em contêineres format separados."
   }
  },
  "formatName": {
@@ -1421,7 +1439,8 @@
     "Text/sgml image/tiff/geotiff Adobe PDF DES PGP base64 unknown",
     "LaTex"
    ],
-   "definition": "Um nome comumente aceito para o formato do arquivo ou bitstream."
+   "definition": "Um nome comumente aceito para o formato do arquivo ou bitstream.",
+   "usageNotes": "Para formatos não identificados, formatName pode ser registrado como “unknown”. Sempre que possível, vocabulários controlados de formatName devem vir de registros de formatos ou técnicos."
   }
  },
  "formatVersion": {
@@ -1481,7 +1500,8 @@
     "7.1"
    ],
    "definition": "A versão do formato indicado em formatName.",
-   "rationale": "Muitas listas de autoridade de nomes de formato não são granulares o suficiente para indicar a versão — por exemplo, os tipos MIME Media."
+   "rationale": "Muitas listas de autoridade de nomes de formato não são granulares o suficiente para indicar a versão — por exemplo, os tipos MIME Media.",
+   "usageNotes": "Se o formato tiver versão, formatVersion deve ser registrado quando aplicável. Pode ser uma designação numérica ou cronológica."
   }
  },
  "formatRegistry": {
@@ -1533,7 +1553,8 @@
    "semanticComponents": "1.5.4.2.1 formatRegistryName 1.5.4.2.2 formatRegistryKey 1.5.4.2.3 formatRegistryRole",
    "dataConstraint": "Contêiner",
    "definition": "Identifica e/ou fornece mais informações sobre o formato por referência a uma entrada em um registro de formatos.",
-   "rationale": "Se houver registros centrais de formatos disponíveis ao repositório, eles podem ser uma excelente forma de referenciar informações detalhadas de formato."
+   "rationale": "Se houver registros centrais de formatos disponíveis ao repositório, eles podem ser uma excelente forma de referenciar informações detalhadas de formato.",
+   "usageNotes": "É exigido formatDesignation ou ao menos uma instância de formatRegistry. Se for preciso registrar mais de um formatRegistry, o contêiner format deve ser repetido para incluir cada conjunto adicional de informações de registro."
   }
  },
  "formatRegistryName": {
@@ -1591,7 +1612,8 @@
     "PRONOM http://www.nationala rchives.gov.uk/prono m Representation Information Registry Repository",
     "PRONOM http://www.nationala rchives.gov.uk/prono m"
    ],
-   "definition": "Designação que identifica o registro de formatos referenciado."
+   "definition": "Designação que identifica o registro de formatos referenciado.",
+   "usageNotes": "Pode ser um nome formal, um nome de uso interno ou uma URI."
   }
  },
  "formatRegistryKey": {
@@ -1767,7 +1789,8 @@
     "tentative identification disjunction multiple format identifications found"
    ],
    "definition": "Informação adicional sobre o formato.",
-   "rationale": "Pode ser necessária informação qualificadora para complementar a designação de formato e as informações de registro, ou para registrar um status de identificação."
+   "rationale": "Pode ser necessária informação qualificadora para complementar a designação de formato e as informações de registro, ou para registrar um status de identificação.",
+   "usageNotes": "O formatNote pode conter texto livre, um ponteiro de referência ou um valor de uma lista controlada."
   }
  },
  "creatingApplication": {
@@ -1821,7 +1844,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Informação sobre a aplicação que criou o objeto.",
    "rationale": "Informações sobre a aplicação criadora — incluindo sua versão e a data de criação do arquivo — podem ser úteis para resolução de problemas. Por exemplo, não é incomum que certas versões de software sejam conhecidas por causar erros de conversão ou introduzir artefatos. Também ajuda a determinar que software de renderização está disponível para o objeto: sabendo que o programa Distiller criou o PDF, sabe-se que ele será renderizável (entre outros) pelo Adobe Reader.",
-   "creationMaintenanceNotes": "Se o objeto foi criado pelo repositório, a atribuição da informação da aplicação criadora deve ser simples. Se foi criado fora, é possível que a informação seja fornecida pelo depositante. Também pode ser extraída do próprio arquivo; o nome da aplicação criadora costuma estar embutido nele."
+   "creationMaintenanceNotes": "Se o objeto foi criado pelo repositório, a atribuição da informação da aplicação criadora deve ser simples. Se foi criado fora, é possível que a informação seja fornecida pelo depositante. Também pode ser extraída do próprio arquivo; o nome da aplicação criadora costuma estar embutido nele.",
+   "usageNotes": "Esta unidade aplica-se tanto a objetos criados fora do repositório e depois ingeridos quanto a objetos criados pelo repositório, por exemplo, em Eventos de migração. O contêiner creatingApplication é repetível se mais de uma aplicação processou o objeto em sequência. Por exemplo, um arquivo pode ser criado pelo Microsoft Word e depois convertido em PDF com o Adobe Acrobat; detalhes de ambas podem ser registrados. Porém, se os dois arquivos forem armazenados no repositório, cada um deve ser descrito como uma entidade Object e vinculado por relationship com relationshipType “derivation”. O contêiner também pode ser repetido para registrar a aplicação criadora antes do ingest e a usada no processo de ingest (ex.: um HTML criado pré-ingest com o Dreamweaver e depois capturado pelo coletor web Heritrix). creatingApplication é uma unidade muito usada; porém, com a introdução de recursos mais detalhados de environment, a boa prática passa a ser usar um Objeto environment em vez desta unidade. Objetos environment permitem construir relações complexas entre objetos e seus ambientes de criação/renderização, e também registrar relações entre ambientes (ex.: expor dependências entre componentes de pilhas de software complexas). Diferentemente dos Objetos environment, porém, creatingApplication permite descrever diferentes aplicações criadoras em diferentes níveis de composição do Objeto. É também mantida por compatibilidade retroativa. Em vez de cada repositório registrar isso localmente, é preferível compartilhar a informação por registros de ambientes."
   }
  },
  "creatingApplicationName": {
@@ -1879,7 +1903,8 @@
     "MS Word",
     "MS Excel"
    ],
-   "definition": "Designação do nome do programa de software que criou o objeto."
+   "definition": "Designação do nome do programa de software que criou o objeto.",
+   "usageNotes": "A creatingApplication é a aplicação que criou o objeto em seu formato atual, não a que criou a cópia gravada no armazenamento. Por exemplo, se um documento é criado pelo Microsoft Word e depois copiado para o armazenamento por um programa de Ingest do repositório, a creatingApplication é o MS Word, não o programa de Ingest."
   }
  },
  "creatingApplicationVersion": {
@@ -1994,7 +2019,8 @@
     "2000-12-01 20030223T151047",
     "2000-12-01 20030223T151047"
    ],
-   "definition": "A data e hora reais ou aproximadas em que o objeto foi criado."
+   "definition": "A data e hora reais ou aproximadas em que o objeto foi criado.",
+   "usageNotes": "Use a data mais precisa disponível. É a data em que o objeto foi criado pela aplicação criadora, não a data de qualquer cópia feita externamente ou pelo repositório. Por exemplo, se um arquivo é criado pelo Word em 2001 e duas cópias são feitas em 2003, a dateCreatedByApplication dos três arquivos é 2001. A data em que um arquivo é gravado no armazenamento pode ser registrada como um Evento. Se o próprio objeto contém datas internas de criação e modificação, deve-se usar a de modificação como dateCreatedByApplication. A data de criação, em termos do PREMIS, de um Objeto é o momento em que ele foi modificado pela última vez — isto é, a última vez que o documento foi salvo (ver o princípio 1:1). Se a aplicação for um coletor web que captura o objeto em um dado momento, use a data de captura como data de criação."
   }
  },
  "creatingApplicationExtension": {
@@ -2046,7 +2072,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Informação da aplicação criadora usando unidades semânticas definidas externamente ao PREMIS.",
-   "rationale": "Pode haver necessidade de complementar ou substituir unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de complementar ou substituir unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Pode incluir, por exemplo, referência a um registro técnico externo que descreva a aplicação criadora. Podem-se incluir unidades locais ou metadados de outro esquema, em vez de ou além das unidades do PREMIS. Ao usar um esquema externo, deve-se fornecer referência a ele. Se forem necessárias várias extensões (ex.: para fins diferentes), repete-se o contêiner creatingApplication. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o creatingApplication. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "inhibitors": {
@@ -2100,7 +2127,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Características do objeto que inibem acesso, uso ou migração.",
    "rationale": "A informação de formato pode indicar se um arquivo está criptografado, mas a natureza da criptografia também precisa ser registrada, assim como a chave de acesso.",
-   "creationMaintenanceNotes": "Inibidores têm mais probabilidade de estar presentes em um objeto ingerido do que de serem aplicados pelo próprio repositório. É difícil detectar no ingest se um arquivo está criptografado, mas isso pode ser conhecido pelo contexto da ingestão. Por isso, informações sobre inibidores devem ser fornecidas como metadados junto aos objetos submetidos, quando possível."
+   "creationMaintenanceNotes": "Inibidores têm mais probabilidade de estar presentes em um objeto ingerido do que de serem aplicados pelo próprio repositório. É difícil detectar no ingest se um arquivo está criptografado, mas isso pode ser conhecido pelo contexto da ingestão. Por isso, informações sobre inibidores devem ser fornecidas como metadados junto aos objetos submetidos, quando possível.",
+   "usageNotes": "Alguns formatos permitem criptografia para bitstreams embutidos. Alguns, como PDF, usam senhas para controlar acesso ao conteúdo ou a funções específicas. Embora isso seja, na verdade, implementado em nível de bitstream, para fins de preservação é efetivamente gerido em nível de arquivo; ou seja, senhas não seriam registradas para bitstreams endereçáveis individualmente. Para certos tipos de chave de inibidor, aplicações locais podem exigir mais granularidade. Se a informação da chave do inibidor for idêntica à de assinaturas digitais, use aquelas unidades."
   }
  },
  "inhibitorType": {
@@ -2158,7 +2186,8 @@
     "DES PGP Blowfish Password protection",
     "DES PGP Blowfish Password protection"
    ],
-   "definition": "O método de inibição empregado."
+   "definition": "O método de inibição empregado.",
+   "usageNotes": "Inibidores comuns são criptografia e proteção por senha. Quando se usa criptografia, o tipo deve ser indicado especificamente — isto é, registre “DES”, não “encryption”."
   }
  },
  "inhibitorTarget": {
@@ -2216,7 +2245,8 @@
     "All content Function: Play Function: Print",
     "All content Function: Play Function: Print"
    ],
-   "definition": "O conteúdo ou função protegido pelo inibidor."
+   "definition": "O conteúdo ou função protegido pelo inibidor.",
+   "usageNotes": "Se não for informado, presume-se que o alvo é o conteúdo do objeto."
   }
  },
  "inhibitorKey": {
@@ -2274,7 +2304,8 @@
     "[DES decryption key]",
     "[DES decryption key]"
    ],
-   "definition": "A chave de decriptação ou senha."
+   "definition": "A chave de decriptação ou senha.",
+   "usageNotes": "A chave deve ser fornecida, se conhecida. Porém, não é aconselhável armazenar de fato o inhibitorKey em texto plano em uma base de dados insegura."
   }
  },
  "objectCharacteristicsExtension": {
@@ -2326,7 +2357,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. O objectCharacteristicsExtension é usado para características adicionais não cobertas pelo PREMIS — por exemplo, metadados específicos de formato definidos externamente. Não substitui as unidades especificadas pelo PREMIS. Se forem necessárias várias extensões (ex.: para fins diferentes), repete-se o contêiner objectCharacteristics. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o objectCharacteristics. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "originalName": {
@@ -2388,7 +2420,8 @@
    ],
    "definition": "O nome do objeto tal como submetido ou coletado pelo repositório, antes de qualquer renomeação por ele.",
    "rationale": "Esta unidade permite ao sistema de preservação renomear arquivos (para fins internos de gestão e armazenamento) mantendo o nome do objeto submetido. O nome usado dentro do repositório pode não ser conhecido fora dele. Um depositante pode precisar solicitar um arquivo pelo seu nome original, e o repositório pode precisar reconstruir vínculos internos para disseminação.",
-   "creationMaintenanceNotes": "Este valor sempre seria fornecido ao repositório pelo submetente ou pela aplicação de coleta. Quanto do caminho do arquivo preservar fica a critério do repositório."
+   "creationMaintenanceNotes": "Este valor sempre seria fornecido ao repositório pelo submetente ou pela aplicação de coleta. Quanto do caminho do arquivo preservar fica a critério do repositório.",
+   "usageNotes": "Destina-se a guardar o nome fornecido pela fonte imediata antes do ingest pelo repositório. Pode ou não ser o nome inicial do objeto (ex.: a fonte pode ter renomeado o arquivo ao ingeri-lo de uma fonte anterior, sem manter o nome inicial). Também pode ou não ser o nome usado na fonte imediata antes do repositório (ex.: o sistema de origem pode mantê-lo com um nome e renomeá-lo na exportação, digamos, para seu nome verdadeiramente original). O nome original do objeto deve ser designado no Pacote de Submissão de Informação (SIP) — já que, em geral, o repositório não consegue deduzi-lo por outros meios —, embora possa ou não ser o identificador primário do objeto no SIP. O objeto pode ter outros nomes em contextos diferentes. Quando dois repositórios trocam conteúdo, seria importante o receptor conhecer e registrar o nome da Entidade Intelectual ou Representação no repositório de origem. No caso de IEs ou representações, isso pode ser um nome de diretório."
   }
  },
  "storage": {
@@ -2448,7 +2481,8 @@
    "semanticComponents": "1.7.1 contentLocation 1.7.2 storageMedium",
    "dataConstraint": "Contêiner",
    "definition": "Informação sobre como e onde uma entidade pode ser encontrada. Para bitstreams, é a localização dentro de um arquivo. Para arquivos, é a localização física em um ou mais sistemas de armazenamento. A partir do PREMIS 3.0, storage aplica-se a representações: para representações físicas (como discos de sistema ou versões impressas), é a localização do objeto físico, como uma posição em estante; para representações digitais, é a localização do objeto no sistema de armazenamento, se todos os arquivos da representação estiverem no mesmo local.",
-   "rationale": "É necessário que o repositório saiba onde localizar os objetos e associar o contentLocation dos objetos digitais ao storageMedium."
+   "rationale": "É necessário que o repositório saiba onde localizar os objetos e associar o contentLocation dos objetos digitais ao storageMedium.",
+   "usageNotes": "Para representações e arquivos digitais, o contêiner storage deve ser repetido se houver duas ou mais cópias idênticas bit a bit e geridas como uma unidade, diferindo apenas no meio em que estão armazenadas. Para usar essa repetição, as cópias devem ter um único objectIdentifier e ser geridas como um único objeto pelo repositório. Note que muitos sistemas de armazenamento (ex.: HSM, provedores de nuvem) fornecerão apenas uma referência ao objeto, ainda que armazenem várias cópias. Para bitstreams, o contêiner pode ser repetido se houver mais de uma forma de chegar ao início do bitstream dentro de um arquivo (ex.: deslocamento de bytes a partir do início ou do fim). Para representações de Objetos físicos, pode-se especificar o storage tanto de cópias físicas de conteúdo (ex.: uma cópia em papel de um objeto digital) quanto de instâncias físicas de ambiente (ex.: um chip de computador personalizado)."
   }
  },
  "contentLocation": {
@@ -2508,7 +2542,8 @@
    "semanticComponents": "1.7.1.1 contentLocationType 1.7.1.2 contentLocationValue",
    "dataConstraint": "Contêiner",
    "definition": "Informação necessária para recuperar um item físico de seu local de armazenamento, ou um arquivo do sistema de armazenamento, ou para acessar um bitstream dentro de um arquivo.",
-   "creationMaintenanceNotes": "Um repositório de preservação normalmente se refere a conteúdo que ele controla. Portanto, presume-se que o repositório normalmente atribuirá o contentLocation, provavelmente por um programa."
+   "creationMaintenanceNotes": "Um repositório de preservação normalmente se refere a conteúdo que ele controla. Portanto, presume-se que o repositório normalmente atribuirá o contentLocation, provavelmente por um programa.",
+   "usageNotes": "Se o repositório usa o objectIdentifier como handle para recuperar dados, o contentLocation é implícito e não precisa ser registrado."
   }
  },
  "contentLocationType": {
@@ -2645,7 +2680,8 @@
     "http://wwase arch.loc.gov/ 107th/20021 2107035/http ://house.gov/ langevin/ hdl:loc.pnp/c ph.3b34188 c:\\apache2\\ht docs\\index.ht ml /home/web/p ublic_html/in dex.html",
     "64 [offset from start of file c:\\apache2\\htdoc s\\image\\logo.gif]"
    ],
-   "definition": "A referência à localização do conteúdo usada pelo sistema de armazenamento."
+   "definition": "A referência à localização do conteúdo usada pelo sistema de armazenamento.",
+   "usageNotes": "Pode ser um caminho completo com nome de arquivo, ou a informação usada por um sistema de resolução (ex.: um handle), ou a informação nativa usada por um sistema de gestão de armazenamento. Para um bitstream ou filestream, provavelmente seria o ponto de referência e o deslocamento da posição inicial do bitstream dentro de um arquivo. Cabe ao repositório determinar o nível de granularidade a registrar."
   }
  },
  "storageMedium": {
@@ -2715,7 +2751,8 @@
     "Magnetic tape Hard disk TSM"
    ],
    "definition": "O meio físico em que o objeto está armazenado (ex.: fita magnética, disco rígido, CD-ROM, DVD).",
-   "rationale": "O repositório precisa saber em que meio um objeto está armazenado para decidir como e quando fazer atualização (refreshment) e migração de mídia."
+   "rationale": "O repositório precisa saber em que meio um objeto está armazenado para decidir como e quando fazer atualização (refreshment) e migração de mídia.",
+   "usageNotes": "Em alguns casos isso pode ser ocultado da gestão direta do repositório por sistemas de gestão de armazenamento. Nesses casos, a responsabilidade de gerir a obsolescência das mídias deve ser delegada ao sistema de armazenamento. Profissionais de preservação digital devem manter a responsabilidade de gerir a obsolescência de mídias e sistemas dentro do conjunto repositório + sistemas de armazenamento. Normalmente isso é feito em nível de sistema, bem acima dos detalhes de objetos individuais. Mídias de armazenamento só são registradas para itens digitais; as localizações de itens físicos serão geridas por gestão patrimonial tradicional, e a gestão de mídias não faz parte do repositório digital."
   }
  },
  "signatureInformation": {
@@ -2767,7 +2804,8 @@
    "semanticComponents": "1.8.1 signature 1.8.2 signatureInformationExtension",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para informações de assinatura digital definidas pelo PREMIS e externamente, usado para autenticar o signatário de um objeto e/ou a informação nele contida.",
-   "rationale": "Um repositório pode ter a política de gerar assinaturas digitais para arquivos no ingest, ou precisar armazenar e posteriormente validar assinaturas digitais recebidas."
+   "rationale": "Um repositório pode ter a política de gerar assinaturas digitais para arquivos no ingest, ou precisar armazenar e posteriormente validar assinaturas digitais recebidas.",
+   "usageNotes": "Pode-se usar signature ou signatureInformationExtension. Incentiva-se o uso de signatureInformationExtension com o esquema definido em XML-Signature Syntax and Processing, do W3C (http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/), quando aplicável."
   }
  },
  "signature": {
@@ -2819,7 +2857,8 @@
    "semanticComponents": "1.8.1.1 signatureEncoding 1.8.1.2 signer 1.8.1.3 signatureMethod 1.8.1.4 signatureValue 1.8.1.5 signatureValidationRules 1.8.1.6 signatureProperties 1.8.1.7 keyInformation",
    "dataConstraint": "Contêiner",
    "definition": "Informação necessária para usar uma assinatura digital para autenticar o signatário de um objeto e/ou a informação nele contida.",
-   "rationale": "Um repositório pode ter a política de gerar assinaturas digitais para arquivos no ingest, ou precisar armazenar e posteriormente validar assinaturas digitais recebidas."
+   "rationale": "Um repositório pode ter a política de gerar assinaturas digitais para arquivos no ingest, ou precisar armazenar e posteriormente validar assinaturas digitais recebidas.",
+   "usageNotes": "Vários componentes semânticos de signatureInformation provêm do XML-Signature Syntax and Processing, do W3C; ver http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/ para mais informações sobre a estrutura e a aplicação dessas unidades."
   }
  },
  "signatureEncoding": {
@@ -2930,7 +2969,8 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
    "definition": "O indivíduo, instituição ou autoridade responsável por gerar a assinatura.",
-   "rationale": "O signatário também pode estar contido em keyInformation, mas é acessado de forma mais conveniente se registrado aqui."
+   "rationale": "O signatário também pode estar contido em keyInformation, mas é acessado de forma mais conveniente se registrado aqui.",
+   "usageNotes": "Se o signatário for um Agente conhecido pelo repositório, pode-se usar aqui um agentIdentifier."
   }
  },
  "signatureMethod": {
@@ -2990,7 +3030,8 @@
     "DSA-SHA1 RSA-SHA1"
    ],
    "definition": "Designação dos algoritmos de criptografia e de hash usados na geração da assinatura.",
-   "rationale": "Os mesmos algoritmos devem ser usados para validar a assinatura."
+   "rationale": "Os mesmos algoritmos devem ser usados para validar a assinatura.",
+   "usageNotes": "Prática recomendada: nomear primeiro o algoritmo de criptografia, seguido de um hífen e do nome do algoritmo de hash (message digest)."
   }
  },
  "signatureValue": {
@@ -3099,7 +3140,8 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
    "definition": "As operações a executar para validar a assinatura digital.",
-   "rationale": "O repositório não deve presumir que o procedimento para validar uma assinatura específica será conhecido daqui a muitos anos sem documentação."
+   "rationale": "O repositório não deve presumir que o procedimento para validar uma assinatura específica será conhecido daqui a muitos anos sem documentação.",
+   "usageNotes": "Pode incluir o método de canonicalização usado antes de calcular o message digest, caso o objeto tenha sido normalizado antes de assinar. Este valor também pode ser um ponteiro para a documentação do arquivo."
   }
  },
  "signatureProperties": {
@@ -3149,7 +3191,8 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
-   "definition": "Informação adicional sobre a geração da assinatura."
+   "definition": "Informação adicional sobre a geração da assinatura.",
+   "usageNotes": "Pode incluir a data/hora de geração da assinatura, o número de série do hardware criptográfico usado ou outras informações relacionadas à geração da assinatura. Os repositórios provavelmente vão querer definir uma estrutura suficientemente granular para signatureProperties."
   }
  },
  "keyInformation": {
@@ -3201,7 +3244,8 @@
    "semanticComponents": "Extensible container",
    "dataConstraint": "Contêiner",
    "definition": "Informação sobre a chave pública do signatário, necessária para validar a assinatura digital.",
-   "rationale": "Para validar a assinatura digital de um objeto, primeiro recalcula-se o message digest do objeto e, em seguida, usa-se a chave pública do signatário para verificar se o valor da assinatura (signatureValue) está correto. O repositório deve, portanto, ter o valor da chave pública e alguma garantia de que ela realmente pertence ao signatário."
+   "rationale": "Para validar a assinatura digital de um objeto, primeiro recalcula-se o message digest do objeto e, em seguida, usa-se a chave pública do signatário para verificar se o valor da assinatura (signatureValue) está correto. O repositório deve, portanto, ter o valor da chave pública e alguma garantia de que ela realmente pertence ao signatário.",
+   "usageNotes": "Tipos diferentes de chave terão estruturas e parâmetros diferentes. O PREMIS não define a estrutura deste contêiner. Prática recomendada: representar os valores de chave conforme definido para “KeyInfo” no XML-Signature Syntax and Processing, do W3C (http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/)."
   }
  },
  "signatureInformationExtension": {
@@ -3253,7 +3297,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Informação de assinatura digital usando unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, em vez de ou além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. Se o signatureInformationExtension precisar ser associado explicitamente a alguma subunidade do signatureInformation, repita o contêiner signatureInformation. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o signatureInformation. Incentiva-se o uso do XML-Signature Syntax and Processing, do W3C (http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/), quando aplicável. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "environmentFunction": {
@@ -3305,7 +3350,8 @@
    "semanticComponents": "1.9.1 environmentFunctionType 1.9.2 environmentFunctionLevel",
    "dataConstraint": "Contêiner",
    "definition": "Descrição hierárquica da função do ambiente usado para renderizar ou executar um objeto.",
-   "rationale": "Esta informação descreve a natureza inerente do ambiente que, por sua vez, especifica sua função. Não muda ao longo do tempo nem depende da forma como o ambiente é usado. Tipos como software, documentação e hardware devem ser descritos por um vocabulário extensível. Herda dos antigos contêineres de software e hardware do environment do PREMIS, que especificavam vocabulários granulares (swType e hwType). É importante capturar o tipo e o uso de um ambiente para expressar: • qual é o tipo do ambiente (hardware, software ou documentação); • um refinamento do tipo, para isolar onde, na pilha de renderização, a Entidade Intelectual é usada (plugin, driver, aplicação, periférico ou especificação)."
+   "rationale": "Esta informação descreve a natureza inerente do ambiente que, por sua vez, especifica sua função. Não muda ao longo do tempo nem depende da forma como o ambiente é usado. Tipos como software, documentação e hardware devem ser descritos por um vocabulário extensível. Herda dos antigos contêineres de software e hardware do environment do PREMIS, que especificavam vocabulários granulares (swType e hwType). É importante capturar o tipo e o uso de um ambiente para expressar: • qual é o tipo do ambiente (hardware, software ou documentação); • um refinamento do tipo, para isolar onde, na pilha de renderização, a Entidade Intelectual é usada (plugin, driver, aplicação, periférico ou especificação).",
+   "usageNotes": "environmentFunction pode ser usado para descrever a natureza de um ambiente (se é hardware, software ou documentação). Isso pode ser feito em múltiplos níveis hierárquicos, cada vez mais específicos, até atingir a granularidade apropriada. Múltiplos níveis hierárquicos devem ser descritos em contêineres environmentFunction separados e repetidos. Também é possível registrar apenas o nível mais específico. Por exemplo, uma Entidade Intelectual de ambiente que descreve uma versão específica de um sistema operacional também é do tipo mais genérico “software”; assim, dois níveis de descrição (“software” e depois “operating system”) descrevem a função. Se necessário, um terceiro nível poderia ser acrescentado. Não há limite para o número de níveis, embora seja improvável que uma hierarquia profunda seja necessária."
   }
  },
  "environmentFunctionType": {
@@ -3361,7 +3407,8 @@
    "examples": [
     "Level 1 types: software, hardware. Level 2 types: software application, software library, software driver, operating system, plugin, hardware architecture, hardware peripheral, chip."
    ],
-   "definition": "Descrição do ambiente em um determinado nível da pilha ambiental."
+   "definition": "Descrição do ambiente em um determinado nível da pilha ambiental.",
+   "usageNotes": "Os valores de tipo usados nos níveis mais altos são mais genéricos, e os dos níveis mais baixos são mais específicos."
   }
  },
  "environmentFunctionLevel": {
@@ -3525,7 +3572,8 @@
    "examples": [
     "Ubuntu"
    ],
-   "definition": "Um nome comumente aceito para descrever o ambiente."
+   "definition": "Um nome comumente aceito para descrever o ambiente.",
+   "usageNotes": "Será único quando combinado com os demais elementos do environmentDesignation."
   }
  },
  "environmentVersion": {
@@ -3581,7 +3629,8 @@
    "examples": [
     "Version 12.04"
    ],
-   "definition": "Versão do ambiente."
+   "definition": "Versão do ambiente.",
+   "usageNotes": "Ambientes podem ser especificados em vários níveis de generalização. Uma única instância de ambiente pode ser uma versão específica de software ou cobrir uma faixa de versões."
   }
  },
  "environmentOrigin": {
@@ -3696,7 +3745,8 @@
     "32 bit"
    ],
    "definition": "Qualquer informação adicional necessária para aprimorar a especificação correta do ambiente.",
-   "rationale": "Esta unidade permite acrescentar mais informações de forma não estruturada. Pode incluir restrições, problemas conhecidos, problemas corrigidos nesta versão, informações sobre tempo de execução, etc."
+   "rationale": "Esta unidade permite acrescentar mais informações de forma não estruturada. Pode incluir restrições, problemas conhecidos, problemas corrigidos nesta versão, informações sobre tempo de execução, etc.",
+   "usageNotes": "O Data Dictionary não prescreve quando usar uma nota de designação e quando incluir a informação no nome ou na versão. Por exemplo, é possível descrever o sistema operacional “Ubuntu 12.04 32 bit” de várias formas: • Name=“Ubuntu”, Version=“12.04”, Designation Note=“32 bit”; • Name=“Ubuntu 32 bit”, Version=“12.04”; • Name=“Ubuntu”, Version=“12.04 32-bit”; • Name=“Ubuntu 12.04 32 bit”. Todas são aceitáveis; qual usar dependerá das convenções de nomenclatura do repositório, do uso comum pela pessoa ou organização que produz o ambiente, e de outros fatores."
   }
  },
  "environmentDesignationExtension": {
@@ -3748,7 +3798,8 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
    "definition": "Contêiner para descrever a designação de um ambiente usando unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de complementar ou substituir unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de complementar ou substituir unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. Se o environmentDesignationExtension precisar ser associado explicitamente a alguma subunidade do environmentDesignation, repita o contêiner environmentDesignation. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o environmentDesignation. O environmentDesignationExtension é usado para informações adicionais sobre a designação do ambiente, além de nome e versão, de forma estruturada: pode ser informação adicional (como data de lançamento, datas de suporte do software, período de fabricação de hardware, etc.) ou uma expressão mais granular da versão (como número de build, número de série ou instruções de instalação). Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "environmentRegistry": {
@@ -4018,7 +4069,8 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. Se a extensão for sobre o nome, a versão ou a designação geral do ambiente, use environmentDesignationExtension. O environmentExtension é usado para características adicionais do ambiente não cobertas pelo PREMIS — por exemplo, metadados específicos de ambiente definidos externamente. Não substitui as unidades do PREMIS. Se forem necessárias várias extensões (ex.: para fins diferentes), repete-se o contêiner environmentExtension. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o environmentExtension. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "relationship": {
@@ -4074,7 +4126,8 @@
    "semanticComponents": "1.13.1 relationshipType 1.13.2 relationshipSubType 1.13.3 relatedObjectIdentifier 1.13.4 relatedEventIdentifier 1.13.5 relatedEnvironmentPurpose 1.13.6 relatedEnvironmentCharacteristic",
    "dataConstraint": "Contêiner",
    "definition": "Informação sobre uma relação entre este Objeto e um ou mais outros Objetos.",
-   "rationale": "Um repositório de preservação precisa saber montar objetos complexos a partir de partes componentes (relações estruturais), rastrear rigorosamente a proveniência digital (relações de derivação) e documentar os vínculos entre partes de uma pilha de renderização em uma Rede de Informação de Representação (vínculos de dependência e de documentação). A documentação sobre relações entre objetos é crucial para esses fins."
+   "rationale": "Um repositório de preservação precisa saber montar objetos complexos a partir de partes componentes (relações estruturais), rastrear rigorosamente a proveniência digital (relações de derivação) e documentar os vínculos entre partes de uma pilha de renderização em uma Rede de Informação de Representação (vínculos de dependência e de documentação). A documentação sobre relações entre objetos é crucial para esses fins.",
+   "usageNotes": "A maioria dos repositórios vai querer registrar todas as relações relevantes. Em cenários complexos, o PREMIS pode não conseguir expressar relações estruturais ricas o suficiente para ser a única fonte de metadados estruturais. Muitos formatos de representação de informação estrutural podem ser usados em vez das unidades aqui especificadas. Esta informação deve ser registrada, e algumas implementações podem fazê-lo usando outras estruturas (ex.: METS). Relações estruturais entre os níveis de arquivo e de representação são necessárias para reconstruir uma representação e verificar que ela é renderizável. Um registro de relações estruturais no nível de representação pode ser necessário para renderizá-la. Relações estruturais no nível de bitstream podem relacionar bitstreams dentro de um arquivo. Relações estruturais entre Entidades Intelectuais podem registrar contenção lógica (ex.: entre um artigo e um fascículo) ou física (ex.: entre uma página e um livro). Relações de derivação nos níveis de arquivo, representação e Entidade Intelectual são importantes para documentar a proveniência digital."
   }
  },
  "relationshipType": {
@@ -4138,7 +4191,8 @@
     "derivation structural",
     "derivation structural"
    ],
-   "definition": "Categorização de alto nível da natureza da relação."
+   "definition": "Categorização de alto nível da natureza da relação.",
+   "usageNotes": "Recomenda-se categorizar melhor a relação usando relationshipSubType."
   }
  },
  "relationshipSubType": {
@@ -4202,7 +4256,8 @@
     "Has root",
     "Is source of Has part",
     "Has source Is part of"
-   ]
+   ],
+   "usageNotes": "Um repositório pode achar necessário definir relações mais ou menos granulares do que os valores do vocabulário controlado disponível. Para relações de derivação, note que a relação precisa pode ser indicada pelo tipo do Evento relacionado. A relação “has root” só se aplica à representação, pois implica que um objeto composto (formado por múltiplos arquivos) exige que um arquivo seja tomado primeiro como raiz para renderizá-lo; nos metadados da representação, “has root” identifica esse arquivo específico."
   }
  },
  "relatedObjectIdentifier": {
@@ -4256,7 +4311,8 @@
    ],
    "semanticComponents": "1.14.3.1 relatedObjectIdentifierType 1.14.3.2 relatedObjectIdentifierValue 1.14.3.3 relatedObjectSequence",
    "dataConstraint": "Contêiner",
-   "definition": "O identificador e o contexto sequencial do Objeto relacionado."
+   "definition": "O identificador e o contexto sequencial do Objeto relacionado.",
+   "usageNotes": "O Objeto relacionado pode ou não estar dentro do repositório. Prática recomendada: os objetos residirem no repositório, a menos que haja boa razão para referenciar um Objeto externo. Referências internas e externas devem ser inequívocas."
   }
  },
  "relatedObjectIdentifierType": {
@@ -4320,7 +4376,8 @@
     "[see examples for objectIdentifierType]",
     "[see examples for objectIdentifierType]"
    ],
-   "definition": "Designação do domínio dentro do qual o identificador é único."
+   "definition": "Designação do domínio dentro do qual o identificador é único.",
+   "usageNotes": "Se o Objeto relacionado estiver no repositório, esta unidade deve receber o valor do objectIdentifierType daquele Objeto."
   }
  },
  "relatedObjectIdentifierValue": {
@@ -4384,7 +4441,8 @@
     "[see examples for objectIdentifierValue]",
     "[see examples for objectIdentifierValue]"
    ],
-   "definition": "O valor do identificador do Objeto relacionado."
+   "definition": "O valor do identificador do Objeto relacionado.",
+   "usageNotes": "Se o Objeto relacionado estiver no repositório, esta unidade deve receber o valor do objectIdentifierValue daquele Objeto."
   }
  },
  "relatedObjectSequence": {
@@ -4450,7 +4508,8 @@
     "1 2 3"
    ],
    "definition": "A ordem do Objeto relacionado em relação a outros Objetos com o mesmo tipo de relação.",
-   "rationale": "Esta unidade é particularmente útil para relações estruturais. Para reconstruir uma representação, pode ser necessário conhecer a ordem dos componentes com relações de irmão (sibling) ou parte-todo. Por exemplo, para renderizar as páginas de um livro, é preciso saber a ordem dos arquivos que representam as páginas."
+   "rationale": "Esta unidade é particularmente útil para relações estruturais. Para reconstruir uma representação, pode ser necessário conhecer a ordem dos componentes com relações de irmão (sibling) ou parte-todo. Por exemplo, para renderizar as páginas de um livro, é preciso saber a ordem dos arquivos que representam as páginas.",
+   "usageNotes": "Esta unidade pode ser implementada de várias formas: registrada explicitamente nos metadados como número de sequência ou como ponteiro; ou implícita em alguma outra ordenação dos Objetos (ex.: valores de identificador crescentes). O valor de relationshipSubType pode implicar a sequência (ex.: “is preceding sibling”, “is following sibling”). Não há exigência de que os números de sequência sejam únicos ou sequenciais. Alguns Objetos relacionados não têm sequência inerente — por exemplo, páginas web não ordenadas que compõem um site. É aceitável usar o número de sequência “fictício” zero ou omitir completamente. Esta unidade aplica-se apenas a relações estruturais e é, portanto, opcional."
   }
  },
  "relatedEventIdentifier": {
@@ -4506,7 +4565,8 @@
    "semanticComponents": "1.13.4.1 relatedEventIdentifierType 1.13.4.2 relatedEventIdentifierValue 1.13.4.3 relatedEventSequence",
    "dataConstraint": "Contêiner",
    "definition": "O identificador e a sequência contextual de um Evento associado à relação.",
-   "rationale": "Um Objeto pode estar relacionado a outro por causa de um Evento — por exemplo, uma migração."
+   "rationale": "Um Objeto pode estar relacionado a outro por causa de um Evento — por exemplo, uma migração.",
+   "usageNotes": "Para relações de derivação entre Objetos, o relatedEventIdentifier deve ser registrado."
   }
  },
  "relatedEventIdentifierType": {
@@ -4570,7 +4630,8 @@
     "[see examples for eventIdentifierType]",
     "[see examples for eventIdentifierType]"
    ],
-   "definition": "O eventIdentifierType do Evento relacionado."
+   "definition": "O eventIdentifierType do Evento relacionado.",
+   "usageNotes": "Para a maioria dos repositórios, o eventIdentifierType será simplesmente seu próprio sistema interno de numeração. Pode ser implícito no sistema e fornecido explicitamente apenas quando os dados são exportados."
   }
  },
  "relatedEventIdentifierValue": {
@@ -4697,7 +4758,8 @@
     "1 2 3",
     "1 2 3"
    ],
-   "definition": "A ordem do Evento relacionado."
+   "definition": "A ordem do Evento relacionado.",
+   "usageNotes": "A sequência de um Evento relacionado pode ser inferida do eventDateTime associado a esse Evento."
   }
  },
  "relatedEnvironmentPurpose": {
@@ -4765,7 +4827,8 @@
    ],
    "definition": "O(s) uso(s) suportado(s) pelo ambiente relacionado.",
    "rationale": "Ambientes diferentes podem suportar usos diferentes dos objetos. Por exemplo, o ambiente necessário para editar e modificar um arquivo pode ser bem diferente do necessário para renderizá-lo.",
-   "creationMaintenanceNotes": "Este valor teria de ser fornecido pelo Agente que forneceu as informações de ambiente de hardware e/ou software — que pode ser o submetente, o repositório ou um registro de ambientes."
+   "creationMaintenanceNotes": "Este valor teria de ser fornecido pelo Agente que forneceu as informações de ambiente de hardware e/ou software — que pode ser o submetente, o repositório ou um registro de ambientes.",
+   "usageNotes": "Outros valores podem indicar a capacidade de transformar, imprimir e manipular por programa."
   }
  },
  "relatedEnvironmentCharacteristic": {
@@ -4833,7 +4896,8 @@
    ],
    "definition": "Uma avaliação de até que ponto o ambiente descrito atende à sua finalidade.",
    "rationale": "Se vários ambientes forem descritos, este elemento ajuda a distingui-los.",
-   "creationMaintenanceNotes": "Este valor pode ser fornecido pelo submetente ou pelo repositório. Se as informações de software e hardware do ambiente vierem de um registro de ambientes, relatedEnvironmentCharacteristic também pode vir do registro. Note, porém, que os critérios para “recomendado” podem ser diferentes em repositórios diferentes."
+   "creationMaintenanceNotes": "Este valor pode ser fornecido pelo submetente ou pelo repositório. Se as informações de software e hardware do ambiente vierem de um registro de ambientes, relatedEnvironmentCharacteristic também pode vir do registro. Note, porém, que os critérios para “recomendado” podem ser diferentes em repositórios diferentes.",
+   "usageNotes": "Se um ambiente puder ser descrito tanto como “minimum” quanto “recommended”, use “recommended”. “Known to work” implica que o objeto é suportado pelo ambiente descrito, mas o repositório não sabe se esse ambiente é o mínimo ou o recomendado."
   }
  },
  "linkingEventIdentifier": {
@@ -4887,7 +4951,8 @@
    ],
    "semanticComponents": "1.14.1 linkingEventIdentifierType 1.14.2 linkingEventIdentifierValue",
    "dataConstraint": "Contêiner",
-   "definition": "O eventIdentifier de um Evento associado ao Objeto."
+   "definition": "O eventIdentifier de um Evento associado ao Objeto.",
+   "usageNotes": "Use para vincular a Eventos que não estão associados a relações entre Objetos, como validação de formato, verificação de vírus, etc. As unidades de vínculo são obrigatórias no sentido de que o repositório precisa da informação, mas são definidas como opcionais porque o PREMIS não especifica em que direção o vínculo deve ser feito."
   }
  },
  "linkingEventIdentifierType": {
@@ -5069,7 +5134,8 @@
    "semanticComponents": "1.15.1 linkingRightsStatementIdentifierType 1.15.2 linkingRightsStatementIdentifierValue",
    "dataConstraint": "Contêiner",
    "definition": "Um identificador de uma declaração de direitos (Rights) associada ao objeto.",
-   "rationale": "Um repositório pode optar por vincular de uma declaração de direitos para um objeto, de um objeto para uma declaração de direitos, ou ambos."
+   "rationale": "Um repositório pode optar por vincular de uma declaração de direitos para um objeto, de um objeto para uma declaração de direitos, ou ambos.",
+   "usageNotes": "As unidades de vínculo são obrigatórias no sentido de que o repositório precisa da informação, mas são definidas como opcionais porque o PREMIS não especifica em que direção o vínculo deve ser feito."
   }
  },
  "linkingRightsStatementIdentifierType": {
@@ -5312,7 +5378,8 @@
    "rationale": "Categorizar Eventos ajuda o repositório de preservação no processamento por máquina das informações de Evento, sobretudo na geração de relatórios.",
    "examples": [
     "E77 [a code used within a repository for a particular Event type] ingestion migration validation"
-   ]
+   ],
+   "usageNotes": "Alguns valores de eventType são mais genéricos que outros: migration, normalization e replication são, em alguns casos, subtipos mais precisos do valor creation. “Creation” pode ser usado quando termos mais precisos não se aplicam — por exemplo, quando um objeto digital foi criado pela primeira vez por digitalização de papel. Em geral, o nível de especificidade ao registrar o tipo de Evento (se o eventType indica uma transformação, uma migração ou um método específico de migração) é específico de cada implementação e dependerá de como os relatórios e o processamento são feitos. Prática recomendada: registrar informações detalhadas sobre o Evento em eventDetailInformation, em vez de usar um valor muito granular de eventType."
   }
  },
  "eventDateTime": {
@@ -5344,7 +5411,8 @@
    "examples": [
     "20050704T071530-0500 [July 4, 2005 at 7:15:30 a.m. EST] 2006-07-16T19:20:30+01:00 20050705T0715-0500/20050705T0720-0500 [from 7:15 a.m. EST to 7:20 a.m. EST on July 4, 2005] 2004-03-17 [March 17, 2004, only the date is known]"
    ],
-   "definition": "A data e hora única, ou o intervalo de data e hora, em que ou durante o qual o Evento ocorreu."
+   "definition": "A data e hora única, ou o intervalo de data e hora, em que ou durante o qual o Evento ocorreu.",
+   "usageNotes": "Prática recomendada: registrar o horário mais específico possível e designar o fuso horário."
   }
  },
  "eventDetailInformation": {
@@ -5370,7 +5438,8 @@
    ],
    "semanticComponents": "2.4.1 eventDetail 2.4.2 eventDetailExtension",
    "dataConstraint": "Contêiner",
-   "definition": "Informação adicional sobre o Evento."
+   "definition": "Informação adicional sobre o Evento.",
+   "usageNotes": "Todas as subunidades desta unidade são opcionais, mas ao menos uma (eventDetail e/ou eventDetailExtension) deve estar presente se este contêiner for incluído."
   }
  },
  "eventDetail": {
@@ -5402,7 +5471,8 @@
    "examples": [
     "Object permanently withdrawn by request of Caroline Hunt. Program=“MIGJP2JP2K”; version=“2.2”"
    ],
-   "definition": "Informação adicional sobre o Evento."
+   "definition": "Informação adicional sobre o Evento.",
+   "usageNotes": "eventDetail não se destina necessariamente a ser processado por máquina. Pode registrar qualquer informação sobre um Evento e/ou apontar para informações armazenadas em outro lugar. Quando for preciso registrar múltiplos detalhes sobre o mesmo Evento, o contêiner eventDetailInformation deve ser repetido. eventDetailExtension permite mais expressividade, se necessário."
   }
  },
  "eventDetailExtension": {
@@ -5430,7 +5500,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, em vez de ou além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. Se mais de uma extensão precisar ser associada explicitamente ao eventDetail, repete-se o eventDetailExtension. Porém, se forem necessárias extensões de esquemas externos diferentes, ou se a extensão não estiver associada explicitamente ao eventDetail, repita antes o contêiner eventDetailInformation. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "eventOutcomeInformation": {
@@ -5456,7 +5527,8 @@
    ],
    "semanticComponents": "2.5.1 eventOutcome 2.5.2 eventOutcomeDetail",
    "dataConstraint": "Contêiner",
-   "definition": "Informação sobre o resultado de um Evento."
+   "definition": "Informação sobre o resultado de um Evento.",
+   "usageNotes": "Um repositório pode querer complementar um valor codificado de eventOutcome com informação adicional em eventOutcomeDetail. Como Eventos podem ter mais de um resultado, o contêiner é repetível. Todas as subunidades são opcionais. Ao menos uma (eventOutcome ou eventOutcomeDetail) deve estar presente se este contêiner for incluído."
   }
  },
  "eventOutcome": {
@@ -5490,7 +5562,8 @@
     "00 [a code meaning “action successfully completed”] CV-01 [a code meaning “checksum validated”]"
    ],
    "definition": "Categorização do resultado geral do Evento em termos de sucesso, sucesso parcial ou falha.",
-   "rationale": "Uma forma codificada de representar o resultado de um Evento pode ser útil para processamento por máquina e relatórios. Se, por exemplo, uma verificação de fixidez falha, o registro do Evento fornece um registro tanto acionável quanto permanente."
+   "rationale": "Uma forma codificada de representar o resultado de um Evento pode ser útil para processamento por máquina e relatórios. Se, por exemplo, uma verificação de fixidez falha, o registro do Evento fornece um registro tanto acionável quanto permanente.",
+   "usageNotes": "Prática recomendada: usar um vocabulário controlado sobre o qual um sistema possa agir automaticamente. Como é inerentemente um vocabulário local, não há um geral disponível. Mais detalhes sobre o resultado podem ser registrados em eventOutcomeDetail. Recomenda-se definir Eventos com granularidade suficiente para que cada Evento tenha um único resultado."
   }
  },
  "eventOutcomeDetail": {
@@ -5518,7 +5591,8 @@
    "semanticComponents": "2.5.2.1 eventOutcomeDetailNote 2.5.2.2 eventOutcomeDetailExtension",
    "dataConstraint": "Contêiner",
    "definition": "Descrição detalhada do resultado ou produto do Evento.",
-   "rationale": "O resultado de um Evento pode ser complexo o suficiente para que uma descrição codificada não seja adequada para documentá-lo."
+   "rationale": "O resultado de um Evento pode ser complexo o suficiente para que uma descrição codificada não seja adequada para documentá-lo.",
+   "usageNotes": "Pode ser usado para registrar todas as mensagens de erro e aviso emitidas por um programa envolvido no Evento, ou para registrar um ponteiro para um log de erros. Se o Evento foi uma verificação de validade (ex.: conformidade de perfil), quaisquer anomalias ou peculiaridades descobertas seriam registradas aqui. Todas as subunidades são opcionais. Ao menos uma (eventOutcomeDetailNote e/ou eventOutcomeDetailExtension) deve estar presente se este contêiner for incluído."
   }
  },
  "eventOutcomeDetailNote": {
@@ -5579,7 +5653,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, em vez de ou além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. Se mais de uma extensão precisar ser associada explicitamente ao eventOutcomeDetailNote, repete-se o eventOutcomeDetailExtension. Porém, se forem necessárias extensões de esquemas externos diferentes, ou se a extensão não estiver associada explicitamente ao eventOutcomeDetailNote, repita antes o contêiner eventOutcomeDetail. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "linkingAgentIdentifier": {
@@ -5607,7 +5682,8 @@
    "semanticComponents": "2.6.1 linkingAgentIdentifierType 2.6.2 linkingAgentIdentifierValue 2.6.3 linkingAgentRole",
    "dataConstraint": "Contêiner",
    "definition": "Identificação de um ou mais Agentes associados ao Evento.",
-   "rationale": "A proveniência digital frequentemente exige que as relações entre Agentes e Eventos sejam documentadas."
+   "rationale": "A proveniência digital frequentemente exige que as relações entre Agentes e Eventos sejam documentadas.",
+   "usageNotes": "Prática recomendada: registrar o Agente, se possível. As unidades de vínculo são obrigatórias no sentido de que o repositório precisa da informação, mas são definidas como opcionais porque o PREMIS não especifica em que direção o vínculo deve ser feito."
   }
  },
  "linkingAgentIdentifierType": {
@@ -5730,7 +5806,8 @@
    "semanticComponents": "2.7.1 linkingObjectIdentifierType 2.7.2 linkingObjectIdentifierValue 2.7.3 linkingObjectRole",
    "dataConstraint": "Contêiner",
    "definition": "Informação sobre um Objeto associado a um Evento.",
-   "rationale": "A proveniência digital frequentemente exige que as relações entre Objetos e Eventos sejam documentadas."
+   "rationale": "A proveniência digital frequentemente exige que as relações entre Objetos e Eventos sejam documentadas.",
+   "usageNotes": "As unidades de vínculo são obrigatórias no sentido de que o repositório precisa da informação, mas são definidas como opcionais porque o PREMIS não especifica em que direção o vínculo deve ser feito."
   }
  },
  "linkingObjectIdentifierType": {
@@ -5855,7 +5932,8 @@
    "dataConstraint": "Contêiner",
    "definition": "Designação usada para identificar o Agente de forma única dentro de um sistema de repositório de preservação.",
    "rationale": "Cada Agente associado ao repositório deve ter um identificador único para permitir relacioná-lo a Eventos e declarações de direitos.",
-   "creationMaintenanceNotes": "Um identificador pode ser criado pelo sistema do repositório ou criado/atribuído fora dele. Da mesma forma, pode ser gerado automática ou manualmente. A prática recomendada é o repositório usar um identificador criado automaticamente como primário, para garantir unicidade e usabilidade; identificadores atribuídos externamente podem servir como secundários, para vincular um Agente a informações mantidas fora do repositório."
+   "creationMaintenanceNotes": "Um identificador pode ser criado pelo sistema do repositório ou criado/atribuído fora dele. Da mesma forma, pode ser gerado automática ou manualmente. A prática recomendada é o repositório usar um identificador criado automaticamente como primário, para garantir unicidade e usabilidade; identificadores atribuídos externamente podem servir como secundários, para vincular um Agente a informações mantidas fora do repositório.",
+   "usageNotes": "Identificadores devem ser únicos no repositório. O agentIdentifier é repetível para permitir registrar tanto identificadores atribuídos pelo repositório quanto atribuídos externamente (ver as notas de Criação/Manutenção acima)."
   }
  },
  "agentIdentifierType": {
@@ -5918,7 +5996,8 @@
    "examples": [
     "92-79971 Owens, Erik C. 234-5676 MH-CS info:lccn/n78890351"
    ],
-   "definition": "O valor do agentIdentifier."
+   "definition": "O valor do agentIdentifier.",
+   "usageNotes": "Pode ser uma chave única ou uma forma textual controlada do nome."
   }
  },
  "agentName": {
@@ -5952,7 +6031,8 @@
     "Erik Owens Woodyard PC JHOVE"
    ],
    "definition": "Cadeia de texto que pode ser usada, além do agentIdentifier, para identificar um Agente.",
-   "rationale": "Esta unidade fornece um rótulo amigável para leitura do Agente identificado pelo agentIdentifier."
+   "rationale": "Esta unidade fornece um rótulo amigável para leitura do Agente identificado pelo agentIdentifier.",
+   "usageNotes": "O valor não é necessariamente único. Se agentType for software, agentVersion pode ser usado para refinar o agentName."
   }
  },
  "agentType": {
@@ -6017,7 +6097,8 @@
     "1.6 2.1.0 20120521"
    ],
    "definition": "A versão do Agente referenciado em agentName, se agentType for software ou hardware.",
-   "rationale": "Agentes de software ou hardware podem se comportar de forma muito diferente de uma versão para outra."
+   "rationale": "Agentes de software ou hardware podem se comportar de forma muito diferente de uma versão para outra.",
+   "usageNotes": "Esta unidade só se aplica a Agentes de máquina (hardware ou software). Se não houver versão formal, pode-se usar a data de emissão. A distinção entre agentName e agentVersion pode ser tênue em alguns casos. Às vezes, uma nova versão de um produto torna-se um produto autônomo: por exemplo, embora o JHOVE 2 se declare a segunda versão principal do JHOVE, é um produto bem diferente, com outra arquitetura, recursos e instituição mantenedora; atualmente, JHOVE 1 e JHOVE 2 continuam a evoluir em paralelo. Por isso, seria melhor pôr “JHOVE 2” em agentName e registrar o número de build específico usado no repositório em agentVersion. De todo modo, implementadores devem definir suas próprias políticas de nomenclatura para nome e versão e aplicá-las de forma consistente em todas as descrições de Agente. Se o Agente também for descrito como Objeto de ambiente, pode-se vincular o Agente ao Objeto de ambiente pela unidade linkingEnvironmentIdentifier; nesse caso, as informações em agentVersion e environmentVersion devem ser consistentes."
   }
  },
  "agentNote": {
@@ -6051,7 +6132,8 @@
     "--prefix=/opt/local [configuration options used with a software Agent]"
    ],
    "definition": "Informação adicional sobre o Agente.",
-   "rationale": "Pode ser necessária informação adicional para descrever ou desambiguar o Agente."
+   "rationale": "Pode ser necessária informação adicional para descrever ou desambiguar o Agente.",
+   "usageNotes": "Use agentNote quando for necessária informação relativamente limitada. Se for preciso muita informação adicional, considere usar um esquema definido externamente com agentExtension."
   }
  },
  "agentExtension": {
@@ -6079,7 +6161,8 @@
    "semanticComponents": "Defined externally.",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, em vez de ou além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  },
  "linkingEnvironmentIdentifier": {
@@ -6113,7 +6196,8 @@
     "Link from the JHOVE Agent used in a characterization Event to the JHOVE source code captured in the repository as an environment Object."
    ],
    "definition": "O objectIdentifier de um Objeto de ambiente associado ao Agente.",
-   "rationale": "Permite vincular o Agente a um Objeto de ambiente, caso o Agente seja hardware ou software preservado de alguma forma no repositório e descrito como um Objeto de ambiente."
+   "rationale": "Permite vincular o Agente a um Objeto de ambiente, caso o Agente seja hardware ou software preservado de alguma forma no repositório e descrito como um Objeto de ambiente.",
+   "usageNotes": "Embora a unidade se chame linkingEnvironmentIdentifier, ela vincula um Agente a um Objeto. Portanto, linkingEnvironmentIdentifierType e linkingEnvironmentIdentifierValue devem corresponder a objectIdentifierType e objectIdentifierValue do Objeto de ambiente relacionado."
   }
  },
  "linkingEnvironmentIdentifierType": {
@@ -6209,7 +6293,8 @@
     "source code bytecode disk image"
    ],
    "definition": "O papel do Objeto de ambiente associado a este Agente.",
-   "rationale": "Um software ou hardware capturado como Agente também pode ser preservado em um repositório e descrito como Objeto de ambiente: por exemplo, como código-fonte ou imagem de disco ISO. O papel permite registrar em que forma o software ou hardware foi preservado no repositório."
+   "rationale": "Um software ou hardware capturado como Agente também pode ser preservado em um repositório e descrito como Objeto de ambiente: por exemplo, como código-fonte ou imagem de disco ISO. O papel permite registrar em que forma o software ou hardware foi preservado no repositório.",
+   "usageNotes": "Quando aplicável, implementadores podem optar por relacionar o Agente a uma Entidade Intelectual de nível superior, que por sua vez tem diferentes representações (ex.: representações de código-fonte e de bytecode)."
   }
  },
  "rightsStatement": {
@@ -6235,7 +6320,8 @@
    ],
    "semanticComponents": "4.1.1 rightsStatementIdentifier 4.1.2 rightsBasis 4.1.3 copyrightInformation 4.1.4 licenseInformation 4.1.5 statuteInformation 4.1.6 otherRightsInformation 4.1.7 rightsGranted 4.1.8 linkingObjectIdentifier 4.1.9 linkingAgentIdentifier",
    "dataConstraint": "Contêiner",
-   "definition": "Documentação dos direitos do repositório — ou das restrições — para realizar um ou mais atos."
+   "definition": "Documentação dos direitos do repositório — ou das restrições — para realizar um ou mais atos.",
+   "usageNotes": "Esta unidade é opcional porque, em alguns casos, os Direitos podem ser desconhecidos. Incentivam-se as instituições a registrar informações de direitos quando possível. rightsStatement ou rightsExtension deve estar presente se a entidade Rights for incluída. O rightsStatement deve ser repetido quando o(s) ato(s) descrito(s) tiver(em) mais de uma base, ou quando atos diferentes tiverem bases diferentes."
   }
  },
  "rightsStatementIdentifier": {
@@ -6267,7 +6353,8 @@
    "semanticComponents": "4.1.1.1 rightsStatementIdentifierType 4.1.1.2 rightsStatementIdentifierValue",
    "dataConstraint": "Contêiner",
    "definition": "Designação usada para identificar a declaração de direitos de forma única dentro de um sistema de repositório de preservação.",
-   "rationale": "Cada declaração de direitos associada ao repositório deve ter um identificador único para permitir relacioná-la a Eventos e Agentes."
+   "rationale": "Cada declaração de direitos associada ao repositório deve ter um identificador único para permitir relacioná-la a Eventos e Agentes.",
+   "usageNotes": "Identificadores devem ser únicos no repositório."
   }
  },
  "rightsStatementIdentifierType": {
@@ -6349,7 +6436,8 @@
    "definition": "Designação da base do direito ou permissão identificado pelo rightsStatementIdentifier.",
    "examples": [
     "copyright license statute other"
-   ]
+   ],
+   "usageNotes": "Quando rightsBasis é “copyright”, deve-se fornecer copyrightInformation. Quando é “license”, deve-se fornecer licenseInformation. Quando é “statute”, deve-se fornecer statuteInformation. Quando é “other”, deve-se fornecer otherRightsBasis (no contêiner otherRightsInformation). Se os Direitos do item forem domínio público, use “copyright”. Se for uso justo (Fair Use), use “statute”. Se mais de uma base se aplicar, toda a entidade Rights deve ser repetida."
   }
  },
  "copyrightInformation": {
@@ -6375,7 +6463,8 @@
    ],
    "semanticComponents": "4.1.3.1 copyrightStatus 4.1.3.2 copyrightJurisdiction 4.1.3.3 copyrightStatusDeterminationDate 4.1.3.4 copyrightNote 4.1.3.5 copyrightDocumentationIdentifier 4.1.3.6 copyrightApplicableDates",
    "dataConstraint": "Contêiner",
-   "definition": "Informação sobre a situação de direito autoral do(s) objeto(s)."
+   "definition": "Informação sobre a situação de direito autoral do(s) objeto(s).",
+   "usageNotes": "Quando rightsBasis é “copyright”, deve-se fornecer copyrightInformation. Repositórios podem precisar estendê-lo com informações mais detalhadas. Veja o esquema copyrightMD da California Digital Library (http://www.cdlib.org/groups/rmg//) como exemplo de esquema mais detalhado."
   }
  },
  "copyrightStatus": {
@@ -6521,7 +6610,8 @@
    ],
    "semanticComponents": "4.1.3.5.1 copyrightDocumentationIdentifierType 4.1.3.5.2 copyrightDocumentationIdentifierValue 4.1.3.5.3 copyrightDocumentationRole",
    "dataConstraint": "Contêiner",
-   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos segundo o direito autoral."
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos segundo o direito autoral.",
+   "usageNotes": "Esta unidade destina-se a referenciar um documento que detalha a concessão de permissão quando a base dos Direitos é copyright. Se repetida, use copyrightDocumentationRole para distinguir o papel da documentação."
   }
  },
  "copyrightDocumentationIdentifierType": {
@@ -6632,7 +6722,8 @@
    "semanticComponents": "4.1.3.6.1 startDate 4.1.3.6.2 endDate",
    "dataConstraint": "Contêiner",
    "definition": "O intervalo de datas durante o qual o direito autoral em questão se aplica ou é aplicado ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo.",
-   "rationale": "Datas específicas podem se aplicar ao direito autoral concedido em questão."
+   "rationale": "Datas específicas podem se aplicar ao direito autoral concedido em questão.",
+   "usageNotes": "O repositório pode querer manter o histórico dos Direitos e restrições associados ao conteúdo ao longo do tempo. Associar datas de vigência a bases de Direitos específicas permite às aplicações identificar quais de vários rightsStatements estão em vigor em um dado momento."
   }
  },
  "startDate": {
@@ -6695,7 +6786,8 @@
    "examples": [
     "2010-01-02 20120723"
    ],
-   "definition": "A data de fim do período (datas aplicáveis, ou termo de concessão/restrição)."
+   "definition": "A data de fim do período (datas aplicáveis, ou termo de concessão/restrição).",
+   "usageNotes": "Use “OPEN” para um termo de restrição em aberto. Omita endDate se a data final for desconhecida ou se a declaração de permissão se aplicar a muitos objetos com datas finais diferentes."
   }
  },
  "licenseInformation": {
@@ -6721,7 +6813,8 @@
    ],
    "semanticComponents": "4.1.4.1 licenseDocumentationIdentifier 4.1.4.2 licenseTerms 4.1.4.3 licenseNote 4.1.4.4 licenseApplicableDates",
    "dataConstraint": "Contêiner",
-   "definition": "Informação sobre uma licença ou outro acordo que concede permissões relativas a um objeto."
+   "definition": "Informação sobre uma licença ou outro acordo que concede permissões relativas a um objeto.",
+   "usageNotes": "Quando rightsBasis é “license”, deve-se fornecer licenseInformation."
   }
  },
  "licenseDocumentationIdentifier": {
@@ -6747,7 +6840,8 @@
    ],
    "semanticComponents": "4.1.4.1.1 licenseDocumentationIdentifierType 4.1.4.1.2 licenseDocumentationIdentifierValue 4.1.4.1.3 licenseDocumentationRole",
    "dataConstraint": "Contêiner",
-   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos por licença."
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos por licença.",
+   "usageNotes": "Esta unidade destina-se a referenciar um documento que registra a concessão de permissão quando a base dos Direitos é licença. Para alguns repositórios, pode ser um contrato formal assinado com um cliente. Se o acordo for verbal, pode apontar para um memorando do repositório documentando-o. O identificador é opcional porque o acordo pode não estar armazenado em um repositório com identificador; por exemplo, no caso de um acordo verbal, todo o acordo pode ser incluído ou descrito em licenseTerms. Se repetida, use licenseDocumentationRole para distinguir o papel da documentação. Substitui a unidade que, no PREMIS 2.1, se chamava licenseIdentifier."
   }
  },
  "licenseDocumentationIdentifierType": {
@@ -6850,7 +6944,8 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
-   "definition": "Texto que descreve a licença ou o acordo pelo qual a permissão foi concedida."
+   "definition": "Texto que descreve a licença ou o acordo pelo qual a permissão foi concedida.",
+   "usageNotes": "Pode conter o texto real da licença ou do acordo, ou uma paráfrase ou resumo dele."
   }
  },
  "licenseNote": {
@@ -6876,7 +6971,8 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma Exemplo: License is embedded in XMP block in file header.",
-   "definition": "Informação adicional sobre a licença."
+   "definition": "Informação adicional sobre a licença.",
+   "usageNotes": "Informações sobre os termos da licença devem ir em licenseTerms. O licenseNote destina-se a outros tipos de informação relacionados à licença, como pessoas de contato, datas de ações ou interpretações. A nota também pode indicar a localização da licença — por exemplo, se está disponível online ou embutida no próprio objeto."
   }
  },
  "licenseApplicableDates": {
@@ -6904,7 +7000,8 @@
    "semanticComponents": "4.1.4.4.1 startDate 4.1.4.4.2 endDate",
    "dataConstraint": "Contêiner",
    "definition": "O intervalo de datas durante o qual a licença se aplica ou é aplicada ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo.",
-   "rationale": "Datas específicas podem se aplicar aos direitos concedidos em questão."
+   "rationale": "Datas específicas podem se aplicar aos direitos concedidos em questão.",
+   "usageNotes": "O repositório pode querer manter o histórico dos Direitos e restrições associados ao conteúdo ao longo do tempo. Associar datas de vigência a bases de Direitos específicas permite às aplicações identificar quais de vários rightsStatements estão em vigor em um dado momento."
   }
  },
  "statuteInformation": {
@@ -6930,7 +7027,8 @@
    ],
    "semanticComponents": "4.1.5.1 statuteJurisdiction 4.1.5.2 statuteCitation 4.1.5.3 statuteInformationDeterminationDate 4.1.5.4 statuteNote 4.1.5.5 statuteDocumentationIdentifier 4.1.5.6 statuteApplicableDates",
    "dataConstraint": "Contêiner",
-   "definition": "Informação sobre o dispositivo legal (estatuto) que permite o uso do objeto."
+   "definition": "Informação sobre o dispositivo legal (estatuto) que permite o uso do objeto.",
+   "usageNotes": "Quando rightsBasis é “statute”, deve-se fornecer statuteInformation."
   }
  },
  "statuteJurisdiction": {
@@ -6983,7 +7081,8 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma Exemplo: Legal Deposit (Jersey) Law 200- National Library of New Zealand (Te Puna Mātauranga o Aotearoa) Act 2003 no 19 part 4 s 34",
-   "definition": "Designação identificadora do dispositivo legal."
+   "definition": "Designação identificadora do dispositivo legal.",
+   "usageNotes": "Use a forma de citação padrão quando aplicável."
   }
  },
  "statuteInformationDeterminationDate": {
@@ -7067,7 +7166,8 @@
    ],
    "semanticComponents": "4.1.5.5.1 statuteDocumentationIdentifierType 4.1.5.5.2 statuteDocumentationIdentifierValue 4.1.5.5.3 statuteDocumentationRole",
    "dataConstraint": "Contêiner",
-   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos por dispositivo legal."
+   "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos concedidos por dispositivo legal.",
+   "usageNotes": "Esta unidade destina-se a referenciar um documento que detalha a concessão de permissão quando a base dos Direitos é dispositivo legal. Se repetida, use statuteDocumentationRole para distinguir o papel da documentação."
   }
  },
  "statuteDocumentationIdentifierType": {
@@ -7151,7 +7251,8 @@
     "law application decree case law"
    ],
    "definition": "Valor que indica a finalidade ou uso esperado da documentação identificada.",
-   "rationale": "Esta informação distingue a finalidade da documentação de apoio, especialmente quando há vários identificadores de documentação."
+   "rationale": "Esta informação distingue a finalidade da documentação de apoio, especialmente quando há vários identificadores de documentação.",
+   "usageNotes": "Para uma determinada lei, pode-se querer vincular a várias fontes de documentação — por exemplo, a própria publicação da lei (papel: law), o decreto de aplicação que a regulamenta (papel: application decree) ou um texto adicional que refina a lei mostrando uma decisão concreta (papel: case law)."
   }
  },
  "statuteApplicableDates": {
@@ -7179,7 +7280,8 @@
    "semanticComponents": "4.1.5.6.1 startDate 4.1.5.6.2 endDate",
    "dataConstraint": "Contêiner",
    "definition": "O intervalo de datas durante o qual o dispositivo legal se aplica ou é aplicado ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo.",
-   "rationale": "Datas específicas podem se aplicar aos direitos concedidos em questão."
+   "rationale": "Datas específicas podem se aplicar aos direitos concedidos em questão.",
+   "usageNotes": "O repositório pode querer manter o histórico dos Direitos e restrições associados ao conteúdo ao longo do tempo. Associar datas de vigência a bases de Direitos específicas permite às aplicações identificar quais de vários rightsStatements estão em vigor em um dado momento."
   }
  },
  "otherRightsInformation": {
@@ -7205,7 +7307,8 @@
    ],
    "semanticComponents": "4.1.6.1 otherRightsDocumentationIdentifier 4.1.6.2 otherRightsBasis 4.1.6.3 otherRightsApplicableDates 4.1.6.4 otherRightsNote",
    "dataConstraint": "Contêiner",
-   "definition": "Informação sobre os direitos (que não copyright, licença ou dispositivo legal) que se aplicam ao(s) objeto(s)."
+   "definition": "Informação sobre os direitos (que não copyright, licença ou dispositivo legal) que se aplicam ao(s) objeto(s).",
+   "usageNotes": "Esta unidade é usada para fornecer informações sobre os Direitos concedidos quando a base é algo diferente de copyright, licença ou dispositivo legal."
   }
  },
  "otherRightsDocumentationIdentifier": {
@@ -7237,7 +7340,8 @@
    "semanticComponents": "4.1.6.1.1 otherRightsDocumentationIdentifierType 4.1.6.1.2 otherRightsDocumentationIdentifierValue 4.1.6.1.3 otherRightsDocumentationRole",
    "dataConstraint": "Contêiner",
    "definition": "Designação usada para identificar de forma única, dentro do sistema do repositório, a documentação que apoia os direitos, quando a base deles é algo diferente de copyright, licença ou dispositivo legal.",
-   "rationale": "Esta unidade fornece um mecanismo para vincular à documentação de valores de rightsBasis diferentes dos concedidos por copyright, licença ou dispositivo legal. A base do direito pode ser especificada em otherRightsBasis."
+   "rationale": "Esta unidade fornece um mecanismo para vincular à documentação de valores de rightsBasis diferentes dos concedidos por copyright, licença ou dispositivo legal. A base do direito pode ser especificada em otherRightsBasis.",
+   "usageNotes": "Esta unidade destina-se a referenciar um documento que registra a concessão de permissão, a expressão de requisitos ou restrições, ou outra informação que apoie a rightsBasis especificada. Se repetida, use otherRightsDocumentationRole para distinguir o papel da documentação."
   }
  },
  "otherRightsDocumentationIdentifierType": {
@@ -7346,7 +7450,8 @@
    ],
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Os valores devem ser retirados de um vocabulário controlado. Exemplo: Harvard policy",
-   "definition": "Designação da base do outro direito ou permissão descrito no rightsStatementIdentifier."
+   "definition": "Designação da base do outro direito ou permissão descrito no rightsStatementIdentifier.",
+   "usageNotes": "Use esta unidade para bases de Direitos específicas que não sejam copyrightInformation, licenseInformation ou statuteInformation. Quando esta unidade é usada, rightsBasis (4.1.2) deve ser “other”. A base dos Direitos pode ser específica do repositório, mas recomenda-se usar um valor de um vocabulário controlado local ou global para permitir ação por máquina. Se mais de uma base se aplicar, toda a entidade Rights deve ser repetida."
   }
  },
  "otherRightsApplicableDates": {
@@ -7374,7 +7479,8 @@
    "semanticComponents": "4.1.6.3.1 startDate 4.1.6.3.2 endDate",
    "dataConstraint": "Contêiner",
    "definition": "O intervalo de datas durante o qual o direito em questão se aplica ou se aplicou ao conteúdo. Distinto de termOfGrant, que se aplica a um ato específico expresso em rightsGranted e pode diferir do período em que a licença, o estatuto ou outra base se aplica ao conteúdo.",
-   "rationale": "Datas específicas podem se aplicar aos direitos concedidos em questão."
+   "rationale": "Datas específicas podem se aplicar aos direitos concedidos em questão.",
+   "usageNotes": "O repositório pode querer manter o histórico dos Direitos e restrições associados ao conteúdo ao longo do tempo. Associar datas de vigência a bases de Direitos específicas permite às aplicações identificar quais de vários rightsStatements estão em vigor em um dado momento."
   }
  },
  "otherRightsNote": {
@@ -7462,7 +7568,8 @@
    "definition": "A ação que o repositório de preservação está autorizado a executar.",
    "examples": [
     "replicate modify use disseminate"
-   ]
+   ],
+   "usageNotes": "Cabe ao repositório de preservação decidir o quão granular deve ser o vocabulário controlado. Pode ser útil empregar os mesmos valores controlados que o repositório usa para eventType."
   }
  },
  "restriction": {
@@ -7575,7 +7682,8 @@
    "semanticComponents": "Nenhuma",
    "dataConstraint": "Nenhuma",
    "definition": "Informação adicional sobre os direitos concedidos.",
-   "rationale": "Pode ser necessária uma descrição textual dos direitos concedidos para explicação adicional."
+   "rationale": "Pode ser necessária uma descrição textual dos direitos concedidos para explicação adicional.",
+   "usageNotes": "Esta unidade pode incluir uma declaração de avaliação de risco — por exemplo, quando o repositório não tem certeza sobre quais permissões foram concedidas."
   }
  },
  "rightsExtension": {
@@ -7603,7 +7711,8 @@
    "semanticComponents": "Defined externally",
    "dataConstraint": "Contêiner",
    "definition": "Contêiner para incluir unidades semânticas definidas fora do PREMIS.",
-   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS."
+   "rationale": "Pode haver necessidade de substituir ou estender unidades definidas pelo PREMIS.",
+   "usageNotes": "Para maior granularidade ou uso de unidades definidas externamente, há extensibilidade. Podem-se incluir unidades locais ou metadados de outro esquema, em vez de ou além das unidades do PREMIS. Ao usar um esquema de extensão, deve-se fornecer referência a ele. rightsStatement ou rightsExtension deve estar presente se a entidade Rights for incluída. Se o rightsExtension precisar ser associado explicitamente a alguma subunidade de Rights, repita o contêiner Rights. Da mesma forma, se forem necessárias extensões de esquemas externos diferentes, repita o Rights. Recomenda-se informar dados sobre os metadados usados: data de criação, status, IDs internos de vínculo, tipo e versão do esquema, message digest e algoritmo, e tipo de identificador para links externos."
   }
  }
 }
