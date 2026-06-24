@@ -264,14 +264,12 @@
       <span><span class="sw" style="background:var(--warn)"></span> Archivematica</span>
       <span><span class="sw" style="background:var(--line)"></span> recomendado</span>
     </div>
-    <div class="stepnav"><span></span><button class="btn" onclick="showStep('modelo')">abrir Modelo</button></div>
   </section>
 
   <section class="panel" id="panel-modelo" role="region" aria-labelledby="step-modelo" tabindex="-1">
     <h2><span class="idx">02</span> Modelo interno</h2>
     <p class="lede">Representação neutra das entidades. Fonte única de onde os dois perfis derivam. Vínculos por identificador local.</p>
     <div id="modelHost"></div>
-    <div class="stepnav"><button class="btn ghost" onclick="showStep('origem')">abrir Origem</button><button class="btn" onclick="showStep('saida')">abrir Saída</button></div>
   </section>
 
   <section class="panel" id="panel-saida" role="region" aria-labelledby="step-saida" tabindex="-1">
@@ -307,7 +305,6 @@
         opcional: <code>messageDigest</code> só é exigido se você criar um <code>fixity</code>.
       </div>
     </details>
-    <div class="stepnav"><button class="btn ghost" onclick="showStep('modelo')">abrir Modelo</button><span></span></div>
   </section>
   <div class="empty-stage" id="emptyStage">Nenhum painel aberto. Use os botões <strong>Origem</strong>, <strong>Modelo</strong> e <strong>Saída</strong> acima para abrir um, dois ou os três ao mesmo tempo.</div>
 </main>
@@ -1193,7 +1190,7 @@ function blockHead(key,title,card,reqStar,hkey){
   const isC = collapsed[key];
   return `<div class="bh" onclick="toggleBlock('${key}')"><span class="bt">${title}${reqStar?'<span class="req">*</span>':''} <span class="card-c">${card}</span>${helpIcon(hkey)}</span><span class="caret">${isC?'▸ expandir':'▾'}</span></div>`;
 }
-function toggleBlock(key){ collapsed[key]=!collapsed[key]; renderForm(); }
+function toggleBlock(key){ collapsed[key]=(collapsed[key]===false); renderForm(); }
 
 /* ====================== OBJECT ====================== */
 function renderObjectForm(){
